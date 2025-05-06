@@ -117,10 +117,11 @@
     <!-- Wrapper for overflow and hover detection -->
     <div class="logo-carousel">
         <!-- Track containing the logos (will be animated) -->
-        <!-- Uses *ngFor to generate logos dynamically -->
+        <!-- displayLogos contains the duplicated array -->
         <div class="logo-track">
             <!-- Loop through the displayLogos array (contains duplicated data) -->
-            @for (logo of customers; track $index) {
+            <!-- Use trackBy for performance if logo objects have unique IDs -->
+            @for (logo of displayLogos; track logo.altText + $index) {
             <div class="logo-card">
                 <div class="logo-image-wrapper">
                     <!-- Bind image source and alt text -->
@@ -138,6 +139,7 @@
         worldwide.
     </p>
 </section>
+
 
 <section class="section-5">
     <app-comparison-table></app-comparison-table>
