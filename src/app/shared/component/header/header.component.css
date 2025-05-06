@@ -61,6 +61,176 @@
     }
 }
 
+/* login after css */
+.user-profile-area {
+    position: relative;
+    /* For dropdown positioning */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* Adjusted gap */
+}
+
+
+.user-profile-trigger {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 10px;
+    /* Adjusted padding */
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.08);
+    /* Subtler highlight */
+    transition: background-color 0.2s ease;
+    min-width: 0;
+    /* Prevent shrinking too much */
+}
+
+.user-profile-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.user-name-display {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-right: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+    /* Adjust as needed */
+}
+
+.user-plan-display {
+    color: #bdc1c6;
+    font-size: 0.75rem;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+.user-avatar-sm {
+    width: 28px;
+    /* Adjusted size */
+    height: 28px;
+    /* Adjusted size */
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #67a56a;
+    /* Placeholder color like screenshot */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Subtle border */
+}
+
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    /* Position below the trigger */
+    right: 0;
+    background-color: #FFFFFF;
+    /* White background */
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    width: 290px;
+    /* Width from screenshot */
+    z-index: 1000;
+    /* Ensure it's above other header content */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(5px);
+    transition: opacity 0.15s ease-out, visibility 0s 0.15s linear, transform 0.15s ease-out;
+    padding: 10px;
+    color: #3c4043;
+}
+
+.user-dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.15s ease-in, transform 0.15s ease-in;
+}
+
+.dropdown-header-info {
+    display: flex;
+    align-items: center;
+    padding: 8px 6px;
+    /* Adjusted padding */
+    cursor: default;
+    /* It's not clickable itself */
+}
+
+.user-avatar-lg {
+    width: 36px;
+    /* Adjusted size */
+    height: 36px;
+    /* Adjusted size */
+    border-radius: 6px;
+    /* Rounded square like screenshot */
+    object-fit: cover;
+    margin-right: 10px;
+    background-color: #67a56a;
+    /* Placeholder color */
+}
+
+.dropdown-user-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.dropdown-user-details .username {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #202124;
+}
+
+.dropdown-user-details .member-count {
+    font-size: 0.75rem;
+    color: #5f6368;
+}
+
+.dropdown-arrow {
+    color: #5f6368;
+    font-size: 0.8rem;
+    margin-left: auto;
+    /* Push arrow to the right */
+    transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.fa-chevron-up {
+    transform: rotate(180deg);
+}
+
+.dropdown-divider {
+    border: none;
+    border-top: 1px solid #e8eaed;
+    /* Lighter divider */
+    margin: 8px -10px;
+    /* Extend to edges */
+}
+
+.btn-logout {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    background-color: transparent;
+    border: none;
+    color: #3c4043;
+    text-align: left;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.btn-logout:hover {
+    background-color: #f1f3f4;
+}
+
+/* login after css end*/
+
 /* --- Hamburger Menu Button (Initially Hidden on Desktop) --- */
 .mobile-menu-toggle {
     display: none;
@@ -229,6 +399,7 @@
     .mobile-menu-toggle {
         display: inline-flex;
         align-items: center;
+        margin-left: 10px;
     }
 
     /* Adjust spacing */
@@ -245,6 +416,14 @@
         /* Don't let it take extra space */
         flex-shrink: 0;
         /* Prevent shrinking */
+    }
+
+    .user-profile-trigger {
+        padding: 5px;
+    }
+
+    .user-plan-display {
+        display: none;
     }
 }
 
@@ -274,11 +453,8 @@
 
     .mobile-menu-toggle {
         font-size: 1.3rem;
+        margin-left: auto;
         /* Adjust icon size */
-    }
-
-    .mobile-menu-toggle {
-        font-size: 1.4rem;
     }
 
     .mobile-menu-sidebar {
@@ -289,6 +465,24 @@
     .sidebar-nav a {
         font-size: 0.95rem;
         padding: 10px 0;
+    }
+
+    .user-name-display {
+        max-width: 70px;
+        /* Further reduce for smaller screens */
+    }
+
+    .auth-section {
+        gap: 5px;
+    }
+
+    .user-profile-area {
+        gap: 8px;
+    }
+
+    /* If auth section is visible, space out hamburger */
+    .header-left+.header-main>.auth-section+.mobile-menu-toggle {
+        margin-left: 10px;
     }
 }
 
@@ -307,5 +501,10 @@
         font-size: 0.75rem;
         padding: 0 8px;
         line-height: 26px;
+    }
+
+    .user-avatar-sm {
+        width: 26px;
+        height: 26px;
     }
 }
