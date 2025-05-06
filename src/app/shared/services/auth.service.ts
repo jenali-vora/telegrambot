@@ -40,7 +40,7 @@ export class AuthService {
   );
 
   // !!! Ensure this URL points to your running Python backend !!!
-  private readonly baseApiUrl = environment.apiUrlTelegram; // Or your actual backend URL
+  private readonly baseApiUrl = environment.apiUrl; // Or your actual backend URL
   private loginUrl = `${this.baseApiUrl}/api/auth/login`; // Adjust if needed
   private registerUrl = `${this.baseApiUrl}/register`; // Matches Python route
 

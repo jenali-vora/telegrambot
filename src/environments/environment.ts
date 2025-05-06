@@ -2,6 +2,6 @@
 
 export const environment = {
     production: false, // Keep this as false for the development file
-    apiUrlTelegram: 'https://telegram-bot-tool.onrender.com' // <-- Add your development API URL here
+    apiUrl: 'https://telegram-bot-tool.onrender.com' // <-- Add your development API URL here
     // Add other environment-specific variables if needed
   };
