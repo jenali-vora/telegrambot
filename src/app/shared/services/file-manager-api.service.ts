@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 // --- Interfaces (Keep as they are) ---
 export interface TelegramFileMetadata {
@@ -48,7 +49,7 @@ export interface SelectedItem {
 @Injectable({ providedIn: 'root' })
 export class FileManagerApiService {
   // !!! Ensure this URL points correctly to your running Python backend !!!
-  private apiUrl = 'http://192.168.1.22:5000';
+  private apiUrl = environment.apiUrl;
 
   private http = inject(HttpClient);
 
@@ -124,7 +125,7 @@ export class FileManagerApiService {
     } else if (error.status === 400) {
       userMessage = 'Bad request. Please check your input.';
     } else if (error.status === 404) {
-       userMessage = 'Requested resource not found on the server.';
+      userMessage = 'Requested resource not found on the server.';
     } else if (error.status === 500) {
       userMessage = 'Internal server error. Please try again later.';
     } else if (error.message) { // Fallback to HttpErrorResponse message

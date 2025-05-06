@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 // --- Interfaces ---
 export interface User {
@@ -39,7 +40,7 @@ export class AuthService {
   );
 
   // !!! Ensure this URL points to your running Python backend !!!
-  private readonly baseApiUrl = 'http://192.168.1.22:5000'; // Or your actual backend URL
+  private readonly baseApiUrl = environment.apiUrl; // Or your actual backend URL
   private loginUrl = `${this.baseApiUrl}/api/auth/login`; // Adjust if needed
   private registerUrl = `${this.baseApiUrl}/register`; // Matches Python route
 
