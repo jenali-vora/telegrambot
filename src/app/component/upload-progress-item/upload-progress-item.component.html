@@ -1,0 +1,43 @@
+<div class="upload-progress-card card-style" *ngIf="item">
+    <!-- Optional Header -->
+    <div class="progress-header">
+        <span>1 Transfer</span>
+        <span class="percentage-badge header-badge">{{ progress }}%</span>
+        <i class="fas fa-chevron-down"></i> <!-- Or relevant icon -->
+    </div>
+  
+    <!-- Divider -->
+    <hr class="progress-divider">
+  
+    <!-- Item Row -->
+    <div class="progress-item-row">
+      <div class="item-icon">
+        <!-- Use specific icon from item or a generic one -->
+        <i [ngClass]="item.icon || 'fas fa-file'"></i>
+        <span class="icon-file-type" *ngIf="item.icon === 'fab fa-python'">PY</span>
+        <!-- Add other specific text overlays if needed -->
+      </div>
+      <div class="item-details">
+        <span class="item-name" [title]="item.name">{{ item.name }}</span>
+        <div class="item-progress-bar">
+          <progress [value]="progress" max="100"></progress>
+        </div>
+      </div>
+      <div class="item-size">
+        {{ item.size | byteFormat }}
+      </div>
+      <div class="item-percentage">
+        <span class="percentage-badge item-badge">{{ progress }}%</span>
+      </div>
+      <div class="item-actions">
+        <button
+          type="button"
+          class="btn icon-btn btn-cancel"
+          title="Cancel Upload"
+          (click)="onCancelClick()">
+          <!-- Stop icon -->
+          <i class="fas fa-stop"></i>
+        </button>
+      </div>
+    </div>
+  </div>

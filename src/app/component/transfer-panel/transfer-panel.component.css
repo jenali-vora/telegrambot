@@ -1,0 +1,480 @@
+/* src/app/component/transfer-panel/transfer-panel.component.css */
+:host {
+    display: block;
+    width: 100%;
+    max-width: 380px;
+    /* Adjust max-width */
+    color: #333;
+    /* Default text color for light theme */
+}
+
+/* Styles mimicking the light panel */
+.card-style {
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 12px;
+    /* More rounded corners */
+    padding: 1rem 1.25rem;
+    /* Adjust padding */
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+    /* Softer shadow */
+    border: 1px solid #f0f0f0;
+    /* Very light border */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-more-actions {
+    display: grid;
+    /* Use grid for two equal columns */
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    /* No border needed below this */
+}
+
+.btn-add {
+    /* flex: 1; Removed flex */
+    padding: 12px 10px;
+    /* Adjust padding */
+    border: 1px dashed #d0d0d0;
+    /* Lighter dashed border */
+    background-color: #f8f9fd;
+    /* Very light background */
+    color: #555;
+    /* Darker grey text */
+    border-radius: 8px;
+    /* More rounded */
+    font-size: 0.8rem;
+    /* Slightly smaller text */
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.3rem;
+    /* Smaller gap */
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-add i {
+    font-size: 1.1rem;
+    /* Smaller icon */
+    margin-bottom: 0.1rem;
+    color: #0073E6;
+    /* Blue icon color */
+    background-color: #e7f1ff;
+    /* Light blue circle background */
+    padding: 6px;
+    border-radius: 50%;
+    width: 20px;
+    /* Fixed width/height for circle */
+    height: 20px;
+    line-height: 20px;
+    /* Center icon */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add:hover {
+    background-color: #eef2f9;
+    border-color: #c0c2c5;
+    color: #333;
+}
+
+.file-list-section {
+    /* Wrapper for summary and list */
+    border-top: 1px solid #f0f0f0;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    /* Allow this section to grow */
+    overflow: hidden;
+    /* Prevent content overflow */
+}
+
+.file-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    /* Slightly larger */
+    color: #333;
+    /* Dark text */
+    margin-bottom: 0.5rem;
+    padding: 0 0.25rem;
+    /* Reduced padding */
+    flex-shrink: 0;
+    /* Prevent shrinking */
+}
+
+.file-summary .count {
+    font-weight: 600;
+    /* Bolder */
+}
+
+.file-summary .size {
+    font-size: 0.85rem;
+    color: #777;
+    /* Grey size */
+}
+
+.btn-clear-all {
+    /* Style the overall delete button */
+    color: #888;
+    padding: 3px 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    /* Make icon slightly larger */
+}
+
+.btn-clear-all:hover {
+    color: #dc3545;
+    /* Red hover */
+}
+
+
+.file-list-scroll {
+    flex-grow: 1;
+    /* Allow it to potentially grow, but max-height takes precedence */
+    max-height: 90px;
+    /* <<< SET MAX HEIGHT HERE (Adjust px value if needed) */
+    overflow-y: auto;
+    /* Show scrollbar only when content exceeds max-height */
+    margin-bottom: 1rem;
+    padding-right: 5px;
+    /* Space for scrollbar */
+    /* Custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #d0d0d0 #f8f9fa;
+}
+
+/* Keep the rest of the scrollbar styles */
+.file-list-scroll::-webkit-scrollbar {
+    width: 5px;
+}
+
+.file-list-scroll::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.file-list-scroll::-webkit-scrollbar-thumb {
+    background-color: #d0d0d0;
+    border-radius: 3px;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.file-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    /* Adjust padding */
+    border-bottom: 1px solid #f0f0f0;
+    /* Lighter border */
+    gap: 10px;
+}
+
+.file-list-item:last-child {
+    border-bottom: none;
+}
+
+.item-icon {
+    font-size: 1.2rem;
+    /* Adjusted icon size */
+    width: 25px;
+    text-align: center;
+    color: #888;
+    /* Default icon color */
+    flex-shrink: 0;
+}
+
+/* Add specific colors if needed */
+.item-icon.fa-folder {
+    color: #79aaff;
+}
+
+.item-icon.fa-file-pdf {
+    color: #e5598a;
+}
+
+.item-icon.fa-file-image {
+    color: #ff8787;
+}
+
+.item-details {
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 0.85rem;
+}
+
+.item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+/* Remove item size from details column */
+.item-details .item-size {
+    display: none;
+}
+
+/* Style for size on the right */
+.item-size {
+    font-size: 0.8rem;
+    color: #777;
+    flex-shrink: 0;
+    margin-left: auto;
+    /* Push to the right */
+    padding-left: 10px;
+    /* Space from name */
+}
+
+/* Hide individual remove button */
+.btn-remove {
+    display: none;
+}
+
+.empty-list {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #888;
+    font-style: italic;
+}
+
+
+/* --- Shareable Link Display --- */
+.share-link-display {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.share-link-display label {
+    display: block;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 0.3rem;
+    font-weight: 500;
+}
+
+.share-link-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.share-link-input-group input {
+    flex-grow: 1;
+    margin-bottom: 0;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.copy-button {
+    /* Style the copy button */
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    background-color: #f1f1f1;
+    color: #444;
+    border: 1px solid #d2d2d2;
+}
+
+.copy-button:hover {
+    background-color: #e0e0e0;
+    border-color: #c0c2c5;
+}
+
+.copy-button i {
+    margin-right: 4px;
+}
+
+
+/* Actions Panel (If kept, usually removed when form panel exists) */
+.panel-actions {
+    display: none;
+    /* Hide this if submit is in form panel */
+}
+
+/* .panel-actions { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e0e0; display: flex; gap: 1rem; justify-content: center; } */
+/* .btn-transfer { ... keep styles if used here ... } */
+
+.file-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 8px;
+    /* Slightly reduced gap */
+}
+
+.file-list-item:last-child {
+    border-bottom: none;
+}
+
+.item-icon {
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+    color: #888;
+    flex-shrink: 0;
+}
+
+/* ... (keep icon color styles) ... */
+
+.item-details {
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 0.85rem;
+    margin-right: 5px;
+    /* Add some space before size/actions */
+}
+
+.item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.item-size {
+    font-size: 0.8rem;
+    color: #777;
+    flex-shrink: 0;
+    /* margin-left: auto; --- REMOVED to allow buttons next to it --- */
+    white-space: nowrap;
+    /* Prevent size from wrapping */
+}
+
+/* --- NEW: Styles for individual action buttons --- */
+.item-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Space between download/delete */
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    margin-left: auto;
+    /* Push action buttons to the right */
+}
+
+.btn-remove-item,
+.btn-download-item {
+    background: none;
+    border: none;
+    padding: 3px 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    /* Adjust icon size */
+    color: #999;
+    /* Default subtle color */
+    line-height: 1;
+    /* Ensure consistent height */
+    transition: color 0.15s ease;
+}
+
+.btn-remove-item:hover {
+    color: #dc3545;
+    /* Red hover for delete */
+}
+
+.btn-download-item:hover {
+    color: #007bff;
+    /* Blue hover for download */
+}
+
+.btn-remove-item:disabled,
+.btn-download-item:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- End of new styles --- */
+
+
+/* Remove individual remove button (original commented out one, just in case) */
+.btn-remove {
+    display: none;
+}
+
+.empty-list {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #888;
+    font-style: italic;
+}
+
+.panel-actions-upload {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    /* Stack button and status */
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-upload-tg {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    /* Use your primary button colors */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    /* Align icon and text */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Space between icon and text */
+}
+
+.btn-upload-tg:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.btn-upload-tg:not(:disabled):hover {
+    background-color: #0056b3;
+}
+
+.btn-upload-tg i {
+    line-height: 1;
+    /* Prevent icon causing extra height */
+}
+
+.upload-status-message {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+}

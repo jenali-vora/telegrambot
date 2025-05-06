@@ -1,1 +1,81 @@
 /* You can add global styles to this file, and also import other style files */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+body {
+    font-family: 'Poppins';
+}
+
+a {
+    text-decoration: none;
+}
+
+:root {
+    --background: #3f51b5;
+    --background-hover: #6472c3;
+    --border:#9d9d9d;
+    --black-color: #000;
+    --white-color: #fff;
+    --background-color: #f4f4f4;
+    --border-color: #e0e0e0;
+    --button-login: linear-gradient(180deg, #3ed8b2, #1db07b);
+    --button-hoverColor: linear-gradient(180deg, #2fcea1, #159f67);
+    --heading-color: #333;
+    --theme-border-color-r: 255;
+    --theme-border-color-g: 98;
+    --theme-border-color-b: 8;
+    /* --- Color Palette (MEGA Dark Theme Inspired) --- */
+    --fb-dark-bg: #1e1f21;
+    /* Very dark main background */
+    --fb-dark-card-bg: #2c2f32;
+    /* Slightly lighter card background */
+    --fb-dark-toolbar-bg: #222324;
+    /* Toolbar/Header background */
+    --fb-dark-text-primary: #e9ecef;
+    /* Light primary text */
+    --fb-dark-text-secondary: #adb5bd;
+    /* Grey secondary text */
+    --fb-dark-text-link: #74c0fc;
+    /* Light blue for links/accents */
+    --fb-dark-text-placeholder: #6c757d;
+    --fb-dark-border-color: #495057;
+    /* Darker border */
+    --fb-dark-border-light: #3a3b3d;
+    /* Even lighter border */
+    --fb-dark-hover-bg: #2a2b2c;
+    /* Subtle hover */
+    --fb-dark-active-bg: #343a40;
+    /* Slightly lighter active bg */
+    --fb-dark-input-border: #555;
+    --fb-dark-input-text: #eee;
+    --fb-dark-input-focus-border: #74c0fc;
+    --button-bgColor: #3b7ab7;
+    /* Light blue focus */
+    --fb-dark-input-focus-shadow: rgba(116, 192, 252, 0.2);
+    --fb-dark-btn-primary-bg: #d90007;
+    /* MEGA Red */
+    --fb-dark-btn-primary-hover: #c50006;
+    --fb-dark-btn-primary-text: #ffffff;
+    --fb-dark-btn-secondary-bg: #495057;
+    /* Dark grey button */
+    --fb-dark-btn-secondary-hover: #5a6268;
+    --fb-dark-btn-secondary-text: #e9ecef;
+    --fb-dark-btn-secondary-border: #6c757d;
+    --fb-dark-icon-color: #adb5bd;
+    /* Standard icon color */
+    --fb-dark-icon-active: #ffffff;
+    /* White active icon (on red bg) */
+    --fb-dark-icon-accent: #74c0fc;
+    /* Light blue accent icon */
+    --fb-dark-progress-bar-bg: #495057;
+    --fb-dark-progress-bar-fill: #74c0fc;
+    /* Light blue progress */
+    --fb-dark-success-bg: #143622;
+    --fb-dark-success-text: #a3cfbb;
+    --fb-dark-error-bg: #58151c;
+    --fb-dark-error-text: #f1b0b7;
+    --fb-dark-info-bg: #343a40;
+    --fb-dark-info-text: #adb5bd;
+    --sidebar-text-inactive: #bdbdbd;
+    --storage-text-color: #a0a0a0;
+}
+

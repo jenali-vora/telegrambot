@@ -1,0 +1,559 @@
+/* --- Basic Setup & Container --- */
+.pricing-section {
+    padding: 60px 20px;
+    background-color: #f8f9fa;
+    /* Light background */
+}
+
+/* --- Header --- */
+.pricing-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.pricing-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #212529;
+}
+
+.pricing-header p {
+    font-size: 1rem;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+}
+
+/* --- Duration Toggle --- */
+.duration-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+    border: 1px solid #a1a9cb;
+    /* Border around the group */
+    border-radius: 6px;
+    overflow: hidden;
+    /* Clip corners */
+    width: fit-content;
+    /* Size to content */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.toggle-btn {
+    padding: 8px 18px;
+    border: none;
+    background-color: var(--white-color);
+    /* Default white */
+    color: var(--background);
+    /* Default blue text */
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    border-left: 1px solid #a1a9cb;
+    /* Separator */
+}
+
+.toggle-btn:first-child {
+    border-left: none;
+    /* No separator for the first button */
+}
+
+.toggle-btn.active,
+.toggle-btn:hover {
+    background-color: var(--background);
+    /* Active/hover blue */
+    color: var(--white-color);
+    /* White text */
+}
+
+/* --- Pricing Cards Layout --- */
+.pricing-cards {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+
+/* --- Individual Card Styling --- */
+.pricing-card {
+    background-color: var(--white-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 25px;
+    width: 40%;
+    /* Allow shrinking/growing, base width */
+    /* Max width per card */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+    /* Needed for save-banner positioning */
+}
+
+/* --- Premium Card Specifics --- */
+.premium-card {
+    border-color: #f16a78;
+    /* Red border */
+    border-width: 2px;
+    /* Thicker border */
+    padding-top: 50px;
+    /* Space for banner */
+}
+
+.save-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #f16a78;
+    /* Red background */
+    color: white;
+    padding: 8px 15px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 6px 6px 0 0;
+    /* Rounded top corners */
+}
+
+/* --- Card Header & Price --- */
+.card-header {
+    margin-bottom: 10px;
+    /* Space below header */
+}
+
+.card-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #212529;
+}
+
+.card-header span {
+    /* Subtitle like 'Free service' */
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+.price {
+    text-align: right;
+    margin-top: -35px;
+    /* Adjust to align with title */
+}
+
+.main-price {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.price span+span {
+    /* '/month' text */
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.price-details {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+    /* Space before features */
+    text-align: right;
+}
+
+.price-details del {
+    color: #999;
+    margin-right: 5px;
+}
+
+/* --- Features List --- */
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0 0;
+    /* Space above list */
+}
+
+.features-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Space between icon and text */
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.features-list li strong {
+    font-weight: 600;
+}
+
+.features-list li i {
+    width: 18px;
+    /* Ensure icons align */
+    text-align: center;
+    font-size: 1rem;
+    /* Adjust icon size */
+}
+
+.text-blue {
+    color: var(--background);
+}
+
+/* Checkmark color */
+.text-muted {
+    color: #adb5bd;
+}
+
+/* Cross/disabled color */
+.fa-microsoft {
+    color: var(--background);
+}
+
+/* Officialish Outlook color */
+.fa-chrome {
+    color: #e4405f;
+}
+
+/* Reddish/Orange for Chrome */
+.premium-card .fa-microsoft,
+.premium-card .fa-chrome {
+    color: var(--background);
+    /* Use theme blue for included extensions */
+}
+
+
+/* --- Action Buttons within Card --- */
+.card-action {
+    display: flex;
+    flex-direction: column;
+    /* Stack buttons in premium */
+    gap: 10px;
+    margin: 25px 0;
+    /* Space around buttons */
+    border-top: 1px solid #eee;
+    /* Separator line */
+    padding-top: 25px;
+}
+
+.card-action .btn {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-outline-primary {
+    color: var(--background);
+    border: 1px solid var(--background);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--background);
+    color: var(--white-color);
+}
+
+.btn-danger {
+    background-color: #f16a78;
+    color: white;
+    border: 1px solid #f16a78;
+}
+
+.btn-danger:hover {
+    background-color: #e15261;
+    border-color: #d94857;
+}
+
+.btn-outline-danger {
+    color: #f16a78;
+    border: 1px solid #f16a78;
+    background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: #f16a78;
+    color: white;
+}
+
+/* section-2 css  start*/
+/* --- Basic Section Setup --- */
+.info-cards-section {
+    padding: 40px 20px;
+}
+
+.container {
+    max-width: 1140px;
+    /* Adjust max width */
+    margin: 0 auto;
+}
+
+/* --- Grid Layout for Cards --- */
+.info-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* Responsive grid */
+    gap: 30px;
+    /* Space between cards */
+}
+
+/* --- Individual Card Styling --- */
+.info-card {
+    background-color: var(--white-color);
+    border: 1px solid rgba(63, 81, 181, 0.1);
+    /* Light border */
+    border-radius: 8px;
+    border-left: 1px solid rgba(63, 81, 181, 0.1);
+    border-left-width: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    /* Stack content vertically */
+}
+
+.info-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #212529;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.info-card p {
+    font-size: 0.95rem;
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+    /* Allow paragraphs to push buttons down */
+}
+
+.info-card p:last-of-type {
+    margin-bottom: 25px;
+    /* More space before actions */
+    flex-grow: 0;
+    /* Stop the last paragraph from growing excessively */
+}
+
+.info-card strong {
+    color: #343a40;
+    /* Slightly darker for emphasis */
+    font-weight: 600;
+}
+
+
+/* --- Card Actions (Buttons) --- */
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow buttons to wrap */
+    gap: 10px;
+    /* Space between buttons */
+    margin-top: auto;
+    /* Push actions to the bottom */
+}
+
+.card-actions .btn {
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* section0-2 css end */
+
+/* section-3 css start */
+.customers-section {
+    background: linear-gradient(90deg, rgb(43, 58, 145), rgb(26, 38, 108));
+    /* Dark blue background */
+    padding: 60px 0;
+    color: #ffffff;
+    /* White text */
+    overflow: hidden;
+    /* Prevent horizontal scrollbar on the page */
+}
+
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 40px;
+}
+
+/* --- Logo Carousel --- */
+.logo-carousel {
+    width: 100%;
+    overflow: hidden;
+    /* Hide the logos outside the viewport */
+    position: relative;
+    margin-bottom: 40px;
+    /* Optional: Add gradient fade effect at edges */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+.logo-track {
+    display: inline-flex;
+    /* Use inline-flex so width calculation is automatic */
+    /* The track width will be calculated by the browser based on its content */
+    animation: scrollLogos 30s linear infinite;
+    /* Adjust time (30s) for speed */
+}
+
+/* --- Scrolling Animation --- */
+@keyframes scrollLogos {
+    0% {
+        transform: translateX(0%);
+    }
+
+    100% {
+        /* Move left by the width of ONE set of logos (50% of total track width) */
+        transform: translateX(-50%);
+    }
+}
+
+/* --- Pause Animation on Hover --- */
+.logo-carousel:hover .logo-track {
+    animation-play-state: paused;
+}
+
+
+/* --- Individual Logo Card --- */
+.logo-card {
+    background-color: var(--white-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 0 15px;
+    /* Space between cards */
+    width: 180px;
+    /* Fixed width for each card */
+    height: 110px;
+    /* Fixed height for each card */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    /* Pushes industry label down */
+    align-items: center;
+    text-align: center;
+    flex-shrink: 0;
+    /* Prevent cards from shrinking */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-image-wrapper {
+    height: 70px;
+    /* Allocate space for the logo image */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.logo-image-wrapper img {
+    max-width: 100%;
+    /* Ensure logo fits */
+    max-height: 60px;
+    /* Limit logo height */
+    object-fit: contain;
+    /* Scale nicely */
+    display: block;
+}
+
+.logo-industry {
+    font-size: 0.7rem;
+    color: #a1a9cb;
+    /* Muted text color for industry */
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-top: 8px;
+    /* Space above label */
+}
+
+/* --- Conclusion Text --- */
+.section-conclusion {
+    text-align: center;
+    font-size: 1rem;
+    color: #e0e0ff;
+    margin: 0 auto;
+    line-height: 1.6;
+    padding: 0 40px;
+}
+
+/* section-3 css end */
+
+/* --- Simple Responsive Adjustment --- */
+
+@media (max-width: 992px) {
+    .pricing-card {
+        width: 100%;
+    }
+
+    .info-card h3 {
+        font-size: 1.25rem;
+    }
+
+    .info-card p {
+        font-size: 0.9rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .logo-card {
+        width: 150px;
+        /* Smaller cards on mobile */
+        height: 95px;
+        margin: 0 10px;
+    }
+
+    .logo-image-wrapper {
+        height: 55px;
+    }
+
+    .logo-image-wrapper img {
+        max-height: 50px;
+    }
+
+    .logo-track {
+        animation-duration: 25s;
+        /* Slightly faster scroll */
+    }
+}
+
+@media (max-width: 767px) {
+    .pricing-cards {
+        flex-direction: column;
+        /* Stack cards */
+        align-items: center;
+        /* Center stacked cards */
+    }
+
+    .pricing-card {
+        flex-basis: auto;
+        /* Reset basis */
+        width: 100%;
+        /* Control width when stacked */
+        max-width: 400px;
+        /* Ensure not too wide */
+    }
+
+    .pricing-header h2 {
+        font-size: 2rem;
+    }
+
+}
+
+@media (max-width: 480px) {}

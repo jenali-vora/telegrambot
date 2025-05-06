@@ -1,0 +1,56 @@
+<!-- src/app/component/blog-detail/blog-detail.component.html -->
+<div class="blog-detail-container" *ngIf="post$ | async as post; else loadingOrError">
+
+    <!-- Post Header -->
+    <header class="post-header">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+            <!-- Add icons here if you have an icon library -->
+            <span class="author">
+                <!-- <i class="icon-user"></i> -->
+                {{ post.author }}
+            </span>
+            <span class="date">
+                <!-- <i class="icon-calendar"></i> -->
+                {{ post.publishDate | date:'longDate' }}
+            </span>
+        </div>
+    </header>
+
+    <!-- Featured Image -->
+    <figure class="featured-image">
+        <img [src]="post.featuredImageUrl" [alt]="post.title">
+    </figure>
+
+    <!-- Post Content -->
+    <!-- Use [innerHTML] because your content has HTML tags -->
+    <!-- Be cautious if the HTML source isn't fully trusted -->
+    <section class="post-content" [innerHTML]="post.contentHtml"></section>
+
+    <!-- Related Articles Section -->
+    <section class="related-articles" *ngIf="relatedPosts$ | async as relatedPosts">
+        <h2 *ngIf="relatedPosts.length > 0">Check out more articles on file sharing</h2>
+        <div class="related-grid" *ngIf="relatedPosts.length > 0">
+            <!-- Loop through related posts -->
+            <div class="related-card" *ngFor="let related of relatedPosts">
+                <a [routerLink]="['/blog', related.slug]" class="related-image-link">
+                    <img [src]="related.featuredImageUrl" [alt]="related.title">
+                </a>
+                <div class="related-content">
+                    <p class="related-date">{{ related.publishDate | date:'longDate' }}</p>
+                    <h3 class="related-title">
+                        <a [routerLink]="['/blog', related.slug]">{{ related.title }}</a>
+                    </h3>
+                    <a [routerLink]="['/blog', related.slug]" class="read-more">Read more →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- Loading/Error Template -->
+<ng-template #loadingOrError>
+    <!-- You can differentiate between loading and error states if needed -->
+    <p class="loading-message">Loading post...</p>
+</ng-template>

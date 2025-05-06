@@ -1,0 +1,217 @@
+/* --- Basic Section & Container --- */
+.comparison-section {
+    padding: 60px 20px;
+    background-color: var(--white-color);
+    /* White background */
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 40px;
+    text-align: left;
+    /* Or center if preferred */
+}
+
+/* --- Table Styling --- */
+.comparison-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    /* Enable horizontal scroll on small screens */
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+    /* Prevent excessive squeezing on small screens before scroll activates */
+    table-layout: fixed;
+    /* Help keep columns consistent */
+}
+
+/* --- Table Headers (Plans) --- */
+.comparison-table thead th {
+    padding: 15px 10px 25px 10px;
+    /* More padding at bottom for button */
+    vertical-align: top;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.feature-col-header {
+    width: 25%;
+    /* Allocate width for the feature names column */
+    background-color: var(--white-color) !important;
+    /* Ensure it stays white */
+    border: none !important;
+    /* Remove borders */
+}
+
+.plan-col-header {
+    width: 18.75%;
+    /* (100 - 25) / 4 plans */
+    background-color: #f8f9fa;
+    /* Light background for plan columns */
+    border-left: 1px solid var(--border-color);
+}
+
+.plan-col-header:first-of-type {
+    /* First plan column */
+    border-left: none;
+}
+
+.plan-col-header .plan-name {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.header-btn {
+    width: 80%;
+    /* Adjust button width */
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* Use your button styles */
+.btn-primary {
+    color: #fff;
+    background-color: var(--background);
+    /* Example purple */
+}
+
+.btn-outline-primary {
+    color: var(--background);
+    background-color: transparent;
+    border: 1px solid var(--background);
+    width: 100%;
+    /* Example lighter border */
+}
+
+.btn-primary:hover {
+    background-color: var(--background-hover);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--background-hover);
+    color: var(--white-color);
+}
+
+/* --- Table Body (Features) --- */
+.comparison-table tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    text-align: left;
+    /* Default for value cells */
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* Feature Name Column */
+.feature-name-cell {
+    text-align: left;
+    font-weight: 500;
+    background-color: var(--white-color) !important;
+    /* Ensure it stays white */
+    border-right: 1px solid var(--border-color);
+}
+
+/* Feature Value Column */
+.feature-value-cell {
+    background-color: var(--white-color);
+    /* Default white */
+    border-left: 1px solid var(--border-color);
+}
+
+.feature-value-cell:first-of-type {
+    /* First value cell */
+    border-left: none;
+}
+
+/* Highlight Column Style */
+.highlight-col {
+    background-color: #f0f1f9 !important;
+    /* Light purple highlight */
+}
+
+
+/* Section Heading Row */
+.feature-heading-cell {
+    text-align: left;
+    font-weight: 600;
+    color: var(--background);
+    /* Theme color for headings */
+    font-size: 1rem;
+    padding-top: 25px;
+    /* Extra space above */
+    padding-bottom: 8px;
+    background-color: var(--white-color) !important;
+    /* Ensure it stays white */
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Check/Cross Icons */
+.check-icon {
+    color: #198754;
+    /* Green for check */
+    font-size: 1.1rem;
+}
+
+.cross-icon {
+    color: #dc3545;
+    /* Red for cross */
+    font-size: 1.1rem;
+}
+
+/* --- Responsive --- */
+@media (max-width: 991px) {
+    .comparison-table {
+        min-width: 700px;
+    }
+
+    .feature-col-header {
+        width: 30%;
+    }
+
+    .plan-col-header {
+        width: 17.5%;
+    }
+
+    /* (100 - 30) / 4 */
+}
+
+@media (max-width: 767px) {
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .comparison-table {
+        min-width: 600px;
+    }
+
+    .comparison-table thead th,
+    .comparison-table tbody td {
+        font-size: 0.85rem;
+        padding: 10px 8px;
+    }
+
+    .header-btn {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        width: 100%;
+    }
+
+    .feature-heading-cell {
+        font-size: 0.9rem;
+    }
+}

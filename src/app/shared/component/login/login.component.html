@@ -1,0 +1,88 @@
+<!-- src/app/components/login/login.component.html -->
+<div class="login-page">
+    <div class="container login-container-flex">
+
+        <!-- Login Column -->
+        <div class="col-12 col-lg-5 login-column"> <!-- Using Bootstrap-like column classes -->
+            <div class="login-card">
+                <h2>Log in</h2>
+
+                <!-- Bind the form group and submit event -->
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+                    <!-- Email Field -->
+                    <div class="form-field">
+                        <label for="email">Your email address</label>
+                        <!-- Add template reference variable #emailInput and formControlName -->
+                        <input type="email" id="email" formControlName="email" #emailInput>
+                        <!-- Conditional error display -->
+                        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)" class="error-text">
+                            <small *ngIf="email?.errors?.['required']">Email is required.</small>
+                            <small *ngIf="email?.errors?.['email']">Please enter a valid email.</small>
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-field">
+                        <label for="password">Password</label>
+                        <div class="password-input-wrapper">
+                            <!-- Bind input type and formControlName -->
+                            <input [type]="passwordFieldType" id="password" formControlName="password">
+                            <!-- Button calls the toggle method -->
+                            <button type="button" class="toggle-visibility" (click)="togglePasswordVisibility()"
+                                title="Toggle password visibility">
+                                <!-- Conditionally display Font Awesome icons -->
+                                <i *ngIf="!passwordVisible" class="fas fa-eye"></i>
+                                <i *ngIf="passwordVisible" class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        <!-- Conditional error display -->
+                        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)" class="error-text">
+                            <small *ngIf="password?.errors?.['required']">Password is required.</small>
+                            <!-- Add other password errors if needed (e.g., minlength) -->
+                        </div>
+                    </div>
+
+                    <!-- Forgot Password Link -->
+                    <a href="#" class="forgot-link">Forgot your password?</a>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <div class="remember-me-checkbox">
+                            <!-- Bind rememberMe checkbox -->
+                            <input type="checkbox" id="rememberMe" formControlName="rememberMe">
+                            <label for="rememberMe">Remember me</label>
+                        </div>
+                        <!-- Submit Button: type="submit", bind disabled state -->
+                        <button type="submit" class="login-btn" [disabled]="loginForm.invalid || isLoading">
+                            {{ isLoading ? 'Logging in...' : 'Log in' }} <!-- Show loading text -->
+                        </button>
+                    </div>
+
+                    <!-- Status/Error Messages -->
+                    <div *ngIf="errorMessage && !isLoading" class="error-text form-error">{{ errorMessage }}</div>
+                    <!-- Success message display (optional, as redirect happens quickly) -->
+                    <!-- <div *ngIf="successMessage && !isLoading" class="success-text form-success">{{ successMessage }}</div> -->
+
+                </form>
+            </div>
+
+            <!-- Signup Footer Link -->
+            <div class="signup-footer">
+                Don't have an account? <a routerLink="/register">Sign up for one now</a> <!-- Use RouterLink -->
+            </div>
+        </div>
+
+        <!-- Info Column -->
+        <div class="col-6 info-column"> <!-- Adjust column classes as needed -->
+            <div class="info-content">
+                <!-- Make sure this image path is correct relative to your src/assets folder -->
+                <img src="assets/image/07-Security-1.jpg" alt="Safe with key illustration" class="info-image">
+                <h3>Back up your recovery key</h3>
+                <p>Don't risk getting locked out.</p>
+                <a href="#" class="info-details-link">Read more about MEGA's zero-knowledge encryption</a>
+            </div>
+        </div>
+
+    </div>
+</div>

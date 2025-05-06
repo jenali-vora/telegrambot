@@ -1,0 +1,411 @@
+.signup-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1024px;
+}
+
+.signup-container-flex {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+/* Keep ALL other CSS styles from the previous "shorter" example */
+/* Only update/replace the .toggle-visibility rule: */
+
+.toggle-visibility {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 40px;
+    /* Slightly wider for icon padding */
+    background: none;
+    border: none;
+    border-left: 1px solid #eee;
+    /* Keep separator */
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    /* Icon color */
+    opacity: 0.8;
+    font-size: 14px;
+    /* Control icon size */
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.toggle-visibility:hover {
+    opacity: 1;
+    color: #555;
+    background-color: #f9f9f9;
+}
+
+/* No specific rule needed for the <i> tag unless you need further styling */
+
+.signup-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Card and Footer */
+.signup-card {
+    background-color: var(--white-color);
+    padding: 35px 40px;
+    border-radius: 24px 24px 0px 0px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+.login-footer {
+    padding: 12px 48px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    background-color: rgb(237, 237, 237);
+    border-radius: 0px 0px 24px 24px;
+}
+
+.login-footer a {
+    color: rgba(51, 51, 51, 0.7);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Form Elements */
+.signup-card h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 50px 0;
+    color: var(--heading-color);
+    text-align: center;
+}
+
+.form-row-names {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.half-width {
+    flex: 1;
+}
+
+.form-field {
+    margin-bottom: 18px;
+    position: relative;
+}
+
+.form-field label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="password"] {
+    width: 100%;
+    height: 20px;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+    font-size: 14px;
+    background-color: transparent;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.15);
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    flex-grow: 1;
+    padding-right: 35px;
+}
+
+.toggle-visibility {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 36px;
+    background: none;
+    border: none;
+    border-left: 1px solid #eee;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    opacity: 0.7;
+    font-size: 1.1rem;
+    /* Size for text icon */
+    line-height: 1;
+}
+
+.toggle-visibility:hover {
+    opacity: 1;
+    color: #555;
+}
+
+/* Checkboxes & Terms */
+.terms-section {
+    margin: 25px 0;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px;
+    margin-top: 3px;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    flex-shrink: 0;
+    accent-color: var(--background);
+}
+
+.checkbox-group label {
+    margin: 0;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.checkbox-group label a {
+    color: rgba(51, 51, 51, 0.4);;
+    text-decoration: none;
+}
+
+.checkbox-group label a:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.signup-btn {
+    background-color: var(--background);
+    color: var(--white-color);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+    width: 100%;
+    margin-top: 10px;
+
+    &:hover{
+        background-color: var(--background-hover);
+    }
+}
+
+.signup-btn:hover:not(:disabled) {
+    background-color: var(--background);
+}
+
+.signup-btn:disabled {
+    background-color: var(--background);
+    cursor: not-allowed;
+}
+
+/* Info Column */
+.info-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px 40px 40px;
+}
+
+.info-content {
+    max-width: 380px;
+}
+.info-content img{
+    width: 100%;
+}
+.feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+
+.feature-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    margin-right: 15px;
+    font-size: 24px;
+    line-height: 32px;
+    text-align: center;
+}
+
+.feature-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+.feature-item p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Hide detailed image if using feature list */
+.info-details-link {
+    display: none;
+}
+
+/* Hide link if using feature list */
+
+/* Error/Success Text */
+.error-text {
+    margin-top: 4px;
+}
+
+.error-text small {
+    color: #dc3545;
+    font-size: 12px;
+    display: block;
+    /* Ensure it takes space */
+    min-height: 1.2em;
+    /* Prevent layout shift */
+}
+
+.error-text.small-margin {
+    margin-top: 0;
+    margin-bottom: 8px;
+    margin-left: 25px;
+}
+
+.form-error,
+.form-success {
+    font-size: 13px;
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+.form-error {
+    color: #a50e0e;
+}
+
+.form-success {
+    color: #137333;
+}
+
+/* Loading/Status */
+.status-area {
+    min-height: 50px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.loading,
+.status {
+    padding: 0.8rem 1rem;
+    margin: 0 auto 1rem auto;
+    border-radius: 4px;
+    max-width: 90%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.loading {
+    background-color: #f1f3f4;
+    color: #5f6368;
+}
+
+.loading span {
+    margin-left: 0.75rem;
+}
+
+.status.success {
+    background-color: #e6f4ea;
+    color: #137333;
+    border: 1px solid #ceead6;
+}
+
+.status.error {
+    background-color: #fce8e6;
+    color: #a50e0e;
+    border: 1px solid #fcc;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #1a73e8;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+    .signup-container-flex {
+        flex-direction: column;
+        max-width: 500px;
+        gap: 0;
+    }
+
+    .col-6 {
+        width: 100%;
+        margin: 0 auto 2rem auto;
+    }
+
+    .info-column {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .signup-card h2{
+        font-size: 22px;
+    }
+}

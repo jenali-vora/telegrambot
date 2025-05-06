@@ -1,0 +1,56 @@
+<section class="comparison-section">
+    <h2 class="section-title">Compare our offers and features</h2>
+
+    <div class="comparison-table-wrapper"> <!-- Optional wrapper for scrolling on small screens -->
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <!-- Empty cell above feature names -->
+                    <th class="feature-col-header"></th>
+                    <!-- Loop through plans for column headers -->
+                    <th *ngFor="let plan of plans" class="plan-col-header" [ngClass]="plan.highlightClass">
+                        <span class="plan-name">{{ plan.name }}</span>
+                        <button type="button" class="btn header-btn" [ngClass]="plan.buttonStyle">
+                            {{ plan.buttonText }}
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through features for rows -->
+                <tr *ngFor="let feature of features">
+
+                    <!-- Case 1: Section Heading Row -->
+                    <ng-container *ngIf="feature.isHeading">
+                        <td class="feature-heading-cell" [attr.colspan]="plans.length + 1">
+                            {{ feature.name }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Case 2: Normal Feature Row -->
+                    <ng-container *ngIf="!feature.isHeading">
+                        <!-- Feature Name Cell -->
+                        <td class="feature-name-cell">{{ feature.name }}</td>
+
+                        <!-- Loop through plans for value cells -->
+                        <td *ngFor="let plan of plans" class="feature-value-cell" [ngClass]="plan.highlightClass">
+                            <!-- Get the value for this specific feature and plan -->
+                            <ng-container [ngSwitch]="getFeatureValue(feature, plan.id)?.isCheck">
+                                <!-- Check Mark -->
+                                <i *ngSwitchCase="true" class="fas fa-check check-icon"></i>
+                                <!-- Cross Mark -->
+                                <i *ngSwitchCase="false" class="fas fa-times cross-icon"></i>
+                                <!-- Text Value (Default) -->
+                                <span *ngSwitchDefault>
+                                    {{ getFeatureValue(feature, plan.id)?.text || '-' }}
+                                    <!-- Show text or '-' if undefined -->
+                                </span>
+                            </ng-container>
+                        </td>
+                    </ng-container>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

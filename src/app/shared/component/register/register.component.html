@@ -1,0 +1,123 @@
+<div class="signup-page">
+    <div class="container signup-container-flex">
+        <!-- Signup Form Column -->
+        <div class="col-12 col-lg-5 signup-column">
+            <div class="signup-card">
+                <h2>Sign up for a free account</h2>
+                <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate>
+
+                    <!-- REMOVED Name Row -->
+                    <!-- <div class="form-row-names"> ... </div> -->
+
+                    <!-- ADDED Username Field -->
+                    <div class="form-field">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" formControlName="username">
+                        <div *ngIf="username?.invalid && username?.touched" class="error-text">
+                            <small *ngIf="username?.errors?.['required']">Username is required</small>
+                            <small *ngIf="username?.errors?.['pattern']">Invalid format (letters, numbers, _, min 3
+                                chars)</small>
+                            <!-- Add other potential username errors (minlength, maxlength) if needed -->
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-field">
+                        <label for="email">Your email address</label>
+                        <input type="email" id="email" formControlName="email">
+                        <div *ngIf="email?.invalid && email?.touched" class="error-text">
+                            <small *ngIf="email?.errors?.['required']">Email is required</small>
+                            <small *ngIf="email?.errors?.['email']">Invalid email format</small>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-field">
+                        <label for="password">Password</label>
+                        <div class="password-input-wrapper">
+                            <input [type]="passwordFieldType" id="password" formControlName="password">
+                            <button type="button" class="toggle-visibility" (click)="togglePasswordVisibility()"
+                                title="Toggle password visibility">
+                                <i *ngIf="!passwordVisible" class="fas fa-eye"></i>
+                                <i *ngIf="passwordVisible" class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="password?.invalid && password?.touched" class="error-text">
+                            <small *ngIf="password?.errors?.['required']">Password is required</small>
+                            <small *ngIf="password?.errors?.['minlength']">Password must be at least 8
+                                characters</small>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-field">
+                        <label for="confirmPassword">Repeat password</label>
+                        <div class="password-input-wrapper">
+                            <input [type]="confirmPasswordFieldType" id="confirmPassword"
+                                formControlName="confirmPassword">
+                            <button type="button" class="toggle-visibility" (click)="toggleConfirmPasswordVisibility()"
+                                title="Toggle password visibility">
+                                <i *ngIf="!confirmPasswordVisible" class="fas fa-eye"></i>
+                                <i *ngIf="confirmPasswordVisible" class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="confirmPassword?.invalid && confirmPassword?.touched && confirmPassword?.errors?.['required']"
+                            class="error-text">
+                            <small>Please confirm your password</small>
+                        </div>
+                        <!-- Updated condition to check confirmPassword specifically -->
+                        <div *ngIf="confirmPassword?.hasError('passwordsMismatch') && confirmPassword?.dirty"
+                            class="error-text">
+                            <small>Passwords do not match</small>
+                        </div>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="terms-section">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agreeTerms" formControlName="agreeTerms">
+                            <label for="agreeTerms">I agree with the MEGA <a href="#">Terms of Service</a></label>
+                        </div>
+                        <div *ngIf="agreeTerms?.invalid && agreeTerms?.touched" class="error-text small-margin">
+                            <small>You must agree to the terms</small>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="understandWarning" formControlName="understandWarning">
+                            <!-- Changed ID -->
+                            <label for="understandWarning">I understand that MEGA has no access to my
+                                password...</label> <!-- Changed FOR attribute -->
+                        </div>
+                        <div *ngIf="understandWarning?.invalid && understandWarning?.touched"
+                            class="error-text small-margin">
+                            <small>You must confirm understanding</small>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="signup-btn" [disabled]="signupForm.invalid || isLoading">
+                        {{ isLoading ? 'Signing up...' : 'Sign up' }} <!-- Changed loading text -->
+                    </button>
+
+                    <!-- Status Messages -->
+                    <div *ngIf="errorMessage && !isLoading" class="error-text form-error">{{ errorMessage }}</div>
+                    <div *ngIf="successMessage && !isLoading" class="success-text form-success">{{ successMessage }}
+                    </div>
+                </form>
+            </div>
+            <!-- Footer Link -->
+            <div class="login-footer">
+                Already have an account? <a routerLink="/login">Log in</a> <!-- Use correct login route -->
+            </div>
+        </div>
+
+        <!-- Info Column (Keep as is) -->
+        <div class="col-12 col-lg-4 info-column">
+            <div class="info-content">
+                <img src="../../../../assets/image/login3.png" alt="Safe with key illustration" class="info-image">
+                <h3>Back up your recovery key</h3>
+                <p>Don't risk getting locked out.</p>
+                <a href="#" class="info-details-link">Read more about MEGA's zero-knowledge encryption</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,441 @@
+/* Ensure you have Font Awesome included in your project for the icons */
+.help-section {
+    padding: 0px 20px;
+}
+
+.help-header {
+    text-align: center;
+    margin-bottom: 45px;
+    padding: 80px 63px;
+    background-color: #f9f9fb;
+    /* Space below the header */
+}
+
+.help-title {
+    font-size: 2.8rem;
+    /* Large font size for the title */
+    font-weight: 700;
+    /* Bold weight */
+    color: #212529;
+    /* Dark text color */
+    margin-bottom: 15px;
+    /* Space below the title */
+    line-height: 1.2;
+}
+
+.help-subtitle {
+    font-size: 1rem;
+    /* Standard font size */
+    color: #6c757d;
+    /* Grey text color */
+    max-width: 600px;
+    /* Limit width for better readability */
+    margin: 0 auto;
+    /* Center the subtitle */
+    line-height: 1.6;
+}
+
+/* --- Cards Container --- */
+.help-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Allow cards to wrap on smaller screens */
+    justify-content: center;
+    /* Center cards if they don't fill the space */
+    gap: 30px;
+    /* Space between cards */
+}
+
+/* --- Individual Card Styling --- */
+.help-card {
+    background-color: #ffffff;
+    /* White background for cards */
+    border: 1px solid #e9ecef;
+    /* Light grey border */
+    border-radius: 8px;
+    /* Rounded corners */
+    padding: 30px;
+    /* Padding inside the card */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow */
+    flex: 1 1 400px;
+    /* Flex properties: grow, shrink, basis (adjust basis as needed) */
+    max-width: calc(50% - 15px);
+    /* Max width for 2 columns (adjust based on gap) */
+    box-sizing: border-box;
+    /* Include padding and border in width calculation */
+    text-align: left;
+    /* Align text to the left inside the card */
+    display: flex;
+    /* Use flexbox for internal alignment */
+    flex-direction: column;
+    /* Stack elements vertically */
+}
+
+.card-icon {
+    font-size: 1.8rem;
+    /* Size of the icon */
+    color: #6c757d;
+    /* Icon color */
+    margin-bottom: 20px;
+    /* Space below the icon */
+    line-height: 1;
+    /* Prevent extra space around icon */
+}
+
+/* Specific adjustments if needed for icon alignment/size */
+.card-icon .fas,
+.card-icon .far {
+    display: inline-block;
+    width: 30px;
+    /* Give icons a consistent width */
+    text-align: center;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    /* Title font size */
+    font-weight: 600;
+    /* Semi-bold */
+    color: #343a40;
+    /* Slightly darker text */
+    margin-bottom: 10px;
+    /* Space below card title */
+}
+
+.card-description {
+    font-size: 0.95rem;
+    /* Description text size */
+    color: #495057;
+    /* Standard text color */
+    line-height: 1.6;
+    /* Improve readability */
+    margin-bottom: 25px;
+    /* Space below description */
+    flex-grow: 1;
+    /* Allow description to take up space, pushing button down */
+}
+
+.card-description a {
+    color: #0d6efd;
+    /* Standard blue link color */
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.card-description a:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.btn-visit {
+    background-color: var(--background);
+    /* Dark background */
+    color: #ffffff;
+    width: fit-content;
+    /* White text */
+}
+
+.btn-visit:hover {
+    background-color: var(--background-hover);
+    /* Slightly lighter on hover */
+    color: #ffffff;
+}
+
+.contact-section {
+    padding: 60px 15px;
+    background-color: #ffffff;
+    /* White background */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.container {
+    max-width: 1140px;
+    /* Adjust max-width as needed */
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* --- Row and Column Layout --- */
+.contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: center;
+}
+
+
+.contact-image-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Header Styling --- */
+.contact-header {
+    margin-bottom: 30px;
+}
+
+.contact-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.contact-subtitle {
+    font-size: 1rem;
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* --- Form Styling --- */
+.contact-form .form-group {
+    margin-bottom: 15px;
+    /* Space between form fields */
+}
+
+/* Common styles for input, select, textarea */
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="url"],
+.contact-form select,
+.contact-form textarea {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    /* Text color inside input */
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    /* Border color */
+    appearance: none;
+    /* Remove default appearance */
+    border-radius: 8px;
+    /* Rounded corners */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    box-sizing: border-box;
+}
+
+/* Style placeholders */
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: #6c757d;
+    /* Placeholder text color */
+    opacity: 1;
+    /* Firefox */
+}
+
+.contact-form input:-ms-input-placeholder,
+/* IE 10-11 */
+.contact-form textarea:-ms-input-placeholder {
+    color: #6c757d;
+}
+
+.contact-form input::-ms-input-placeholder,
+/* Edge */
+.contact-form textarea::-ms-input-placeholder {
+    color: #6c757d;
+}
+
+/* Focus styles */
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #86b7fe;
+    /* Light blue border on focus */
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    /* Subtle blue glow */
+}
+
+/* Select dropdown specific styles */
+.contact-form select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    /* Arrow */
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+    /* Make space for the arrow */
+}
+
+/* Style the placeholder option */
+.contact-form select:required:invalid {
+    color: #6c757d;
+}
+
+.contact-form select option[value=""][disabled] {
+    display: none;
+    /* Hide the placeholder option in the dropdown list */
+}
+
+.contact-form select option {
+    color: #212529;
+    /* Color of actual options */
+}
+
+/* Textarea specific styles */
+.contact-form textarea {
+    resize: vertical;
+    /* Allow vertical resizing only */
+    min-height: 100px;
+    /* Minimum height */
+}
+
+/* Form hint text below textarea */
+.form-hint {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: -5px;
+    /* Reduce space above it slightly */
+    margin-bottom: 25px;
+    /* Space before the button */
+    line-height: 1.5;
+}
+
+/* Submit button group */
+.form-submit-group {
+    margin-top: 10px;
+}
+
+
+.btn-primary {
+    color: #fff;
+    background-color: var(--background);
+}
+
+.btn-primary:hover {
+    color: #fff;
+    background-color: var(--background-hover);
+}
+
+.btn-primary:focus {
+    color: #fff;
+    background-color: #3f4a94;
+    border-color: #394385;
+    box-shadow: 0 0 0 0.2rem rgba(96, 107, 186, 0.5);
+    /* Focus glow */
+}
+
+.btn-submit {
+    width: 100%;
+    /* Make button full width */
+    padding: 12px 20px;
+    /* Slightly larger padding for submit */
+    font-size: 1.1rem;
+}
+
+/* --- Image Styling --- */
+.contact-illustration {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    /* Prevents extra space below image */
+    border-radius: 8px;
+    /* Optional: match card radius */
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 991px) {
+    .help-card {
+        max-width: calc(50% - 15px);
+        /* Still allow 2 columns on medium screens */
+    }
+
+    .contact-form-column {
+        flex-basis: 100%;
+        /* Stack form on top */
+        margin-bottom: 30px;
+        /* Add space when stacked */
+    }
+
+    .contact-image-column {
+        flex-basis: 100%;
+        margin-bottom: 30px;
+        /* Add space below image if it's first */
+    }
+
+    .contact-illustration {
+        max-width: 70%;
+        /* Don't let illustration be full width */
+        margin: 0 auto;
+        /* Center it */
+    }
+}
+
+@media (max-width: 767px) {
+    .help-title {
+        font-size: 2.2rem;
+        /* Slightly smaller title on mobile */
+    }
+
+    .help-card {
+        flex-basis: 100%;
+        /* Stack cards vertically */
+        max-width: 100%;
+        /* Allow cards to take full width */
+    }
+
+    .contact-title {
+        font-size: 2rem;
+    }
+
+    .contact-illustration {
+        max-width: 80%;
+    }
+}
+
+@media (max-width: 575px) {
+    .help-title {
+        font-size: 1.8rem;
+    }
+
+    .help-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .help-card {
+        padding: 20px;
+        /* Reduce padding on very small screens */
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .help-header {
+        padding: 50px 30px;
+    }
+
+    .contact-title {
+        font-size: 1.8rem;
+    }
+
+    .contact-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .contact-form input,
+    .contact-form select,
+    .contact-form textarea {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .btn-submit {
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
+
+    .contact-illustration {
+        max-width: 90%;
+    }
+}

@@ -1,0 +1,50 @@
+<!-- src/app/components/dashboard/sidebar/sidebar.component.html -->
+<div class="sidebar-container">
+  <div class="sidebar-header">
+    <img [src]="logoUrl" alt="Logo" class="sidebar-logo" />
+    <h2>Drive</h2>
+  </div>
+
+  <nav class="sidebar-nav"> <!-- Nav area will scroll -->
+    <ul>
+      <!-- *** IMPORTANT: Replace '/files', '/shared' etc. with your ACTUAL route paths *** -->
+      <li class="nav-item">
+        <a routerLink="/files" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+          title="Cloud Drive">
+          <i class="fas fa-cloud icon"></i>
+          <span>Cloud Drive</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/shared" routerLinkActive="active" title="Shared with me">
+          <i class="fas fa-share-alt icon"></i>
+          <span>Shared with me</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/starred" routerLinkActive="active" title="Starred items">
+          <i class="fas fa-star icon"></i>
+          <span>Starred</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/trash" routerLinkActive="active" title="Rubbish bin">
+          <i class="fas fa-trash-alt icon"></i>
+          <span>Rubbish bin</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- No spacer div needed -->
+
+  <div class="storage-info"> <!-- Fixed at the bottom -->
+    <div class="storage-bar">
+      <div class="storage-used" [style.width.%]="storagePercentage"></div>
+    </div>
+    <div class="storage-text">
+      <!-- Use pipe to format bytes -->
+      {{ usedStorageBytes | byteFormat }} of {{ totalStorageBytes | byteFormat }} used
+    </div>
+  </div>
+</div>

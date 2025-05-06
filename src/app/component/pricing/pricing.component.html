@@ -1,0 +1,148 @@
+<section class="pricing-section">
+
+    <!-- Header -->
+    <div class="pricing-header">
+        <h2>Offers and prices</h2>
+        <p>Whether you need to send or receive large files for your personal use, or deliver your business projects
+            and documents, TransferNow has a plan for you.</p>
+    </div>
+
+    <!-- Duration Toggle -->
+    <div class="duration-toggle">
+        <button type="button" class="toggle-btn active">2 years</button>
+        <button type="button" class="toggle-btn">1 year</button>
+        <button type="button" class="toggle-btn">Monthly</button>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-cards">
+
+        <!-- Free Card -->
+        <div class="pricing-card">
+            <div class="card-header">
+                <h3>Free</h3>
+                <span>Free service</span>
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-user-check"></i> No registration</li>
+                <!-- Action Button -->
+                <li class="card-action">
+                    <button class="btn btn-outline-primary">Send files</button>
+                </li>
+                <li><i class="fas fa-check text-blue"></i> <strong>5 GB</strong> per transfer</li>
+                <li><i class="fas fa-check text-blue"></i> Files available for <strong>7 days</strong></li>
+                <li><i class="fas fa-check text-blue"></i> Password protection</li>
+                <li><i class="fas fa-check text-blue"></i> Simple file reception</li>
+                <li><i class="fas fa-times text-muted"></i> Full customization</li>
+                <li><i class="fab fa-microsoft text-muted"></i> Outlook Add-in</li>
+                <li><i class="fab fa-chrome text-muted"></i> Chrome and Gmail extension</li>
+                <li><i class="fas fa-times text-muted"></i> Custom domain</li>
+                <li><i class="fas fa-times text-muted"></i> Single Sign-On (SSO)</li>
+            </ul>
+        </div>
+
+        <!-- Premium Card -->
+        <div class="pricing-card premium-card">
+            <div class="save-banner">SAVE 40%</div>
+            <div class="card-header">
+                <h3>Premium</h3>
+                <div class="price">
+                    <span class="main-price">₹ 480</span> /month
+                </div>
+            </div>
+            <div class="price-details">
+                <del>₹ 19200</del> ₹ 11520 / 2 years (-40%)
+            </div>
+            <ul class="features-list">
+                <li><i class="fas fa-user"></i> 1 user</li>
+                <!-- Action Buttons -->
+                <li class="card-action">
+                    <button class="btn btn-danger">Register</button>
+                    <button class="btn btn-outline-danger">Free trial</button>
+                </li>
+                <li><i class="fas fa-check text-blue"></i> <strong>250 GB</strong> per transfer</li>
+                <li><i class="fas fa-check text-blue"></i> Files available for <strong>365 days</strong></li>
+                <li><i class="fas fa-check text-blue"></i> Password protection</li>
+                <li><i class="fas fa-check text-blue"></i> Complete file reception</li>
+                <li><i class="fas fa-check text-blue"></i> Full customization</li>
+                <li><i class="fab fa-microsoft text-blue"></i> Outlook Add-in</li>
+                <li><i class="fab fa-chrome text-blue"></i> Chrome and Gmail extension</li>
+                <li><i class="fas fa-times text-muted"></i> Custom domain</li>
+                <li><i class="fas fa-times text-muted"></i> Single Sign-On (SSO)</li>
+            </ul>
+        </div>
+
+    </div> <!-- /.pricing-cards -->
+</section>
+
+<section class="info-cards-section">
+    <div class="info-cards-grid">
+
+        <!-- Enterprise Card -->
+        <div class="info-card">
+            <h3>TransferNow Enterprise</h3>
+            <p>Do you want to get more 10 user accounts or have a specific need for your business?</p>
+            <p>Choose the number of user accounts and the volume of storage. Benefit from single sign-on (SSO) with
+                Microsoft Entra ID or Google Workspace. Use your own domain name.</p>
+            <p>Contact our sales team to <strong>get a customized plan</strong> tailored to your organization and
+                your needs.</p>
+            <div class="card-actions">
+                <button type="button" class="btn btn-outline-primary">Contact our team</button>
+                <button type="button" class="btn btn-outline-primary">Find out more</button>
+            </div>
+        </div>
+
+        <!-- API Card -->
+        <div class="info-card">
+            <h3>TransferNow API</h3>
+            <p>Do you want to send large files programmatically?</p>
+            <p>Automate transfers and uploads with just a few lines of code! TransferNow simplifies the integration
+                of transferring and uploading large files for websites, mobile applications, SaaS platforms, and
+                other custom workflows.</p>
+            <p>A quick, easy, and secure integration thanks to <strong>our API & SDK for developers</strong> and
+                tech teams worldwide.</p>
+            <div class="card-actions">
+                <button type="button" class="btn btn-outline-primary">Create an API account</button>
+                <button type="button" class="btn btn-outline-primary">Find out more</button>
+                <button type="button" class="btn btn-outline-primary">Consult the documentation</button>
+            </div>
+        </div>
+
+    </div> <!-- /.info-cards-grid -->
+</section>
+
+<section class="customers-section">
+    <h2 class="section-title">Our customers approve TransferNow</h2>
+
+    <!-- Wrapper for overflow and hover detection -->
+    <div class="logo-carousel">
+        <!-- Track containing the logos (will be animated) -->
+        <!-- Uses *ngFor to generate logos dynamically -->
+        <div class="logo-track">
+            <!-- Loop through the displayLogos array (contains duplicated data) -->
+            @for (logo of customers; track $index) {
+            <div class="logo-card">
+                <div class="logo-image-wrapper">
+                    <!-- Bind image source and alt text -->
+                    <img [src]="logo.imageSrc" [alt]="logo.altText">
+                </div>
+                <!-- Display industry text -->
+                <span class="logo-industry">{{ logo.industry }}</span>
+            </div>
+            }
+        </div>
+    </div>
+
+    <p class="section-conclusion">
+        Our solution is approved by professionals, small and medium-sized businesses, startups, and large companies
+        worldwide.
+    </p>
+</section>
+
+<section class="section-5">
+    <app-comparison-table></app-comparison-table>
+</section>
+
+<section class="section-4 faq">
+    <app-faq-accordion></app-faq-accordion>
+</section>

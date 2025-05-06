@@ -1,0 +1,311 @@
+.app-header {
+    display: flex;
+    width: 100%;
+    height: 75px;
+    justify-content: space-between;
+    padding: 20px;
+    align-items: center;
+    background-color: var(--background);
+    position: relative;
+}
+
+.header-left {
+    display: flex;
+    gap: 40px;
+}
+
+.header-left h2 {
+    color: var(--white-color);
+    margin-bottom: 0;
+}
+
+.main-nav {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.main-nav a {
+    color: var(--white-color);
+
+    &:hover {
+        opacity: .75;
+    }
+}
+
+.header-main {
+    display: flex;
+    gap: 50px;
+}
+
+.btn-login:hover {
+    opacity: .75;
+}
+
+.auth-nav {
+    background-color: var(--white-color);
+    border-radius: 8px;
+    padding: 0 6px;
+}
+
+.auth-nav .btn-register {
+    background-color: var(--background);
+    margin: 6px 0;
+    color: var(--white-color);
+    padding: 0 13px;
+    line-height: 31px;
+    border-radius: 6px;
+
+    &:hover {
+        background-color: var(--background-hover);
+    }
+}
+
+/* --- Hamburger Menu Button (Initially Hidden on Desktop) --- */
+.mobile-menu-toggle {
+    display: none;
+    background-color: transparent;
+    border: none;
+    color: var(--white-color, var(--background));
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    line-height: 1;
+    /* z-index: 1051; */
+}
+
+.mobile-menu-toggle:hover {
+    opacity: 0.75;
+}
+
+/* toggle menu css start*/
+/* Add style for the logo image if using one */
+.logo-image {
+    height: 30px;
+    /* Adjust size as needed */
+    width: auto;
+    display: block;
+    /* Prevents extra space below */
+}
+
+/* --- Hamburger Menu Button (Initially Hidden on Desktop) --- */
+
+/* --- Mobile Menu Overlay --- */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent black */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0s 0.3s linear;
+    /* Delay visibility change */
+    z-index: 1000;
+    /* Below sidebar, above content */
+}
+
+.mobile-menu-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease-in-out;
+}
+
+
+/* --- Mobile Menu Sidebar --- */
+.mobile-menu-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* Position on the right */
+    width: 300px;
+    /* Adjust width as needed */
+    max-width: 85%;
+    /* Ensure it doesn't take full width on small devices */
+    height: 100vh;
+    /* Full viewport height */
+    background-color: var(--sidebar-bg, var(--white-color));
+    /* Use variable or fallback */
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    padding-top: 15px;
+    z-index: 1050;
+    /* Above overlay */
+    transform: translateX(100%);
+    /* Start off-screen to the right */
+    transition: transform 0.3s ease-in-out;
+    overflow-y: auto;
+    /* Allow scrolling if content exceeds height */
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-menu-sidebar.is-open {
+    transform: translateX(0);
+    /* Slide in */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: flex-end;
+    /* Position close button to the right */
+    align-items: center;
+    margin-bottom: 20px;
+    min-height: 40px;
+    /* Ensure space for the button */
+}
+
+/* Optional: Sidebar Logo */
+/*
+  .sidebar-logo {
+      height: 25px;
+      width: auto;
+      margin-right: auto; /* Pushes close button to the right */
+/* }
+  */
+
+.sidebar-close-button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    /* Adjust size */
+    color: var(--background);
+    /* Use variable or fallback */
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.sidebar-close-button:hover {
+    opacity: 0.7;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    /* Take remaining space */
+}
+
+.sidebar-nav a {
+    color: var(--text-color-dark, #111);
+    /* Dark text for light background */
+    padding: 12px 0;
+    /* Vertical padding */
+    text-decoration: none;
+    font-size: 1rem;
+    display: block;
+    /* Make the whole area clickable */
+    transition: background-color 0.2s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a:focus {
+    /* background-color: var(--sidebar-hover-bg, #f0f0f0); */
+    opacity: 0.7;
+    /* Simple hover effect */
+}
+
+.sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--divider-color, #eeeeee);
+    margin: 10px 0;
+}
+
+/* toggle menu css end */
+/* --- Media Query: Tablet/Smaller Desktops (e.g., below 992px) --- */
+@media (max-width: 992px) {
+
+    /* Hide the main navigation and auth links */
+    .main-nav,
+    .auth-nav {
+        display: none;
+    }
+
+    /* Show the hamburger button */
+    .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Adjust spacing */
+    .header-left {
+        /* Keep logo visible */
+        flex-grow: 1;
+        /* Allow logo to take space */
+    }
+
+    .header-main {
+        gap: 15px;
+        /* Adjust gap for hamburger */
+        flex-grow: 0;
+        /* Don't let it take extra space */
+        flex-shrink: 0;
+        /* Prevent shrinking */
+    }
+}
+
+/* --- Media Query: Mobile Phones (e.g., below 768px) --- */
+@media (max-width: 768px) {
+
+    /* Further reduce gap for auth buttons and hamburger */
+    .header-main {
+        gap: 15px;
+    }
+
+    /* Make auth buttons slightly smaller */
+    .auth-nav {
+        padding: 0 4px;
+        /* Adjust container padding */
+    }
+
+    .auth-nav .btn-login,
+    .auth-nav .btn-register {
+        font-size: 0.8rem;
+        padding: 0 10px;
+        line-height: 28px;
+        /* Adjust line-height */
+        margin: 4px 0;
+        /* Adjust vertical margin */
+    }
+
+    .mobile-menu-toggle {
+        font-size: 1.3rem;
+        /* Adjust icon size */
+    }
+
+    .mobile-menu-toggle {
+        font-size: 1.4rem;
+    }
+
+    .mobile-menu-sidebar {
+        width: 280px;
+        /* Slightly smaller sidebar */
+    }
+
+    .sidebar-nav a {
+        font-size: 0.95rem;
+        padding: 10px 0;
+    }
+}
+
+/* Optional: Even smaller screens */
+@media (max-width: 480px) {
+    .header-left {
+        gap: 15px;
+    }
+
+    .header-main {
+        gap: 10px;
+    }
+
+    .auth-nav .btn-login,
+    .auth-nav .btn-register {
+        font-size: 0.75rem;
+        padding: 0 8px;
+        line-height: 26px;
+    }
+}

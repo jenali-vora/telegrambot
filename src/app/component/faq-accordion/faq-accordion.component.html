@@ -1,0 +1,25 @@
+<!-- src/app/component/faq-accordion/faq-accordion.component.html -->
+<div class="faq-accordion-container">
+    <h2 class="faq-title">{{ faqTitle }}</h2>
+
+    <div class="faq-list">
+        @for (item of faqItems; track $index) {
+        <div class="faq-item" [class.active]="activeIndex === $index">
+            <div class="faq-question" (click)="toggleItem($index)" (keydown.enter)="toggleItem($index)"
+                (keydown.space)="toggleItem($index)" tabindex="0" role="button"
+                [attr.aria-expanded]="activeIndex === $index" [attr.aria-controls]="'faq-answer-' + $index">
+                <span class="faq-icon">
+                    <!-- Conditional icon using NgClass -->
+                    <i class="fas" [ngClass]="activeIndex === $index ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
+                </span>
+                <span>{{ item.question }}</span>
+            </div>
+
+            <!-- Answer section - only shown if activeIndex matches -->
+            <div class="faq-answer" *ngIf="activeIndex === $index" [id]="'faq-answer-' + $index" role="region">
+                <p>{{ item.answer }}</p>
+            </div>
+        </div>
+        }
+    </div>
+</div>

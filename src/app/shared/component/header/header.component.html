@@ -1,0 +1,57 @@
+<header class="app-header">
+  <div class="header-left">
+    <!-- Logo -->
+    <a routerLink="/home" class="logo-link">
+      <!-- Adjust src path as needed. Ensure image is in src/assets -->
+      <h2>Transfer</h2>
+    </a>
+    <!-- Main Navigation Links (Hidden on mobile by CSS) -->
+  </div>
+
+  <div class="header-main">
+    <nav class="main-nav">
+      <a routerLink="/pricing" routerLinkActive="active" class="nav-link">Pricing</a>
+      <a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a>
+      <a routerLink="/faq" routerLinkActive="active" class="nav-link">FAQs</a>
+      <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
+    </nav>
+    <!-- Auth Links (Hidden on mobile by CSS) -->
+    <nav class="auth-nav">
+      <!-- Assuming you have login/register routes -->
+      <a routerLink="/login" class="btn btn-login">Log In</a>
+      <a routerLink="/register" class="btn btn-register">Sign Up</a>
+    </nav>
+
+    <!-- Hamburger Button (Shown on mobile by CSS) -->
+    <button class="mobile-menu-toggle" id="hamburger-button" (click)="openMenu()" aria-label="Open menu"
+      [attr.aria-expanded]="isMenuOpen" aria-controls="mobile-sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- === MOBILE SIDEBAR MENU & OVERLAY === -->
+  <div class="mobile-menu-overlay" id="menu-overlay" [class.is-open]="isMenuOpen">
+  </div>
+
+  <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen" [attr.aria-hidden]="!isMenuOpen">
+
+    <div class="sidebar-header">
+      <button class="sidebar-close-button" id="close-sidebar-button" (click)="closeMenu()" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Replace # placeholders with actual routerLink or href -->
+      <a routerLink="/pricing" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Pricing</a>
+      <a routerLink="/blog" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Blog</a>
+      <a routerLink="/faq" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">FAQs</a>
+      <a routerLink="/contact-us" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Contact
+        Us</a>
+      <a routerLink="/login" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Log In</a>
+      <a routerLink="/register" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Sign Up</a>
+    </nav>
+  </aside>
+  <!-- =================================== -->
+
+</header>

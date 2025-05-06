@@ -1,0 +1,177 @@
+<div class="home-content">
+
+    <!-- Hero Section -->
+    <section class="section-1 hero-section">
+        <div class="hero-content">
+            <h2 class="hero-title">Transfer and have your files travel for free</h2>
+            <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
+
+            <!-- === Conditionally Show Start Button OR Transfer Panel === -->
+
+            <!-- Initial Start Button Area -->
+            <div class="upload-main-wrapper" #dropZoneTarget
+                *ngIf="selectedItems.length === 0 && !shareableLinkForPanel" (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over-active]="isDragging">
+                <div class="upload-welcome-wrapper">
+                    <div class="position-relative custo-start">
+                        <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
+                            <span class="upload-start-label">Start</span>
+                            <span class="upload-strat-icon"><img src="assets/image/9974321.png"
+                                    alt="Start Upload"></span>
+                            <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
+                        </button>
+                        <div class="upload-start-tooltip">
+                            <span>Click or drag-and-drop your files here</span>
+                            <hr data-separator="or">
+                            <div class="custo-selector">
+                                <button type="button" title="Select Files" (click)="triggerFileInput()">
+                                    <img src="assets/image/file-upload.png" alt="Upload Files">
+                                </button>
+                                <button type="button" title="Select Folder" (click)="triggerFolderInput()">
+                                    <img src="assets/image/folder.png" alt="Upload Folder">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Transfer Panel (shown when files are selected) -->
+            <app-transfer-panel *ngIf="selectedItems.length > 0 || shareableLinkForPanel" [items]="selectedItems"
+                [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
+                [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
+                (requestAddFolder)="triggerFolderInput()" (itemRemoved)="removeItemFromPanel()"
+                (itemDownloadRequested)="handleDownloadRequest($event)"
+                (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
+            </app-transfer-panel>
+
+            <!-- ========================================================= -->
+            <div *ngIf="isUploading" class="upload-progress-area">
+                <div>{{ uploadStatusMessage }}</div>
+                <progress [value]="uploadProgress" max="100"></progress>
+                <span>{{ uploadProgress }}%</span>
+            </div>
+            <!-- Hidden Inputs -->
+            <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)">
+            <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
+                webkitdirectory>
+
+            <!-- Optional: Upload Error -->
+            <div *ngIf="uploadError" class="upload-error-message">
+                {{ uploadError }}
+            </div>
+
+            <!-- Feature Hints -->
+            <!-- <div class="feature-hints">
+                <span><i class="fas fa-file-zipper"></i> Up to 5GB per transfer</span>
+                <span><i class="fas fa-lock"></i> Password protection</span>
+                <span><i class="far fa-calendar-alt"></i> Files available for 7 days</span>
+            </div> -->
+        </div>
+    </section>
+
+    <section class="section-7 transfer-main">
+        <div class="row discfeatures">
+            <div class="col-12 col-md-5 col-lg-5 share-image">
+                <img src="assets/image/transfernow-enterprise-send.webp" alt="">
+            </div>
+            <div class="col-12 col-lg-5 col-md-5">
+                <div class="transfer-content">
+                    <h2 class="text-left">Transfer and share files by email or link with no size limit</h2>
+                    <p>Easily share large files and documents with your colleagues, clients, or partners by email or
+                        link with no size limit based on your personalized plan.
+                        <br><br>
+                        TransferNow Enterprise is designed to facilitate collaborative work by enabling fast file
+                        sharing within your organization or externally, in a secure and centralized environment ensuring
+                        effective and secure management for IT administrators or CIOs.
+                        <br><br>
+                        User transfers are available for 21 days by default, and you can configure file transfer
+                        availability for your organization based on your preferences and personalized plan settings.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- How it Works Section -->
+    <section class="section-2 transfer-file-section">
+        <div class="transfer-content">
+            <h2>How to send and share large files with TransferNow?</h2>
+        </div>
+        <div class="transfer-step">
+            @for (item of stepContent; track $index) {
+            <ol>
+                <li>
+                    <h3><span class="step-heading">{{item.number}}</span>{{item.title}}</h3>
+                    <p>{{item.des}}</p>
+                </li>
+            </ol>
+            }
+        </div>
+    </section>
+
+    <section class="section-3 integrate-transfer">
+        <div class="row m-0 integration-content-wrapper">
+            <div class="col-12 col-lg-5 p-0 itegration-content">
+                <div class="transfer-content">
+                    <h2 class="transfer-heading">Integrate TransferNow to your website for file reception</h2>
+                </div>
+                <p>Discover our tool for creating customized forms and then by adding a simple line of HTML code on your
+                    internet site you can directly receive files.</p>
+            </div>
+            <div class="col-12 col-lg-6 p-0">
+                <div class="contact-list">
+                    @for (item of transferList; track $index) {
+                    <ul>
+                        <li>
+                            <span>
+                                <img [src]="item.img" alt="">
+                                <p>{{item.des}}</p>
+                            </span>
+                        </li>
+                    </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-4 upcoming-apps">
+        <div class="transfer-content">
+            <h2>Keep an Eye Out for Our Upcoming Apps</h2>
+
+        </div>
+        <div class="upcoming-icon">
+            @for (item of apps; track $index) {
+            <ul>
+                <li>
+                    <span>
+                        <img [src]="item.img" alt="">
+                        <span>{{item.title}}</span>
+                        <button disabled class="coming-btn">Coming Soon</button>
+                    </span>
+                </li>
+            </ul>
+            @if ($index === 1) {
+            <div class="vertical-divider"></div>
+            }
+            }
+        </div>
+    </section>
+
+    <section class="section-5">
+        <app-faq-accordion></app-faq-accordion>
+    </section>
+
+    <section class="section-6">
+        <app-cta-section></app-cta-section>
+    </section>
+
+    <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
+        <app-upload-progress-item [item]="currentItemBeingUploaded" [progress]="uploadProgress"
+            (cancelUpload)="handleCancelUpload()">
+            <!-- The status input is not used by the child component in the provided code -->
+            <!-- [status]="uploadStatusMessage" -->
+        </app-upload-progress-item>
+    </div>
+</div>

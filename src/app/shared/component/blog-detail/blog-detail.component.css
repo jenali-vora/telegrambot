@@ -1,0 +1,198 @@
+/* src/app/component/blog-detail/blog-detail.component.css */
+
+.blog-detail-container {
+    max-width: 800px;
+    /* Adjust content width */
+    margin: 2rem auto;
+    /* Center container */
+    padding: 0 15px;
+}
+
+.post-header h1 {
+    font-size: 2.5rem;
+    /* Adjust as needed */
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    /* Example color */
+    line-height: 1.3;
+}
+
+.post-meta {
+    display: flex;
+    gap: 20px;
+    /* Space between author and date */
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Add styles for icons if you use them */
+/* .post-meta .icon-user, .post-meta .icon-calendar { margin-right: 5px; } */
+
+
+.featured-image {
+    margin: 0 0 2rem 0;
+    /* Remove default figure margin, add bottom margin */
+}
+
+.featured-image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Maintain aspect ratio */
+    max-height: 400px;
+    /* Optional: Limit image height */
+    object-fit: cover;
+    /* Cover the area */
+    border-radius: 8px;
+    /* Optional rounded corners */
+}
+
+.post-content {
+    line-height: 1.7;
+    color: #333;
+    font-size: 1.05rem;
+    /* Slightly larger body text */
+}
+
+/* Style elements within the dynamically inserted HTML */
+.post-content p {
+    margin-bottom: 1.25em;
+}
+
+.post-content h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    color: #2c3e50;
+}
+
+.post-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    color: #2c3e50;
+}
+
+.post-content strong,
+.post-content b {
+    font-weight: 600;
+    /* Ensure bold stands out */
+}
+
+.post-content ul,
+.post-content ol {
+    margin-bottom: 1.25em;
+    padding-left: 2em;
+}
+
+/* --- Related Articles --- */
+.related-articles {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+    /* Separator line */
+}
+
+.related-articles h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns */
+    gap: 25px;
+}
+
+.related-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.related-image-link img {
+    display: block;
+    width: 100%;
+    height: 150px;
+    /* Smaller height for related cards */
+    object-fit: cover;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.related-content {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.related-date {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.related-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    flex-grow: 1;
+    /* Push read more down */
+}
+
+.related-title a {
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.related-title a:hover {
+    color: #007bff;
+}
+
+.read-more {
+    /* Reuse styles from blog list if desired */
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+    margin-top: auto;
+    /* Pushes to bottom */
+}
+
+.read-more:hover {
+    color: #0056b3;
+}
+
+.loading-message {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #777;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .post-header h1 {
+        font-size: 2rem;
+    }
+
+    .post-content {
+        font-size: 1rem;
+    }
+
+    .related-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Stack related posts on smaller screens */
+}

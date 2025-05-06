@@ -1,0 +1,324 @@
+/* Overall page layout */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    /* Light grey background */
+    padding: 20px;
+    box-sizing: border-box;
+    /* Simple system font */
+}
+
+.login-container-flex {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+/* Column base styles */
+.col-6 {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    /* Don't grow/shrink */
+    width: 47.5%;
+    /* Adjust width considering gap */
+}
+
+/* Login column specifics */
+.login-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-card {
+    background-color: var(--white-color);
+    padding: 40px 45px;
+    border-radius: 24px 24px 0px 0px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    /* margin-bottom: 20px; */
+    /* Space before footer */
+}
+
+.login-card h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+    color: var(--heading-color);
+    text-align: center;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.form-field input[type="email"],
+.form-field input[type="password"] {
+    width: 100%;
+    height: 20px;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+    font-size: 14px;
+    background-color: transparent;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.form-field input:focus {
+    outline: none;
+    border-bottom-color: #0d6efd;
+    /* Example focus color */
+}
+
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    height: 20px;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+    font-size: 14px;
+    background-color: transparent;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+    /* Space for icon */
+}
+
+.toggle-visibility {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #aaa;
+}
+
+.toggle-visibility svg {
+    display: block;
+}
+
+.forgot-link {
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: rgba(51, 51, 51, 0.4);
+    ;
+    text-decoration: none;
+    margin-top: -12px;
+    margin-bottom: 25px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+}
+
+.remember-me-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remember-me-checkbox label {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: var(--background);
+    /* Match button color */
+}
+
+
+.login-btn {
+    background: var(--background);
+    color: var(--white-color);
+    border: none;
+    padding: 20px 25px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background: var(--background-hover);
+    }
+}
+
+.login-btn:hover:not(:disabled) {
+    background-color: var(--background);
+}
+
+.login-btn:disabled {
+    background-color: var(--background);
+    cursor: not-allowed;
+}
+
+.signup-footer {
+    background-color: rgb(237, 237, 237);
+    padding: 15px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    border-radius: 0px 0px 24px 24px;
+    /* Match card */
+}
+
+.signup-footer a {
+    color: rgba(51, 51, 51, 0.7);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.signup-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Info column specifics */
+.info-column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-left: 30px;
+    /* Add some padding */
+}
+
+.info-content {
+    max-width: 300px;
+}
+
+.info-image {
+    /* max-width: 140px; */
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.info-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin: 0 0 10px 0;
+}
+
+.info-content p {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+.info-details-link {
+    font-size: 13px;
+    color: #d90007;
+    /* MEGA red */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.info-details-link:hover {
+    text-decoration: underline;
+}
+
+/* Basic error styling */
+.error-text {
+    margin-top: 4px;
+}
+
+.error-text small {
+    color: #dc3545;
+    font-size: 12px;
+}
+
+.toggle-visibility {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 8px;
+    /* Adjust padding */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    opacity: 0.7;
+    font-size: 16px;
+    /* Control icon size via font-size */
+    line-height: 1;
+    width: auto;
+    /* Remove fixed width if needed */
+    height: auto;
+    /* Remove fixed height if needed */
+}
+
+.toggle-visibility i {
+    /* Style the icon tag itself */
+    display: block;
+    /* Or inline-block */
+}
+
+.toggle-visibility:hover {
+    opacity: 1;
+    color: #555;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 850px) {
+    .login-container-flex {
+        flex-direction: column;
+        max-width: 450px;
+        gap: 0;
+        /* No gap when stacked */
+    }
+
+    .col-6 {
+        width: 100%;
+        /* Full width on mobile */
+    }
+
+    .info-column {
+        display: none;
+        /* Hide info column on small screens */
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .form-actions {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .login-btn {
+        width: 100%;
+    }
+
+    .login-card {
+        padding: 20px 25px;
+    }
+}

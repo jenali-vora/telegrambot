@@ -1,0 +1,177 @@
+:host {
+    display: block;
+    width: 100%;
+    max-width: 380px; /* Match other panels */
+    margin: 0 auto; /* Center if needed */
+  }
+  
+  .card-style {
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 12px;
+    padding: 0.8rem 1rem; /* Adjust padding */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eef2f7;
+    box-sizing: border-box;
+  }
+  
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+    padding-bottom: 0.5rem;
+  }
+  
+  .progress-header .percentage-badge {
+     margin-left: auto; /* Push percentage left */
+     margin-right: 1rem; /* Space before chevron */
+  }
+   .progress-header i {
+       color: #888;
+       cursor: pointer; /* If dropdown is interactive */
+   }
+  
+  
+  .progress-divider {
+    border: none;
+    border-top: 1px solid #f0f0f0;
+    margin: 0.3rem 0 0.8rem 0;
+  }
+  
+  .progress-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .item-icon {
+    font-size: 1.5rem; /* Larger icon */
+    width: 40px; /* Icon container size */
+    height: 40px;
+    text-align: center;
+    color: #888; /* Default icon color */
+    flex-shrink: 0;
+    background-color: #f0f0f0; /* Placeholder background */
+    border-radius: 8px;
+    position: relative; /* For text overlay */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Specific icon colors if needed */
+  .item-icon .fa-file-code,
+  .item-icon .fa-python { color: #5a67d8; } /* Example color */
+  .item-icon .fa-file-image,
+  .item-icon .fa-file-svg { color: var(--background); } /* Example color */
+  
+  .icon-file-type {
+      position: absolute;
+      bottom: 2px;
+      right: 3px;
+      font-size: 0.55rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 1px 3px;
+      border-radius: 3px;
+      line-height: 1;
+  }
+  
+  .item-details {
+    flex-grow: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Space between name and progress bar */
+  }
+  
+  .item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+  
+  .item-progress-bar {
+    width: 100%;
+    height: 6px; /* Progress bar height */
+    background-color: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden; /* Ensure progress stays within bounds */
+  }
+  
+  .item-progress-bar progress {
+    width: 100%;
+    height: 100%;
+    appearance: none; /* Remove default styling */
+    border: none;
+    background-color: transparent; /* Hide underlying bar */
+  }
+  
+  /* Styling for the progress value bar */
+  .item-progress-bar progress::-webkit-progress-value {
+    background-color: #4caf50; /* Green progress */
+    border-radius: 3px;
+     transition: width 0.2s ease-out; /* Smooth progress update */
+  }
+  .item-progress-bar progress::-moz-progress-bar {
+    background-color: #4caf50; /* Green progress */
+    border-radius: 3px;
+     transition: width 0.2s ease-out; /* Smooth progress update */
+  }
+  .item-progress-bar progress::-ms-fill {
+     background-color: #4caf50; /* Green progress */
+     border-radius: 3px;
+      transition: width 0.2s ease-out; /* Smooth progress update */
+  }
+  
+  
+  .item-size,
+  .item-percentage {
+    font-size: 0.75rem;
+    color: #777;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  .percentage-badge {
+     background-color: #eaf7eb; /* Light green background */
+     color: var(--background); /* Darker green text */
+     padding: 3px 8px;
+     border-radius: 10px; /* Pill shape */
+     font-weight: 500;
+     font-size: 0.7rem;
+     margin-left: 5px; /* Space from size */
+  }
+  
+  .item-actions {
+    flex-shrink: 0;
+    margin-left: 5px; /* Space before cancel button */
+  }
+  
+  .btn-cancel {
+    background: #e2e8f0; /* Light grey background */
+    border: none;
+    color: #555;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    line-height: 24px; /* Center icon */
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  
+  .btn-cancel:hover {
+    background-color: #cbd5e0;
+    color: #2d3748;
+  }

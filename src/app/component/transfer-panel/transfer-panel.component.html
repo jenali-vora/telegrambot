@@ -1,0 +1,86 @@
+<!-- src/app/component/transfer-panel/transfer-panel.component.html -->
+<div class="transfer-panel-wrapper card-style">
+
+    <!-- "Add More" Actions - Hide when items are present -->
+    <div class="add-more-actions" *ngIf="items.length === 0">
+        <button type="button" class="btn btn-add" (click)="addMoreFiles()" [disabled]="isUploading">
+            <i class="fas fa-file-circle-plus"></i> Add more files
+        </button>
+        <button type="button" class="btn btn-add" (click)="addFolder()" [disabled]="isUploading">
+            <i class="fas fa-folder-plus"></i> Add folders
+        </button>
+    </div>
+
+    <!-- File Summary & List -->
+    <!-- Show this section only if items exist OR a link exists (after upload) -->
+    <div class="file-list-section" *ngIf="items.length > 0 || batchShareableLink">
+        <div class="file-summary">
+            <span class="count">
+                {{ totalCount }} file{{ totalCount !== 1 ? 's' : '' }} ({{ totalSize | byteFormat }})
+            </span>
+            <!-- Show clear button only if items exist AND not uploading -->
+            <button *ngIf="items.length > 0 && !isUploading" class="btn icon-btn btn-clear-all" title="Remove selection"
+                (click)="clearAllItems()">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+
+        <!-- Only show the list scroll if items exist -->
+        <div class="file-list-scroll" *ngIf="items.length > 0">
+            <ul class="file-list">
+                <!-- Keep the @for loop, it will just iterate over the single batch -->
+                @for(item of items; track item.id) {
+                <li class="file-list-item">
+                    <div class="item-icon"><i [ngClass]="item.icon"></i></div>
+                    <div class="item-details">
+                        <span class="item-name" [title]="item.name">{{ item.name }}</span>
+                    </div>
+                    <div class="item-size">{{ item.size | byteFormat }}</div>
+                    <div class="item-actions">
+                        <button class="btn icon-btn btn-download-item" title="Download this item (Local)"
+                            (click)="requestItemDownload(item, $event)" [disabled]="isUploading">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <!-- The clearAllItems button now handles removal -->
+<!--                         
+                        <button class="btn icon-btn btn-remove-item" title="Remove this item"
+                            (click)="requestItemRemoval(item, $event)" [disabled]="isUploading">
+                            <i class="fas fa-trash-alt"></i>
+                        </button> -->
+                         
+                    </div>
+                </li>
+                }
+                <!-- Empty state not strictly needed if section is hidden, but keep for safety -->
+                @empty {
+                 <li class="empty-list">Select a file or folder</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+   <!-- Shareable Link Display (Conditional) -->
+    <div *ngIf="batchShareableLink" class="share-link-display">
+        <label>Your download link:</label>
+        <div class="share-link-input-group">
+            <input type="text" readonly [value]="batchShareableLink" title="Shareable download link">
+            <button type="button" class="btn btn-secondary copy-button" (click)="copyLink(batchShareableLink, $event)"
+                title="Copy link to clipboard">
+                <i class="fas fa-copy"></i> {{ copyButtonText }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Upload Button Area - Show if items selected AND no link exists yet -->
+    <div class="panel-actions-upload" *ngIf="items.length > 0 && !batchShareableLink">
+        <button class="btn btn-primary btn-upload-tg" (click)="startTransfer()" [disabled]="isUploading">
+            <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isUploading"></i>
+            {{ isUploading ? 'Uploading...' : 'Upload to Telegram' }}
+        </button>
+        <div *ngIf="isUploading && uploadStatusMessage" class="upload-status-message">
+             {{ uploadStatusMessage }} <!-- Display status from HomeComponent -->
+        </div>
+    </div>
+
+</div>
