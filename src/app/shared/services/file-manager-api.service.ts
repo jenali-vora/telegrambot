@@ -49,7 +49,7 @@ export interface SelectedItem {
 @Injectable({ providedIn: 'root' })
 export class FileManagerApiService {
   // !!! Ensure this URL points correctly to your running Python backend !!!
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrlTelegram;
 
   private http = inject(HttpClient);
 
