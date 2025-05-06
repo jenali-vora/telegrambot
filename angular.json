@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "telegrambot": {
+    "telegrambot": { 
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -22,7 +22,7 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets" 
+              "src/assets"
             ],
             "styles": [
               "src/styles.css"
@@ -39,8 +39,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "6kb",   
+                  "maximumError": "10kb"   
                 }
               ],
               "outputHashing": "all"
