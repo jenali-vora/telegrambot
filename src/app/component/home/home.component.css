@@ -694,6 +694,11 @@
     cursor: not-allowed;
 }
 
+.hero-right-column{
+    background-color: var(--white-color);
+    border-radius: 20px;
+}
+
 /* --- Responsiveness --- */
 
 @media (max-width: 992px) {
