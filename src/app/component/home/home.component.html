@@ -1,77 +1,125 @@
+<!-- src/app/component/home/home.component.html -->
 <div class="home-content">
 
-    <!-- Hero Section -->
     <section class="section-1 hero-section">
         <div class="hero-content">
             <h2 class="hero-title">Transfer and have your files travel for free</h2>
             <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
 
-            <!-- === Conditionally Show Start Button OR Transfer Panel === -->
+            <!-- Main content wrapper for side-by-side layout -->
+            <div class="hero-main-content-wrapper">
 
-            <!-- Initial Start Button Area -->
-            <div class="upload-main-wrapper" #dropZoneTarget
-                *ngIf="selectedItems.length === 0 && !shareableLinkForPanel" (dragover)="onDragOver($event)"
-                (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over-active]="isDragging">
-                <div class="upload-welcome-wrapper">
-                    <div class="position-relative custo-start">
-                        <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
-                            <span class="upload-start-label">Start</span>
-                            <span class="upload-strat-icon"><img src="assets/image/9974321.png"
-                                    alt="Start Upload"></span>
-                            <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
-                        </button>
-                        <div class="upload-start-tooltip">
-                            <span>Click or drag-and-drop your files here</span>
-                            <hr data-separator="or">
-                            <div class="custo-selector">
-                                <button type="button" title="Select Files" (click)="triggerFileInput()">
-                                    <img src="assets/image/file-upload.png" alt="Upload Files">
+                <!-- Left Column: Start Button Area OR Transfer Panel -->
+                <div class="hero-left-column">
+                    <!-- ... (upload-main-wrapper and app-transfer-panel as before) ... -->
+                    <div class="upload-main-wrapper" #dropZoneTarget
+                        *ngIf="selectedItems.length === 0 && !shareableLinkForPanel" (dragover)="onDragOver($event)"
+                        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over-active]="isDragging">
+                        <!-- ... Start button content ... -->
+                        <div class="upload-welcome-wrapper">
+                            <div class="position-relative custo-start">
+                                <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
+                                    <span class="upload-start-label">Start</span>
+                                    <span class="upload-strat-icon"><img src="assets/image/9974321.png"
+                                            alt="Start Upload"></span>
+                                    <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
                                 </button>
-                                <button type="button" title="Select Folder" (click)="triggerFolderInput()">
-                                    <img src="assets/image/folder.png" alt="Upload Folder">
-                                </button>
+                                <div class="upload-start-tooltip">
+                                    <span>Click or drag-and-drop your files here</span>
+                                    <hr data-separator="or">
+                                    <div class="custo-selector">
+                                        <button type="button" title="Select Files" (click)="triggerFileInput()">
+                                            <img src="assets/image/file-upload.png" alt="Upload Files">
+                                        </button>
+                                        <button type="button" title="Select Folder" (click)="triggerFolderInput()">
+                                            <img src="assets/image/folder.png" alt="Upload Folder">
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                    <app-transfer-panel *ngIf="selectedItems.length > 0 || shareableLinkForPanel"
+                        [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
+                        [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
+                        (requestAddFolder)="triggerFolderInput()" (itemRemoved)="removeItemFromPanel()"
+                        (itemDownloadRequested)="handleDownloadRequest($event)"
+                        (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
+                    </app-transfer-panel>
+                </div> <!-- END hero-left-column -->
 
+                <!-- Right Column: User's File List (only if logged in) -->
+                <div class="hero-right-column" *ngIf="currentUser">
+                    <div class="user-file-list-panel card-style"> <!-- REUSING card-style for consistency -->
 
-            <!-- Transfer Panel (shown when files are selected) -->
-            <app-transfer-panel *ngIf="selectedItems.length > 0 || shareableLinkForPanel" [items]="selectedItems"
-                [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
-                [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
-                (requestAddFolder)="triggerFolderInput()" (itemRemoved)="removeItemFromPanel()"
-                (itemDownloadRequested)="handleDownloadRequest($event)"
-                (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
-            </app-transfer-panel>
+                        <!-- File Summary (mimicking transfer-panel) -->
+                        <div class="file-summary"> <!-- Class from transfer-panel.css -->
+                            <span class="count">
+                                {{ displayedFiles.length }} file{{ displayedFiles.length !== 1 ? 's' : '' }}
+                                ({{ totalUploadedSize | byteFormat }}) <!-- New property for total size -->
+                            </span>
+                            <!-- No global clear button for historical list, deletion is per-item -->
+                        </div>
 
-            <!-- ========================================================= -->
-            <div *ngIf="isUploading" class="upload-progress-area">
-                <div>{{ uploadStatusMessage }}</div>
-                <progress [value]="uploadProgress" max="100"></progress>
-                <span>{{ uploadProgress }}%</span>
-            </div>
-            <!-- Hidden Inputs -->
+                        <div *ngIf="isLoadingFiles" class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i> Loading files...
+                        </div>
+                        <div *ngIf="fileListError" class="error-message file-list-specific-error">
+                            {{ fileListError }}
+                        </div>
+
+                        <div *ngIf="!isLoadingFiles && !fileListError"
+                            class="file-list-scroll user-history-list-scroll">
+                            @if (displayedFiles.length > 0) {
+                            <ul class="file-list"> <!-- Class from transfer-panel.css -->
+                                @for(file of displayedFiles; track file.access_id || file.original_filename +
+                                file.upload_timestamp) {
+                                <li class="file-list-item"> <!-- Class from transfer-panel.css -->
+                                    <div class="item-icon"><i [ngClass]="getFileIcon(file.original_filename)"></i></div>
+                                    <div class="item-details">
+                                        <span class="item-name" [title]="file.original_filename">{{
+                                            file.original_filename }}</span>
+                                        <!-- Date can be added here or as a separate column if table is preferred -->
+                                        <span class="item-upload-date">{{ formatUploadDate(file.upload_timestamp)
+                                            }}</span>
+                                    </div>
+                                    <div class="item-size">{{ (file.original_size !== undefined ? file.original_size :
+                                        0) | byteFormat }}</div>
+                                    <div class="item-actions">
+                                        <button class="btn icon-btn btn-download-item" title="Download File"
+                                            (click)="requestFileDownload(file)" [disabled]="!file.access_id">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                        <button class="btn icon-btn btn-remove-item" title="Delete Record"
+                                            (click)="requestFileDelete(file)"> <!-- Use transfer-panel class -->
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                                }
+                            </ul>
+                            } @else {
+                            <p class="no-files-message">No files uploaded to your account yet.</p>
+                            }
+                        </div>
+                    </div>
+                </div> <!-- END hero-right-column -->
+
+            </div> <!-- END hero-main-content-wrapper -->
+
             <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)">
             <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
                 webkitdirectory>
-
-            <!-- Optional: Upload Error -->
-            <div *ngIf="uploadError" class="upload-error-message">
+            <div *ngIf="uploadError" class="upload-error-message global-upload-error">
                 {{ uploadError }}
             </div>
-
-            <!-- Feature Hints -->
-            <!-- <div class="feature-hints">
-                <span><i class="fas fa-file-zipper"></i> Up to 5GB per transfer</span>
-                <span><i class="fas fa-lock"></i> Password protection</span>
-                <span><i class="far fa-calendar-alt"></i> Files available for 7 days</span>
-            </div> -->
         </div>
     </section>
+    <!-- === END: File List Section === -->
 
-    <section class="section-7 transfer-main">
+
+    <!-- Other Sections (keep as is) -->
+    <section class="section-7 transfer-main container">
         <div class="row discfeatures">
             <div class="col-12 col-md-5 col-lg-5 share-image">
                 <img src="assets/image/transfernow-enterprise-send.webp" alt="">
@@ -93,8 +141,7 @@
             </div>
         </div>
     </section>
-    <!-- How it Works Section -->
-    <section class="section-2 transfer-file-section">
+    <section class="section-2 transfer-file-section container">
         <div class="transfer-content">
             <h2>How to send and share large files with TransferNow?</h2>
         </div>
@@ -110,7 +157,7 @@
         </div>
     </section>
 
-    <section class="section-3 integrate-transfer">
+    <section class="section-3 integrate-transfer container">
         <div class="row m-0 integration-content-wrapper">
             <div class="col-12 col-lg-5 p-0 itegration-content">
                 <div class="transfer-content">
@@ -136,7 +183,7 @@
         </div>
     </section>
 
-    <section class="section-4 upcoming-apps">
+    <section class="section-4 upcoming-apps container">
         <div class="transfer-content">
             <h2>Keep an Eye Out for Our Upcoming Apps</h2>
 
@@ -167,11 +214,12 @@
         <app-cta-section></app-cta-section>
     </section>
 
+    <!-- Upload Progress Overlay (remains unchanged) -->
     <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
-        <app-upload-progress-item [item]="currentItemBeingUploaded" [progress]="uploadProgress"
+        <app-upload-progress-item [item]="currentItemBeingUploaded" [percentage]="uploadProgressDetails.percentage"
+            [bytesSent]="uploadProgressDetails.bytesSent" [totalBytes]="uploadProgressDetails.totalBytes"
+            [speedMBps]="uploadProgressDetails.speedMBps" [etaFormatted]="uploadProgressDetails.etaFormatted"
             (cancelUpload)="handleCancelUpload()">
-            <!-- The status input is not used by the child component in the provided code -->
-            <!-- [status]="uploadStatusMessage" -->
         </app-upload-progress-item>
     </div>
 </div>

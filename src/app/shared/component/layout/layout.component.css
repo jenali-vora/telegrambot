@@ -1,25 +1,31 @@
 :host {
-    display: block;
-    height: 100vh;
-    width: 100%;
-  }
-  
-  .layout-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .layout-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* Allow content scrolling */
-  }
-  
-  /* Ensure router-outlet content fills space */
-  .layout-content > router-outlet + * {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-  }
+  display: block;
+  height: 100vh;
+  width: 100%;
+}
+
+.header-main {
+  width: 100%;
+  background-color: var(--background);
+}
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  /* Allow content scrolling */
+}
+
+/* Ensure router-outlet content fills space */
+.layout-content>router-outlet+* {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
