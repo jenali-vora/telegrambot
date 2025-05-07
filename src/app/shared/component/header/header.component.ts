@@ -19,7 +19,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   // For user's plan - this would ideally come from backend, hardcoding for example
   // If your User object from authService contains plan info, use that.
-  userPlan = 'Free plan';
 
   private authSubscription: Subscription = new Subscription();
   private renderer = inject(Renderer2);

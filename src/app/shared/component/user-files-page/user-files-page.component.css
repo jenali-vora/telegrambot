@@ -1,0 +1,210 @@
+.user-files-page-container {
+    max-width: 900px;
+    /* Or your preferred page width */
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+}
+
+.btn-outline-secondary {
+    /* Basic button style */
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    border-radius: 0.25rem;
+    text-decoration: none;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-outline-secondary i {
+    margin-right: 0.3rem;
+}
+
+
+.user-file-list-panel.card-style {
+    /* Inherits card-style from global or home.component.css if not scoped */
+    /* Or define specific styles here if needed */
+    background-color: #ffffff;
+    color: #333;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eef2f7;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-file-list-panel .file-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    flex-shrink: 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.user-file-list-panel .file-summary .count {
+    font-weight: 600;
+}
+
+.user-file-list-panel .user-history-list-scroll {
+    flex-grow: 1;
+    /* Allows list to take available space */
+    overflow-y: auto;
+    /* Consider a max-height if the page itself isn't scrollable and list can be very long */
+    /* max-height: calc(100vh - 250px); */
+    /* Example */
+    padding-right: 5px;
+    /* For scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #ced4da #f1f3f5;
+}
+
+.user-file-list-panel .user-history-list-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.user-file-list-panel .user-history-list-scroll::-webkit-scrollbar-track {
+    background: #f1f3f5;
+}
+
+.user-file-list-panel .user-history-list-scroll::-webkit-scrollbar-thumb {
+    background-color: #ced4da;
+    border-radius: 3px;
+}
+
+.user-file-list-panel .file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-file-list-panel .file-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 10px;
+}
+
+.user-file-list-panel .file-list-item:last-child {
+    border-bottom: none;
+}
+
+.user-file-list-panel .item-icon {
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.user-file-list-panel .item-icon .fa-file-archive {
+    color: #6f42c1;
+}
+
+.user-file-list-panel .item-icon .fa-file-image {
+    color: #fd7e14;
+}
+
+
+.user-file-list-panel .item-details {
+    flex-grow: 1;
+    overflow: hidden;
+    font-size: 0.85rem;
+    margin-right: 5px;
+}
+
+.user-file-list-panel .item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+    font-weight: 500;
+}
+
+.user-file-list-panel .item-upload-date-history {
+    display: block;
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 2px;
+}
+
+.user-file-list-panel .item-size {
+    font-size: 0.8rem;
+    color: #777;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.user-file-list-panel .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.user-file-list-panel .btn-download-item,
+.user-file-list-panel .btn-remove-item {
+    background: none;
+    border: none;
+    padding: 3px 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #999;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.user-file-list-panel .btn-download-item:hover {
+    color: #007bff;
+}
+
+.user-file-list-panel .btn-remove-item:hover {
+    color: #dc3545;
+}
+
+.user-file-list-panel .btn-download-item:disabled,
+.user-file-list-panel .btn-remove-item:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-indicator,
+.error-message,
+.no-files-message {
+    padding: 1.5rem;
+    text-align: center;
+    color: #555;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: .25rem;
+    font-size: 0.9rem;
+}

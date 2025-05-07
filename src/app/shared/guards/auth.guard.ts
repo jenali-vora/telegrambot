@@ -1,22 +1,21 @@
-// // EXAMPLE ONLY - If you have a CLASS guard
-// import { Injectable, inject } from '@angular/core';
-// import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-// import { AuthService } from '../services/auth.service'; // Verify path
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Adjust path
+import { map, take } from 'rxjs/operators';
 
-// @Injectable({ providedIn: 'root' })
-// export class AuthGuard implements CanActivate { // Implements CanActivate
+export const authGuard: CanActivateFn = (route, state) => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-//   private authService = inject(AuthService);
-//   private router = inject(Router);
-
-//   canActivate(
-//     route: ActivatedRouteSnapshot,
-//     state: RouterStateSnapshot): boolean { // Return boolean directly
-//     if (this.authService.isLoggedIn()) {
-//       return true;
-//     } else {
-//       this.router.navigate(['/login']);
-//       return false;
-//     }
-//   }
-// }
+    return authService.isLoggedIn$.pipe(
+        take(1),
+        map(isLoggedIn => {
+            if (isLoggedIn) {
+                return true;
+            } else {
+                router.navigate(['/home']); // Or your login page
+                return false;
+            }
+        })
+    );
+};

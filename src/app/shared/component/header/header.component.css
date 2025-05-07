@@ -101,13 +101,6 @@
     /* Adjust as needed */
 }
 
-.user-plan-display {
-    color: #bdc1c6;
-    font-size: 0.75rem;
-    margin-right: 8px;
-    white-space: nowrap;
-}
-
 .user-avatar-sm {
     width: 28px;
     /* Adjusted size */
@@ -182,11 +175,6 @@
     font-weight: 600;
     font-size: 0.9rem;
     color: #202124;
-}
-
-.dropdown-user-details .member-count {
-    font-size: 0.75rem;
-    color: #5f6368;
 }
 
 .dropdown-arrow {
@@ -419,10 +407,6 @@
 
     .user-profile-trigger {
         padding: 5px;
-    }
-
-    .user-plan-display {
-        display: none;
     }
 }
 

@@ -76,7 +76,7 @@
         <button class="btn btn-primary btn-upload-tg" (click)="startTransfer()" [disabled]="isUploading">
             <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i>
             <i class="fas fa-spinner fa-spin" *ngIf="isUploading"></i>
-            {{ isUploading ? 'Uploading...' : 'Upload to Telegram' }}
+            {{ isUploading ? 'Uploading...' : 'Upload' }}
         </button>
         <div *ngIf="isUploading && uploadStatusMessage" class="upload-status-message">
              {{ uploadStatusMessage }} <!-- Display status from HomeComponent -->

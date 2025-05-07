@@ -28,7 +28,6 @@
         <!-- User Profile Trigger -->
         <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
           <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span>
-          <span class="user-plan-display">{{ userPlan }}</span>
           <!-- Create a placeholder or use a generic icon if you don't have user avatars -->
           <img src="assets/image/user-loginimage.png" alt="User Avatar" class="user-avatar-sm">
         </div>
@@ -39,7 +38,6 @@
             <img src="assets/image/user-loginimage.png" alt="User Avatar" class="user-avatar-lg">
             <div class="dropdown-user-details">
               <span class="username">{{ currentUser.username || 'Username' }}</span>
-              <span class="member-count">1 member</span> <!-- Placeholder -->
             </div>
             <i class="fas fa-chevron-down dropdown-arrow" [class.fa-chevron-up]="isUserMenuOpen"></i>
           </div>
