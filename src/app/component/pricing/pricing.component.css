@@ -3,6 +3,7 @@
     padding: 60px 20px;
     background-color: #f8f9fa;
     /* Light background */
+    /* Added for basic font */
 }
 
 /* --- Header --- */
@@ -75,6 +76,8 @@
     display: flex;
     justify-content: center;
     gap: 30px;
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
 }
 
 /* --- Individual Card Styling --- */
@@ -84,11 +87,14 @@
     border-radius: 8px;
     padding: 25px;
     width: 40%;
-    /* Allow shrinking/growing, base width */
-    /* Max width per card */
+    /* Fixed width or flex-basis */
+    max-width: 90%;
+    /* Ensure it fits on small screens */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     position: relative;
     /* Needed for save-banner positioning */
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- Premium Card Specifics --- */
@@ -173,6 +179,8 @@
     padding: 0;
     margin: 20px 0 0 0;
     /* Space above list */
+    flex-grow: 1;
+    /* Allow list to take up space */
 }
 
 .features-list li {
@@ -199,28 +207,40 @@
 
 .text-blue {
     color: var(--background);
+    /* Checkmark color */
 }
 
-/* Checkmark color */
 .text-muted {
+    color: #adb5bd;
+    /* Cross/disabled color */
+}
+
+.fa-user-check,
+.fa-check {
+    /* Assuming these are your icons */
+    color: var(--background);
+}
+
+.fa-times {
     color: #adb5bd;
 }
 
-/* Cross/disabled color */
-.fa-microsoft {
-    color: var(--background);
+.fa-user {
+    color: #333;
+    /* Default user icon color */
 }
 
-/* Officialish Outlook color */
-.fa-chrome {
-    color: #e4405f;
+/* Specific overrides if needed based on FontAwesome classes used */
+.features-list .fa-microsoft,
+.features-list .fa-chrome {
+    color: #adb5bd;
+    /* Muted by default */
 }
 
-/* Reddish/Orange for Chrome */
-.premium-card .fa-microsoft,
-.premium-card .fa-chrome {
+.premium-card .features-list .fa-microsoft,
+.premium-card .features-list .fa-chrome {
     color: var(--background);
-    /* Use theme blue for included extensions */
+    /* Blue for included features */
 }
 
 
@@ -230,11 +250,13 @@
     flex-direction: column;
     /* Stack buttons in premium */
     gap: 10px;
-    margin: 25px 0;
-    /* Space around buttons */
+    margin: 25px 0 0 0;
+    /* Remove bottom margin, add top */
     border-top: 1px solid #eee;
     /* Separator line */
     padding-top: 25px;
+    margin-top: auto;
+    /* Push to bottom */
 }
 
 .card-action .btn {
@@ -282,16 +304,12 @@
     color: white;
 }
 
-/* section-2 css  start*/
-/* --- Basic Section Setup --- */
+/* ============================= */
+/* --- Info Cards Section --- */
+/* ============================= */
 .info-cards-section {
     padding: 40px 20px;
-}
-
-.container {
-    max-width: 1140px;
-    /* Adjust max width */
-    margin: 0 auto;
+    background-color: var(--white-color);
 }
 
 /* --- Grid Layout for Cards --- */
@@ -301,6 +319,7 @@
     /* Responsive grid */
     gap: 30px;
     /* Space between cards */
+    margin: 0 auto;
 }
 
 /* --- Individual Card Styling --- */
@@ -309,8 +328,8 @@
     border: 1px solid rgba(63, 81, 181, 0.1);
     /* Light border */
     border-radius: 8px;
-    border-left: 1px solid rgba(63, 81, 181, 0.1);
-    border-left-width: 10px;
+    border-left: 5px solid rgba(63, 81, 181, 0.1);;
+    /* Blue accent on the left */
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     display: flex;
@@ -369,19 +388,21 @@
     text-align: center;
     text-decoration: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    /* Using btn-outline-primary styles defined earlier */
 }
 
-/* section0-2 css end */
 
-/* section-3 css start */
+/* ============================== */
+/* --- Customers Section (SCROLLING LOGOS) --- */
+/* ============================== */
 .customers-section {
-    background: linear-gradient(90deg, rgb(43, 58, 145), rgb(26, 38, 108));
-    /* Dark blue background */
+    /* background: linear-gradient(90deg, rgb(43, 58, 145), rgb(26, 38, 108)); */
+    background-color: var(--background);
+    /* Simpler dark blue background */
     padding: 60px 0;
-    color: #ffffff;
+    color: var(--white-color);
     /* White text */
     overflow: hidden;
-    /* Prevent horizontal scrollbar on the page */
 }
 
 .section-title {
@@ -389,14 +410,15 @@
     font-weight: 700;
     text-align: center;
     margin-bottom: 40px;
-    padding: 0 40px;
+    padding: 0 20px;
+    /* Padding for smaller screens */
 }
 
-/* --- Logo Carousel --- */
+/* --- Logo Carousel (Viewport) --- */
 .logo-carousel {
     width: 100%;
     overflow: hidden;
-    /* Hide the logos outside the viewport */
+    /* CRUCIAL: Hides the logos outside the viewport */
     position: relative;
     margin-bottom: 40px;
     /* Optional: Add gradient fade effect at edges */
@@ -404,18 +426,22 @@
     mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
+/* --- Logo Track (Contains all logos, gets animated) --- */
 .logo-track {
-    display: inline-flex;
-    /* Use inline-flex so width calculation is automatic */
-    /* The track width will be calculated by the browser based on its content */
+    display: flex;
+    /* Arrange logo cards horizontally */
+    width: max-content;
+    /* Calculate width based on content (doubled logos) */
+    /* Animation applied */
     animation: scrollLogos 30s linear infinite;
     /* Adjust time (30s) for speed */
 }
 
-/* --- Scrolling Animation --- */
+/* --- Scrolling Animation (Right-to-Left) --- */
 @keyframes scrollLogos {
     0% {
         transform: translateX(0%);
+        /* Start at the beginning */
     }
 
     100% {
@@ -427,6 +453,7 @@
 /* --- Pause Animation on Hover --- */
 .logo-carousel:hover .logo-track {
     animation-play-state: paused;
+    /* Pause the animation when carousel is hovered */
 }
 
 
@@ -448,7 +475,7 @@
     align-items: center;
     text-align: center;
     flex-shrink: 0;
-    /* Prevent cards from shrinking */
+    /* CRUCIAL: Prevent cards from shrinking */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -479,6 +506,7 @@
     font-weight: 500;
     margin-top: 8px;
     /* Space above label */
+    line-height: 1.2;
 }
 
 /* --- Conclusion Text --- */
@@ -486,18 +514,35 @@
     text-align: center;
     font-size: 1rem;
     color: #e0e0ff;
+    /* Lighter text color for conclusion */
+    max-width: 800px;
+    /* Limit width */
     margin: 0 auto;
     line-height: 1.6;
-    padding: 0 40px;
+    padding: 0 20px;
+    /* Padding for smaller screens */
 }
 
-/* section-3 css end */
+/* --- Other Sections --- */
+.section-5{
+    padding: 40px 20px;
+}
 
-/* --- Simple Responsive Adjustment --- */
+.faq {
+    background-color: #f8f9fa;
+    /* Light background for FAQ */
+}
+
+
+/* ============================== */
+/* --- Responsive Adjustments --- */
+/* ============================== */
 
 @media (max-width: 992px) {
     .pricing-card {
-        width: 100%;
+        width: 45%;
+        /* Allow two cards side-by-side */
+        max-width: 400px;
     }
 
     .info-card h3 {
@@ -509,13 +554,73 @@
     }
 
     .section-title {
+        font-size: 2rem;
+        /* Slightly smaller title */
+    }
+
+    .logo-card {
+        width: 160px;
+        /* Slightly smaller cards */
+        height: 100px;
+        margin: 0 12px;
+    }
+
+    .logo-image-wrapper {
+        height: 60px;
+    }
+
+    .logo-image-wrapper img {
+        max-height: 55px;
+    }
+
+    .logo-track {
+        animation-duration: 28s;
+        /* Adjust speed */
+    }
+    .section-5{
+        padding: 0px;
+    }
+    .pricing-section{
+        padding: 30px 20px;
+    }
+
+}
+
+@media (max-width: 767px) {
+    .pricing-cards {
+        flex-direction: column;
+        /* Stack pricing cards */
+        align-items: center;
+    }
+
+    .pricing-card {
+        width: 90%;
+        /* Take more width when stacked */
+        max-width: 450px;
+        /* Max width for single card */
+    }
+
+    .pricing-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .pricing-header p {
+        font-size: 0.95rem;
+    }
+
+    .info-cards-grid {
+        grid-template-columns: 1fr;
+        /* Stack info cards */
+    }
+
+    .section-title {
         font-size: 1.8rem;
     }
 
     .logo-card {
-        width: 150px;
+        width: 140px;
         /* Smaller cards on mobile */
-        height: 95px;
+        height: 90px;
         margin: 0 10px;
     }
 
@@ -529,31 +634,85 @@
 
     .logo-track {
         animation-duration: 25s;
-        /* Slightly faster scroll */
+        /* Slightly faster scroll maybe */
+    }
+
+    .section-conclusion {
+        font-size: 0.95rem;
     }
 }
 
-@media (max-width: 767px) {
-    .pricing-cards {
-        flex-direction: column;
-        /* Stack cards */
-        align-items: center;
-        /* Center stacked cards */
-    }
-
-    .pricing-card {
-        flex-basis: auto;
-        /* Reset basis */
-        width: 100%;
-        /* Control width when stacked */
-        max-width: 400px;
-        /* Ensure not too wide */
-    }
-
+@media (max-width: 480px) {
     .pricing-header h2 {
-        font-size: 2rem;
+        font-size: 1.6rem;
     }
 
-}
+    .pricing-header p {
+        font-size: 0.9rem;
+    }
 
-@media (max-width: 480px) {}
+    .toggle-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .main-price {
+        font-size: 1.6rem;
+    }
+
+    .features-list li {
+        font-size: 0.85rem;
+    }
+
+    .section-title {
+        font-size: 1.6rem;
+    }
+
+    .logo-card {
+        width: 120px;
+        /* Even smaller cards */
+        height: 80px;
+        margin: 0 8px;
+        padding: 10px;
+    }
+
+    .logo-image-wrapper {
+        height: 45px;
+    }
+
+    .logo-image-wrapper img {
+        max-height: 40px;
+    }
+
+    .logo-industry {
+        font-size: 0.65rem;
+        margin-top: 5px;
+    }
+
+    .logo-track {
+        animation-duration: 20s;
+        /* Faster scroll on small screens */
+    }
+
+    .section-conclusion {
+        font-size: 0.9rem;
+    }
+
+    .info-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .info-card p {
+        font-size: 0.85rem;
+    }
+
+    .card-actions .btn {
+        font-size: 0.85rem;
+        padding: 7px 15px;
+        width: 100%;
+    }
+}

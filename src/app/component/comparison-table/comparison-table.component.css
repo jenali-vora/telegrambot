@@ -1,6 +1,6 @@
 /* --- Basic Section & Container --- */
 .comparison-section {
-    padding: 60px 20px;
+    /* padding: 60px 20px; */
     background-color: var(--white-color);
     /* White background */
 }
@@ -83,7 +83,7 @@
 
 /* Use your button styles */
 .btn-primary {
-    color: #fff;
+    color: var(--white-color);
     background-color: var(--background);
     /* Example purple */
 }
@@ -92,7 +92,7 @@
     color: var(--background);
     background-color: transparent;
     border: 1px solid var(--background);
-    width: 100%;
+    width: max-content;
     /* Example lighter border */
 }
 
@@ -110,7 +110,7 @@
     padding: 12px 10px;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
-    text-align: left;
+    text-align: center;
     /* Default for value cells */
     font-size: 0.9rem;
     color: #495057;
@@ -118,7 +118,7 @@
 
 /* Feature Name Column */
 .feature-name-cell {
-    text-align: left;
+    text-align: left !important;
     font-weight: 500;
     background-color: var(--white-color) !important;
     /* Ensure it stays white */
@@ -146,7 +146,7 @@
 
 /* Section Heading Row */
 .feature-heading-cell {
-    text-align: left;
+    text-align: left !important;
     font-weight: 600;
     color: var(--background);
     /* Theme color for headings */
@@ -186,13 +186,16 @@
     .plan-col-header {
         width: 17.5%;
     }
-
+    .comparison-section{
+        padding: 30px 20px;
+    }
     /* (100 - 30) / 4 */
 }
 
 @media (max-width: 767px) {
     .section-title {
         font-size: 1.8rem;
+        text-align: center;
     }
 
     .comparison-table {
@@ -208,7 +211,7 @@
     .header-btn {
         font-size: 0.8rem;
         padding: 6px 10px;
-        width: 100%;
+        /* width: 100%; */
     }
 
     .feature-heading-cell {

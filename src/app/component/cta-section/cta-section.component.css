@@ -1,17 +1,16 @@
 /* src/app/component/cta-section/cta-section.component.css */
 :host {
-    display: block;
-    /* Allow margin auto to work */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 3rem auto;
-    /* Add some vertical spacing and center horizontally */
     padding: 0 15px;
-    /* Add horizontal padding for smaller screens */
 }
 
 .cta-container {
     background-color: #2a3b8f;
     /* Dark blue background - Adjust if needed */
-    color: #ffffff;
+    color: var(--white-color);
     /* White text */
     padding: 50px 40px;
     /* Vertical and horizontal padding */
@@ -107,7 +106,7 @@
 /* Secondary button ("Compare our offers") */
 .cta-buttons .btn-secondary {
     background-color: transparent;
-    color: #ffffff;
+    color: var(--white-color);
     border: 1px solid rgba(255, 255, 255, 0.7);
     /* White border with some transparency */
 }
@@ -115,7 +114,7 @@
 .cta-buttons .btn-secondary:hover {
     background-color: rgba(255, 255, 255, 0.1);
     /* Subtle background on hover */
-    border-color: #ffffff;
+    border-color: var(--white-color);
     /* Make border solid white on hover */
 }
 

@@ -4,14 +4,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment'; // Ensure this path is correct
 
 // --- Interfaces ---
 export interface User {
   id?: string;
   email: string;
-  username?: string; // ADDED username
-  // REMOVED firstName?, lastName? (optional)
+  username?: string;
 }
 
 export interface LoginResponse {
@@ -22,7 +21,7 @@ export interface LoginResponse {
 
 export interface RegistrationResponse {
   message: string;
-  user?: { // UPDATED to include username
+  user?: {
     username: string;
     email: string;
   };
@@ -39,9 +38,8 @@ export class AuthService {
     map(user => !!user && !!this.getToken())
   );
 
-  // !!! Ensure this URL points to your running Python backend !!!
-  private readonly baseApiUrl = environment.apiUrl; // Or your actual backend URL
-  private loginUrl = `${this.baseApiUrl}/api/auth/login`; // Adjust if needed
+  private readonly baseApiUrl = environment.apiUrl;
+  private loginUrl = `${this.baseApiUrl}/api/auth/login`;
   private registerUrl = `${this.baseApiUrl}/register`; // Matches Python route
 
   private http = inject(HttpClient);
@@ -57,13 +55,11 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  // UPDATED Getter: Prefer username if available, fallback to email
   public get currentUsername(): string | null {
     const user = this.currentUserSubject.value;
     return user?.username ?? user?.email ?? null;
   }
 
-  // --- Login (Keep as is, assuming login returns User object potentially with username) ---
   login(credentials: { email: string, password: string }): Observable<LoginResponse> {
     console.log(`AuthService: Attempting login for ${credentials.email} via ${this.loginUrl}`);
     return this.http.post<LoginResponse>(this.loginUrl, credentials).pipe(
@@ -74,7 +70,7 @@ export class AuthService {
           console.log('AuthService: Login successful for:', response.user.email, '(Username:', response.user.username || 'N/A', ')');
         } else {
           console.error("AuthService: Invalid login response structure received:", response);
-          this.logout();
+          // Do not call logout() here as it navigates. Throw an error instead.
           throw new Error('Invalid login response structure from server.');
         }
       }),
@@ -82,41 +78,25 @@ export class AuthService {
     );
   }
 
-
-  /**
-   * Attempts to register a new user using username.
-   * @param username - User's chosen username.  <- CHANGED
-   * @param email - User's email address.
-   * @param password - User's chosen password.
-   * @param confirmPasswordValue - Confirmation password.
-   * @param agreedToTerms - Boolean for terms agreement.
-   * @param understandPrivacy - Boolean for privacy understanding. <- RENAMED param for clarity
-   * @returns Observable emitting the RegistrationResponse on success.
-   */
   register(
-    username: string, // CHANGED parameter name
+    username: string,
     email: string,
     password: string,
     confirmPasswordValue: string,
     agreedToTerms: boolean,
-    understandPrivacy: boolean // RENAMED parameter
+    understandPrivacy: boolean // Assuming this matches your backend's expected key
   ): Observable<RegistrationResponse> {
     console.log(`AuthService: Attempting registration for username ${username}, email ${email} via ${this.registerUrl}`);
-
-    // Construct the body expected by the Python backend
     const body = {
-      username: username, // ADDED username key
+      username: username,
       email: email,
       password: password,
-      confirmPassword: confirmPasswordValue, // Send confirm password
-      // Send boolean directly - Flask can handle JSON booleans
+      confirmPassword: confirmPasswordValue,
       agreeTerms: agreedToTerms,
-      understandPrivacy: understandPrivacy // Use the correct key expected by backend
-      // REMOVED firstName, lastName keys
+      // Ensure this key 'understandPrivacy' or similar matches your backend
+      understandPrivacy: understandPrivacy
     };
-
-    console.log('Sending registration body:', body); // Log the body being sent
-
+    console.log('Sending registration body:', body);
     return this.http.post<RegistrationResponse>(this.registerUrl, body).pipe(
       tap(response => {
         console.log('AuthService: Registration API call successful:', response?.message);
@@ -132,7 +112,8 @@ export class AuthService {
       localStorage.removeItem('currentUser');
     }
     this.currentUserSubject.next(null);
-    this.router.navigate(['/login']); // Adjust route if needed
+    // *** CHANGE IS HERE ***
+    this.router.navigate(['/home']); // Navigate to home page on logout
   }
 
   public getToken(): string | null {
@@ -179,7 +160,6 @@ export class AuthService {
     return null;
   }
 
-  // Keep handleError as is
   private handleError(error: HttpErrorResponse): Observable<never> {
     let userMessage = 'An unexpected error occurred. Please try again.';
     console.error(`AuthService HTTP Error: Status ${error.status}, URL: ${error.url}, Body: `, error.error);
@@ -187,19 +167,18 @@ export class AuthService {
     if (error.error instanceof ErrorEvent) {
       userMessage = `Network error: ${error.error.message}`;
     } else if (error.status === 0) {
-      // Attempt to access baseApiUrl safely in case of context issues
-      const apiUrl = (this as any)?.baseApiUrl || 'the server'; // Fallback
+      const apiUrl = (this as any)?.baseApiUrl || 'the server';
       userMessage = `Cannot connect to ${apiUrl}. Please check network or server status.`;
     } else {
       if (error.error) {
         if (typeof error.error.error === 'string') { userMessage = error.error.error; }
         else if (typeof error.error.message === 'string') { userMessage = error.error.message; }
       }
-      else if (error.status === 400) { userMessage = 'Invalid request data provided. Check username format or other fields.'; } // Updated 400 msg
+      else if (error.status === 400) { userMessage = 'Invalid request data provided. Check username format or other fields.'; }
       else if (error.status === 401) { userMessage = 'Authentication failed.'; }
       else if (error.status === 403) { userMessage = 'Forbidden.'; }
       else if (error.status === 404) { userMessage = 'API endpoint not found.'; }
-      else if (error.status === 409) { userMessage = 'Conflict. Username or Email may already be taken.'; } // Updated 409 msg
+      else if (error.status === 409) { userMessage = 'Conflict. Username or Email may already be taken.'; }
       else if (error.status === 500) { userMessage = 'Server error. Please try again later.'; }
       else if (error.statusText) { userMessage = `Server Error ${error.status}: ${error.statusText}`; }
     }

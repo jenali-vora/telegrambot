@@ -3,11 +3,13 @@
     display: block;
     width: 100%;
     margin: 2rem auto;
-    padding: 50px 30px;
+    /* padding: 50px 30px; */
 }
 
 .faq-accordion-container {
     /* Optional container styling */
+    
+    padding: 50px 30px;
 }
 
 .faq-title {

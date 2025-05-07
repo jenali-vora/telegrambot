@@ -1,177 +1,235 @@
+/* src/app/component/upload-progress-item/upload-progress-item.component.css */
 :host {
-    display: block;
-    width: 100%;
-    max-width: 380px; /* Match other panels */
-    margin: 0 auto; /* Center if needed */
-  }
-  
-  .card-style {
-    background-color: #ffffff;
-    color: #333;
-    border-radius: 12px;
-    padding: 0.8rem 1rem; /* Adjust padding */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid #eef2f7;
-    box-sizing: border-box;
-  }
-  
-  .progress-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #555;
-    padding-bottom: 0.5rem;
-  }
-  
-  .progress-header .percentage-badge {
-     margin-left: auto; /* Push percentage left */
-     margin-right: 1rem; /* Space before chevron */
-  }
-   .progress-header i {
-       color: #888;
-       cursor: pointer; /* If dropdown is interactive */
-   }
-  
-  
-  .progress-divider {
-    border: none;
-    border-top: 1px solid #f0f0f0;
-    margin: 0.3rem 0 0.8rem 0;
-  }
-  
-  .progress-item-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .item-icon {
-    font-size: 1.5rem; /* Larger icon */
-    width: 40px; /* Icon container size */
-    height: 40px;
-    text-align: center;
-    color: #888; /* Default icon color */
-    flex-shrink: 0;
-    background-color: #f0f0f0; /* Placeholder background */
-    border-radius: 8px;
-    position: relative; /* For text overlay */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  /* Specific icon colors if needed */
-  .item-icon .fa-file-code,
-  .item-icon .fa-python { color: #5a67d8; } /* Example color */
-  .item-icon .fa-file-image,
-  .item-icon .fa-file-svg { color: var(--background); } /* Example color */
-  
-  .icon-file-type {
-      position: absolute;
-      bottom: 2px;
-      right: 3px;
-      font-size: 0.55rem;
-      font-weight: bold;
-      color: #fff;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: 1px 3px;
-      border-radius: 3px;
-      line-height: 1;
-  }
-  
-  .item-details {
-    flex-grow: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* Space between name and progress bar */
-  }
-  
-  .item-name {
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #333;
-    font-weight: 500;
-    font-size: 0.85rem;
-    line-height: 1.2;
-  }
-  
-  .item-progress-bar {
-    width: 100%;
-    height: 6px; /* Progress bar height */
-    background-color: #e2e8f0;
-    border-radius: 3px;
-    overflow: hidden; /* Ensure progress stays within bounds */
-  }
-  
-  .item-progress-bar progress {
-    width: 100%;
-    height: 100%;
-    appearance: none; /* Remove default styling */
-    border: none;
-    background-color: transparent; /* Hide underlying bar */
-  }
-  
-  /* Styling for the progress value bar */
-  .item-progress-bar progress::-webkit-progress-value {
-    background-color: #4caf50; /* Green progress */
-    border-radius: 3px;
-     transition: width 0.2s ease-out; /* Smooth progress update */
-  }
-  .item-progress-bar progress::-moz-progress-bar {
-    background-color: #4caf50; /* Green progress */
-    border-radius: 3px;
-     transition: width 0.2s ease-out; /* Smooth progress update */
-  }
-  .item-progress-bar progress::-ms-fill {
-     background-color: #4caf50; /* Green progress */
-     border-radius: 3px;
-      transition: width 0.2s ease-out; /* Smooth progress update */
-  }
-  
-  
-  .item-size,
-  .item-percentage {
-    font-size: 0.75rem;
-    color: #777;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  
-  .percentage-badge {
-     background-color: #eaf7eb; /* Light green background */
-     color: var(--background); /* Darker green text */
-     padding: 3px 8px;
-     border-radius: 10px; /* Pill shape */
-     font-weight: 500;
-     font-size: 0.7rem;
-     margin-left: 5px; /* Space from size */
-  }
-  
-  .item-actions {
-    flex-shrink: 0;
-    margin-left: 5px; /* Space before cancel button */
-  }
-  
-  .btn-cancel {
-    background: #e2e8f0; /* Light grey background */
-    border: none;
-    color: #555;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 0.8rem;
-    line-height: 24px; /* Center icon */
-    text-align: center;
-    cursor: pointer;
-    padding: 0;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-  
-  .btn-cancel:hover {
-    background-color: #cbd5e0;
-    color: #2d3748;
-  }
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.card-style {
+  background-color: #ffffff;
+  color: #333;
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eef2f7;
+  box-sizing: border-box;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  padding-bottom: 0.5rem;
+}
+
+.progress-header .percentage-badge {
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.progress-header i {
+  color: #888;
+  cursor: pointer;
+}
+
+.progress-divider {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 0.3rem 0 0.8rem 0;
+}
+
+/* Row 1: Icon, (Filename + Uploaded/Total Size), Cancel Button */
+.item-main-details-row {
+  display: flex;
+  align-items: center;
+  /* Vertically align items in this row */
+  gap: 10px;
+  /* Gap between icon, name/size block, and cancel button */
+  margin-bottom: 0.6rem;
+  /* Space before the progress bar */
+}
+
+.item-icon {
+  font-size: 1.8rem;
+  width: 42px;
+  height: 42px;
+  text-align: center;
+  color: #777;
+  flex-shrink: 0;
+  /* Prevent icon from shrinking */
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-icon .fa-file-archive {
+  /* Specific for zip */
+  color: #6c757d;
+}
+
+.icon-file-type {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 0.55rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 1px 3px;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+.item-name-and-size-wrapper {
+  flex-grow: 1;
+  /* Allows this block to take available space */
+  display: flex;
+  flex-direction: column;
+  /* Stack name and size vertically */
+  justify-content: center;
+  /* Center them vertically if there's extra space */
+  overflow: hidden;
+  /* Prevent long names from breaking layout */
+  gap: 1px;
+  /* Small gap between filename and size info */
+}
+
+.item-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #333;
+  font-weight: 500;
+  font-size: 0.9rem;
+  /* Prominent filename */
+  line-height: 1.2;
+}
+
+.item-uploaded-size-info {
+  font-size: 0.75rem;
+  /* Smaller size info */
+  color: #555;
+  white-space: nowrap;
+}
+
+.item-actions {
+  flex-shrink: 0;
+  /* Prevent cancel button from shrinking */
+}
+
+.btn-cancel {
+  background: #e9ecef;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #ced4da;
+  border-color: #adb5bd;
+  color: #343a40;
+}
+
+/* Row 2: Progress Bar */
+.item-progress-bar-container {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  /* Space before the ETA/Speed row */
+}
+
+.item-progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.item-progress-bar progress {
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  border: none;
+  background-color: transparent;
+}
+
+.item-progress-bar progress::-webkit-progress-value {
+  background-color: #28a745;
+  /* Green progress */
+  border-radius: 4px;
+  transition: width 0.2s ease-out;
+}
+
+.item-progress-bar progress::-moz-progress-bar {
+  background-color: #28a745;
+  border-radius: 4px;
+  transition: width 0.2s ease-out;
+}
+
+.item-progress-bar progress::-ms-fill {
+  background-color: #28a745;
+  border-radius: 4px;
+  transition: width 0.2s ease-out;
+}
+
+/* Row 3: ETA and Speed */
+.item-eta-speed-row {
+  width: 100%;
+  display: flex;
+  /* justify-content: center; /* Or flex-start if you want it left-aligned */
+  /* The screenshot looks like the ETA/Speed section is not full width but rather centered
+     or slightly indented. The wrapper below handles this. */
+}
+
+.item-speed-eta-content {
+  /* This wrapper allows for alignment of the content itself */
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.7rem;
+  color: #777;
+  white-space: nowrap;
+  /* If you want this block centered under the progress bar: */
+  /* margin: 0 auto; */
+  /* If you want it aligned with the icon/progress bar start: */
+  /* padding-left: 0; (default) */
+}
+
+
+.item-speed-eta-content .eta-info,
+.item-speed-eta-content .speed-info {
+  display: flex;
+  align-items: center;
+}
+
+.item-speed-eta-content i {
+  margin-right: 3px;
+  color: #999;
+  font-size: 0.8em;
+}
+
+/* Header Percentage Badge */
+.percentage-badge.header-badge {
+  background-color: #eaf7eb;
+  color: #38a169;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 0.7rem;
+}
