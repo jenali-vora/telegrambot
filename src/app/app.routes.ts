@@ -11,6 +11,8 @@ import { PricingComponent } from './component/pricing/pricing.component';
 import { FaqComponent } from './component/faq/faq.component';
 import { BlogsComponent } from './component/blogs/blogs.component';
 import { BlogDetailComponent } from './shared/component/blog-detail/blog-detail.component';
+import { UserFilesPageComponent } from './shared/component/user-files-page/user-files-page.component';
+import { authGuard } from './shared/guards/auth.guard';
 
 export const routes: Routes = [
   // Routes WITHOUT Main Header/Footer
@@ -59,6 +61,11 @@ export const routes: Routes = [
         pathMatch: 'full'
       }
     ]
+  },
+  {
+    path: 'my-files',
+    component: UserFilesPageComponent,
+    canActivate: [authGuard]
   },
 
   // Wildcard route redirects to the home page (which has the layout)
