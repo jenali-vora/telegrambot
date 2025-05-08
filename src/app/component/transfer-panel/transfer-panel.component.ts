@@ -23,7 +23,7 @@ export class TransferPanelComponent {
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
   // itemRemoved now always signals clearing the current batch
-  @Output() itemRemoved = new EventEmitter<undefined>(); // Correctly emits only undefined
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // Correctly emits only undefined
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
 
@@ -47,15 +47,13 @@ export class TransferPanelComponent {
   }
 
   // *** REMOVED the conflicting requestItemRemoval method ***
-  // requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
-  //   event.stopPropagation(); // Prevent potential parent clicks
-  //   if (!this.isUploading) {
-  //     console.log('Requesting removal of item:', item.name);
-  //     // this.itemRemoved.emit(item); // This line caused the error
-  //     // As per design, we should clear the whole batch, so call clearAllItems or just emit undefined
-  //      this.itemRemoved.emit(undefined); // If method were kept, it should do this
-  //   }
-  // }
+  requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
+    event.stopPropagation(); // Prevent potential parent clicks
+    if (!this.isUploading) {
+      console.log('Requesting removal of item:', item.name);
+      this.itemRemoved.emit(item); // Emit the specific item to be removed
+    }
+  }
 
   // Download request remains the same
   requestItemDownload(item: SelectedItem, event: MouseEvent): void {

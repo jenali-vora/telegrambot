@@ -9,7 +9,8 @@
     <div class="user-file-list-panel card-style">
         <div class="file-summary">
             <span class="count">
-                {{ displayedFiles.length }} file{{ displayedFiles.length !== 1 ? 's' : '' }}
+                {{ displayedFiles.length }} item{{ displayedFiles.length !== 1 ? 's' : '' }}
+                <!-- Changed file to item -->
                 ({{ totalUploadedSize | byteFormat }})
             </span>
         </div>
@@ -24,19 +25,24 @@
         <div *ngIf="!isLoadingFiles && !fileListError" class="file-list-scroll user-history-list-scroll">
             @if (displayedFiles.length > 0) {
             <ul class="file-list">
-                @for(file of displayedFiles; track file.access_id || file.original_filename + file.upload_timestamp) {
+                @for(file of displayedFiles; track file.access_id || (getDisplayFilename(file) + file.upload_timestamp))
+                {
                 <li class="file-list-item">
-                    <div class="item-icon"><i [ngClass]="getFileIcon(file.original_filename)"></i></div>
+                    <div class="item-icon"><i [ngClass]="getFileIcon(file)"></i></div>
                     <div class="item-details">
-                        <span class="item-name" [title]="file.original_filename">{{ file.original_filename }}</span>
+                        <span class="item-name" [title]="getDisplayFilename(file)">{{ getDisplayFilename(file) }}</span>
                         <span class="item-upload-date-history">{{ formatUploadDate(file.upload_timestamp) }}</span>
                     </div>
-                    <div class="item-size">{{ (file.original_size !== undefined ? file.original_size : 0) | byteFormat
-                        }}</div>
+                    <div class="item-size">{{ getItemSize(file) | byteFormat }}</div> <!-- USE getItemSize HERE -->
                     <div class="item-actions">
-                        <button class="btn icon-btn btn-download-item" title="Download File"
-                            (click)="requestFileDownload(file)" [disabled]="!file.access_id">
+                        <button class="btn icon-btn btn-download-item" title="Download Item"
+                            (click)="requestFileDownload(file)"
+                            [disabled]="!file.access_id || downloadingStates[file.access_id!]">
+                            @if (downloadingStates[file.access_id!]) {
+                            <i class="fas fa-spinner fa-spin"></i>
+                            } @else {
                             <i class="fas fa-download"></i>
+                            }
                         </button>
                         <button class="btn icon-btn btn-remove-item" title="Delete Record"
                             (click)="requestFileDelete(file)">
@@ -47,7 +53,7 @@
                 }
             </ul>
             } @else {
-            <p class="no-files-message">You haven't uploaded any files yet.</p>
+            <p class="no-files-message">You haven't uploaded any items yet.</p> <!-- Changed file to item -->
             }
         </div>
     </div>
