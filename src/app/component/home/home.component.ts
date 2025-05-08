@@ -75,6 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private authSubscription: Subscription | null = null;
 
   public batchUploadLinks: CompletedUploadLink[] = [];
+   public batchShareableLinkForPanel: string | null = null;
 
   stepContent = [
     { number: '1', title: ' Select your file(s)', des: 'Select the file(s) and/or folder(s) you want to send from your computer or smartphone.' },
@@ -182,73 +183,120 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   triggerFileInput(): void { if (this.isUploading) return; this.fileInputRef?.nativeElement.click(); }
   triggerFolderInput(): void { if (this.isUploading) return; this.folderInputRef?.nativeElement.click(); }
-  onFileSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files); input.value = ''; }
-  onFolderSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files, true); input.value = ''; }
+  // onFileSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files); input.value = ''; }
+  // onFolderSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files, true); input.value = ''; }
   onDragOver(event: DragEvent): void { if (this.isUploading) { if (event.dataTransfer) event.dataTransfer.dropEffect = 'none'; event.preventDefault(); event.stopPropagation(); return; } event.preventDefault(); event.stopPropagation(); this.isDragging = true; if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'; }
   onDragLeave(event: DragEvent): void { event.preventDefault(); event.stopPropagation(); const target = event.currentTarget as HTMLElement; const relatedTarget = event.relatedTarget as Node; if (!relatedTarget || !target.contains(relatedTarget)) this.isDragging = false; }
   onDrop(event: DragEvent): void { if (this.isUploading) { event.preventDefault(); event.stopPropagation(); this.isDragging = false; return; } event.preventDefault(); event.stopPropagation(); this.isDragging = false; const files = event.dataTransfer?.files; if (files && files.length > 0) this.handleFiles(files); }
 
-  handleFiles(fileList: FileList, isFolderContent: boolean = false): void {
+  handleFiles(fileList: FileList, isFolderSelection: boolean = false): void { // Renamed for clarity
     if (this.isUploading) {
       alert("Wait for current upload or cancel it.");
       return;
     }
     if (this.shareableLinkForPanel || this.batchUploadLinks.length > 0) {
+      // Reset if starting a new selection after a completed upload
       this.selectedItems = [];
       this.nextItemId = 0;
       this.shareableLinkForPanel = null;
       this.batchUploadLinks = [];
     }
-    this.uploadError = null;
+    this.uploadError = null; // Clear previous errors
 
     if (!fileList || fileList.length === 0) return;
-    const MAX_TOTAL_FILES = 5;
-    const currentCount = this.selectedItems.length;
-    const availableSlots = MAX_TOTAL_FILES - currentCount;
 
-    if (availableSlots <= 0) {
+    const MAX_TOTAL_FILES = 5; // Your defined limit
+    const currentCount = this.selectedItems.length;
+    let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
+
+    if (slotsActuallyAvailable <= 0) {
       this.uploadError = `You have already selected the maximum of ${MAX_TOTAL_FILES} files.`;
+      // Clear the input fields to allow re-selection
       if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
       if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
       this.cdRef.detectChanges();
       return;
     }
 
-    let filesToAddCount = 0;
     const newItems: SelectedItem[] = [];
-    for (let i = 0; i < fileList.length && filesToAddCount < availableSlots; i++) {
-      const file = fileList[i];
-      const name = isFolderContent && file.webkitRelativePath ? file.webkitRelativePath : file.name;
+    let filesAddedInThisOperation = 0;
 
-      if (file.size === 0 && !isFolderContent && !name.includes('/')) {
+    for (let i = 0; i < fileList.length; i++) {
+      if (filesAddedInThisOperation >= slotsActuallyAvailable) {
+        // We've hit the MAX_TOTAL_FILES limit (considering existing items + new ones)
+        break;
+      }
+
+      const file = fileList[i];
+      const name = isFolderSelection && file.webkitRelativePath ? file.webkitRelativePath : file.name;
+
+      // Skip empty files that are not part of a folder structure (e.g., an empty file explicitly selected)
+      if (file.size === 0 && !isFolderSelection && !name.includes('/')) {
+        // console.log(`Skipping empty file: ${file.name}`);
         continue;
       }
+
+      // Skip .DS_Store files or other system files if desired
+      if (name.toLowerCase().endsWith('.ds_store')) {
+        continue;
+      }
+
       newItems.push({
         id: this.nextItemId++,
         file: file,
         name: name,
         size: file.size,
         icon: this.getFileIcon(name),
-        isFolder: isFolderContent || (file.webkitRelativePath && file.webkitRelativePath.includes('/')) || (name !== file.name && name.includes('/'))
+        // Determine if it's a folder based on webkitRelativePath or if the derived name indicates a path
+        isFolder: isFolderSelection || (file.webkitRelativePath && file.webkitRelativePath.includes('/')) || (name !== file.name && name.includes('/'))
       });
-      filesToAddCount++;
+      filesAddedInThisOperation++;
     }
 
-    if (fileList.length > filesToAddCount && filesToAddCount < availableSlots) {
-      this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesToAddCount} file(s) were added from your selection.`;
-    } else if (fileList.length > availableSlots && filesToAddCount === 0 && currentCount < MAX_TOTAL_FILES) {
-      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. No new files were added.`;
-    } else if (fileList.length > availableSlots) {
-      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. Only ${filesToAddCount} files were added.`;
-    }
-
-    this.zone.run(() => {
+    if (filesAddedInThisOperation > 0) {
       this.selectedItems = [...this.selectedItems, ...newItems];
+      console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length, this.selectedItems); // DEBUG
       this.cdRef.detectChanges();
-    });
+    }
 
+    // Set error message if not all files from the selection could be added
+    if (fileList.length > filesAddedInThisOperation && filesAddedInThisOperation < slotsActuallyAvailable) {
+      // This case means some files were valid but we hit the overall MAX_TOTAL_FILES limit partway through processing fileList
+      this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesAddedInThisOperation} file(s) were added from your selection.`;
+    } else if (fileList.length > slotsActuallyAvailable && filesAddedInThisOperation === 0 && currentCount < MAX_TOTAL_FILES) {
+      // This means the user already had some files, and the new selection itself was too large to add any.
+      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. No new files were added.`;
+    } else if (fileList.length > slotsActuallyAvailable) {
+      // This means the selection was larger than available slots, and we filled up the available slots.
+      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. Only ${filesAddedInThisOperation} file(s) were added to reach the limit.`;
+    }
+
+
+    // Always clear the input fields after processing
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
     if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
+
+    if (this.uploadError) {
+      this.cdRef.detectChanges(); // Ensure error message is displayed
+    }
+  }
+
+  // ... (rest of the component: onFileSelected, onFolderSelected need to pass the flag)
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.handleFiles(input.files, false); // Pass false for isFolderSelection
+    }
+    // input.value = ''; // Moved to inside handleFiles
+  }
+
+  onFolderSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.handleFiles(input.files, true); // Pass true for isFolderSelection
+    }
+    // input.value = ''; // Moved to inside handleFiles
   }
 
   initiateTransferFromPanel(): void {
@@ -513,12 +561,36 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeItemFromPanel(): void {
+  handleItemRemovedFromPanel(itemOrUndefined: SelectedItem | undefined): void {
     if (this.isUploading) {
       alert("Cannot remove items during upload. Please cancel the upload first.");
       return;
     }
-    this.resetUploadState(); // resetUploadState clears selectedItems and related UI elements
+
+    if (itemOrUndefined) {
+      // Individual item removal
+      this.selectedItems = this.selectedItems.filter(i => i.id !== itemOrUndefined.id);
+      console.log('HomeComponent: Removed item:', itemOrUndefined.name);
+      if (this.selectedItems.length === 0) {
+        // If all items are removed one by one, reset relevant state
+        this.shareableLinkForPanel = null;
+        this.uploadError = null;
+        this.uploadStatusMessage = '';
+        this.batchUploadLinks = [];
+        this.currentItemBeingUploaded = null; // Should be null if not uploading
+        // nextItemId is not reset here as new items will continue the sequence
+      }
+    } else {
+      // Clear all items (undefined was emitted)
+      this.shareableLinkForPanel = null;
+      this.selectedItems = [];
+      this.uploadError = null;
+      this.uploadStatusMessage = '';
+      this.batchUploadLinks = [];
+      this.currentItemBeingUploaded = null;
+      this.nextItemId = 0; // Reset for a completely new selection
+      console.log('HomeComponent: All items cleared from panel.');
+    }
     this.cdRef.detectChanges();
   }
 

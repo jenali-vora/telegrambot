@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--background-color);
+    /* background-color: var(--background-color); */
     /* Light grey background */
     padding: 20px;
     box-sizing: border-box;
@@ -229,18 +229,6 @@ input[type="checkbox"] {
     color: #666;
     margin: 0 0 20px 0;
     line-height: 1.5;
-}
-
-.info-details-link {
-    font-size: 13px;
-    color: #d90007;
-    /* MEGA red */
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.info-details-link:hover {
-    text-decoration: underline;
 }
 
 /* Basic error styling */

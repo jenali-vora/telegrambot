@@ -1,0 +1,186 @@
+/* General Body/Page Styles (Apply to a higher level container if needed, or scope to component) */
+:host {
+    display: block;
+    padding: 1em 0;
+    /* Add some padding around the component */
+}
+
+.container {
+    font-family: sans-serif;
+    line-height: 1.6;
+    color: #333;
+    max-width: 800px;
+    margin: 2em auto;
+    border: 1px solid #ddd;
+    padding: 2em;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1,
+h2 {
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+}
+
+.batch-info p {
+    margin: 0.3em 0;
+    font-size: 0.9em;
+    color: #555;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 1.5em 0;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5em;
+}
+
+.file-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8em 1em;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.file-list li:last-child {
+    border-bottom: none;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    overflow: hidden;
+    /* Important for text-overflow */
+}
+
+.file-icon {
+    font-size: 1.5em;
+    /* Keep it simple as per template */
+    color: #777;
+}
+
+.file-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    font-size: 0.85em;
+    color: #777;
+    white-space: nowrap;
+    margin-left: auto;
+    /* Pushes it to the right before actions */
+    padding-left: 15px;
+    /* Space between name/size and actions */
+}
+
+.file-actions button,
+.file-actions a {
+    /* If you use <a> tags as buttons */
+    background-color: #e7e7e7;
+    color: #333;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.file-actions button:hover,
+.file-actions a:hover {
+    background-color: #ddd;
+}
+
+.file-actions button:disabled {
+    background-color: #f0f0f0;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+
+.download-all-btn {
+    display: inline-block;
+    background-color: #337ab7;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-bottom: 1em;
+}
+
+.download-all-btn:hover {
+    background-color: #0056b3;
+}
+
+.download-all-btn:disabled {
+    background-color: #a0c7e8;
+    cursor: not-allowed;
+}
+
+.status-message {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding: 0.75em 1.25em;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+
+.status-message.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-color: #bee5eb;
+}
+
+.status-message.error,
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.error-message {
+    /* For general page errors */
+    padding: 1em;
+    margin-top: 1em;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+.text-center {
+    text-align: center;
+    padding: 2em;
+}
+
+/* Placeholder for individual status (if you re-enable it) */
+.individual-status {
+    font-size: 0.8em;
+    margin-left: 10px;
+    display: none;
+    /* Initially hidden */
+}

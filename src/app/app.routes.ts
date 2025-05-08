@@ -13,6 +13,7 @@ import { BlogsComponent } from './component/blogs/blogs.component';
 import { BlogDetailComponent } from './shared/component/blog-detail/blog-detail.component';
 import { UserFilesPageComponent } from './shared/component/user-files-page/user-files-page.component';
 import { authGuard } from './shared/guards/auth.guard';
+import { BatchFileBrowserComponent } from './component/batch-file-browser/batch-file-browser.component';
 
 export const routes: Routes = [
   // Routes WITHOUT Main Header/Footer
@@ -67,6 +68,7 @@ export const routes: Routes = [
     component: UserFilesPageComponent,
     canActivate: [authGuard]
   },
+  { path: 'browse/batch/:accessId', component: BatchFileBrowserComponent },
 
   // Wildcard route redirects to the home page (which has the layout)
   {

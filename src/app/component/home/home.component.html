@@ -38,7 +38,7 @@
                 <app-transfer-panel *ngIf="selectedItems.length > 0 || shareableLinkForPanel" [items]="selectedItems"
                     [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                     [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
-                    (requestAddFolder)="triggerFolderInput()" (itemRemoved)="removeItemFromPanel()"
+                    (requestAddFolder)="triggerFolderInput()" (itemRemoved)="handleItemRemovedFromPanel($event)"
                     (itemDownloadRequested)="handleDownloadRequest($event)"
                     (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
                 </app-transfer-panel>

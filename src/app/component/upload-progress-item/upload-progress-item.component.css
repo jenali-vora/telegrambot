@@ -227,7 +227,7 @@
 /* Header Percentage Badge */
 .percentage-badge.header-badge {
   background-color: #eaf7eb;
-  color: #38a169;
+  color: var(--background);
   padding: 3px 8px;
   border-radius: 10px;
   font-weight: 500;

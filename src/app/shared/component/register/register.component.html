@@ -76,7 +76,7 @@
                     <div class="terms-section">
                         <div class="checkbox-group">
                             <input type="checkbox" id="agreeTerms" formControlName="agreeTerms">
-                            <label for="agreeTerms">I agree with the MEGA <a href="#">Terms of Service</a></label>
+                            <label for="agreeTerms">I agree with the Transfer <a href="#">Terms of Service</a></label>
                         </div>
                         <div *ngIf="agreeTerms?.invalid && agreeTerms?.touched" class="error-text small-margin">
                             <small>You must agree to the terms</small>
@@ -84,7 +84,7 @@
                         <div class="checkbox-group">
                             <input type="checkbox" id="understandWarning" formControlName="understandWarning">
                             <!-- Changed ID -->
-                            <label for="understandWarning">I understand that MEGA has no access to my
+                            <label for="understandWarning">I understand that Transfer has no access to my
                                 password...</label> <!-- Changed FOR attribute -->
                         </div>
                         <div *ngIf="understandWarning?.invalid && understandWarning?.touched"
