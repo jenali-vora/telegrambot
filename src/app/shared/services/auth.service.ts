@@ -28,6 +28,10 @@ export interface RegistrationResponse {
 }
 // --- End of Interfaces ---
 
+const AUTH_TOKEN_KEY = 'authToken';
+const CURRENT_USER_KEY = 'currentUser';
+const ANONYMOUS_UPLOAD_ID_KEY = 'anonymousClientUploadId'; // Key for anonymous ID
+
 @Injectable({
   providedIn: 'root'
 })
@@ -67,10 +71,13 @@ export class AuthService {
         if (response?.user && response?.token) {
           this.storeUserData(response.user, response.token);
           this.currentUserSubject.next(response.user);
+          // Clear anonymous ID on successful login
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
+          }
           console.log('AuthService: Login successful for:', response.user.email, '(Username:', response.user.username || 'N/A', ')');
         } else {
           console.error("AuthService: Invalid login response structure received:", response);
-          // Do not call logout() here as it navigates. Throw an error instead.
           throw new Error('Invalid login response structure from server.');
         }
       }),
@@ -84,7 +91,7 @@ export class AuthService {
     password: string,
     confirmPasswordValue: string,
     agreedToTerms: boolean,
-    understandPrivacy: boolean // Assuming this matches your backend's expected key
+    understandPrivacy: boolean
   ): Observable<RegistrationResponse> {
     console.log(`AuthService: Attempting registration for username ${username}, email ${email} via ${this.registerUrl}`);
     const body = {
@@ -93,7 +100,6 @@ export class AuthService {
       password: password,
       confirmPassword: confirmPasswordValue,
       agreeTerms: agreedToTerms,
-      // Ensure this key 'understandPrivacy' or similar matches your backend
       understandPrivacy: understandPrivacy
     };
     console.log('Sending registration body:', body);
@@ -108,17 +114,18 @@ export class AuthService {
   logout(): void {
     console.log('AuthService: Logging out user.');
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('currentUser');
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(CURRENT_USER_KEY);
+      // Clear anonymous ID on logout as well
+      localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
     }
     this.currentUserSubject.next(null);
-    // *** CHANGE IS HERE ***
-    this.router.navigate(['/home']); // Navigate to home page on logout
+    this.router.navigate(['/home']);
   }
 
   public getToken(): string | null {
     if (typeof localStorage !== 'undefined') {
-      return localStorage.getItem('authToken');
+      return localStorage.getItem(AUTH_TOKEN_KEY);
     }
     return null;
   }
@@ -132,8 +139,8 @@ export class AuthService {
   private storeUserData(user: User, token: string): void {
     if (typeof localStorage !== 'undefined') {
       try {
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
         console.log('AuthService: Stored user data and token.');
       } catch (e) {
         console.error("AuthService: Failed to store user data in localStorage", e);
@@ -143,17 +150,19 @@ export class AuthService {
 
   private loadInitialUser(): User | null {
     if (typeof localStorage === 'undefined') { return null; }
-    const storedUser = localStorage.getItem('currentUser');
-    const token = localStorage.getItem('authToken');
+    const storedUser = localStorage.getItem(CURRENT_USER_KEY);
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (storedUser && token) {
       try {
         const user: User = JSON.parse(storedUser);
         console.log('AuthService: Loaded initial user from storage:', user?.email, '(Username:', user?.username || 'N/A', ')');
+        // Clear anonymous ID if user is loaded as logged in
+        localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
         return user;
       } catch (e) {
         console.error("AuthService: Error parsing stored user data. Clearing storage.", e);
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('authToken');
+        localStorage.removeItem(CURRENT_USER_KEY);
+        localStorage.removeItem(AUTH_TOKEN_KEY);
         return null;
       }
     }
@@ -183,5 +192,23 @@ export class AuthService {
       else if (error.statusText) { userMessage = `Server Error ${error.status}: ${error.statusText}`; }
     }
     return throwError(() => new Error(userMessage));
+  }
+
+  // Method to get or generate anonymous ID
+  public getOrGenerateAnonymousUploadId(): string | null {
+    if (typeof localStorage === 'undefined' || typeof crypto === 'undefined' || typeof crypto.randomUUID === 'undefined') {
+      console.warn('localStorage or crypto.randomUUID not available for anonymous ID generation.');
+      // Fallback or error handling if needed, for now, returning null.
+      // You could use a simpler random string generator if crypto.randomUUID is not available.
+      return 'fallback-anon-id-' + Date.now(); // Basic fallback
+    }
+
+    let anonId = localStorage.getItem(ANONYMOUS_UPLOAD_ID_KEY);
+    if (!anonId) {
+      anonId = crypto.randomUUID();
+      localStorage.setItem(ANONYMOUS_UPLOAD_ID_KEY, anonId);
+      console.log('AuthService: Generated new anonymous upload ID:', anonId);
+    }
+    return anonId;
   }
 }
