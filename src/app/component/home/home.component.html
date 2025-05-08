@@ -44,7 +44,7 @@
                 </app-transfer-panel>
             </div>
 
-            <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)">
+            <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)" multiple>
             <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
                 webkitdirectory>
             <div *ngIf="uploadError" class="upload-error-message global-upload-error">
