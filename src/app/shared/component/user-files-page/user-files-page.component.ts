@@ -89,6 +89,7 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
       error: (err) => this.zone.run(() => {
         console.error("UserFilesPageComponent: Error loading files:", err);
         this.fileListError = `Failed to load your files. ${err.message || 'Please try again.'}`;
+        if (err.error && err.error.error) this.fileListError += ` Server: ${err.error.error}`;
         this.isLoadingFiles = false;
         this.cdRef.detectChanges();
       })
@@ -116,11 +117,13 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
 
     if (file.is_batch) {
       filenameForIcon = file.batch_display_name;
+      // If it's a batch, and name doesn't look like a file, or it's a multi-file batch...
       if ((!filenameForIcon || !filenameForIcon.includes('.')) && file.files_in_batch && file.files_in_batch.length === 1) {
-        filenameForIcon = file.files_in_batch[0].original_filename;
+        filenameForIcon = file.files_in_batch[0].original_filename; // Use inner file name for single-file batch icon
       }
+      // If still no clear filename with extension for batch, or it's a multi-file batch, use folder icon
       if (!filenameForIcon || (file.files_in_batch && file.files_in_batch.length > 1 && !filenameForIcon.includes('.'))) {
-        return 'fas fa-folder-open text-warning';
+        return 'fas fa-folder-open text-warning'; // Default for multi-file batches or batches named without extension
       }
     } else {
       filenameForIcon = file.original_filename || file.name || file.sent_filename;
@@ -129,8 +132,8 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
     if (!filenameForIcon) return 'fas fa-question-circle';
     const baseNameForIcon = filenameForIcon.includes('/') ? filenameForIcon.substring(filenameForIcon.lastIndexOf('/') + 1) : filenameForIcon;
 
-    if (!baseNameForIcon.includes('.')) {
-      return filenameForIcon.includes('/') ? 'fas fa-folder' : 'fas fa-file';
+    if (!baseNameForIcon.includes('.')) { // No extension
+      return file.is_batch ? 'fas fa-archive text-secondary' : (filenameForIcon.includes('/') ? 'fas fa-folder' : 'fas fa-file');
     }
 
     const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
@@ -145,8 +148,8 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
       case 'mp3': case 'wav': case 'ogg': case 'aac': case 'flac': return 'fas fa-file-audio text-orange';
       case 'mp4': case 'mov': case 'avi': case 'mkv': case 'wmv': case 'webm': return 'fas fa-file-video text-teal';
       case 'js': return 'fab fa-js-square text-warning';
-      case 'ts': return 'fas fa-file-code text-primary';
-      case 'json': return 'fas fa-file-code text-success';
+      case 'ts': return 'fas fa-file-code text-primary'; // Corrected from fas fa-file-code
+      case 'json': return 'fas fa-file-code text-success'; // Corrected from fas fa-file-code
       case 'html': return 'fab fa-html5 text-danger';
       case 'css': case 'scss': case 'sass': return 'fab fa-css3-alt text-info';
       case 'py': return 'fab fa-python text-primary';
@@ -159,6 +162,7 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
   requestFileDownload(file: TelegramFileMetadata): void {
     if (!file.access_id) {
       alert("Error: Download information is missing for this item.");
+      this.cdRef.detectChanges();
       return;
     }
     if (this.downloadingStates[file.access_id]) return;
@@ -167,36 +171,56 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
     this.fileListError = null;
     this.cdRef.detectChanges();
 
-    this.apiService.downloadFileBlob(file.access_id).subscribe({
+    const fileDisplayName = this.getDisplayFilename(file) || 'downloaded_item';
+
+    // *** MODIFIED: Pass is_batch flag to the service method ***
+    this.apiService.downloadFileBlob(file.access_id, file.is_batch || false).subscribe({
       next: (blob) => {
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
+        this.zone.run(() => {
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.href = url;
 
-        let downloadName = this.getDisplayFilename(file) || 'downloaded_item';
-        if (file.is_batch && blob.type === "application/zip" && !downloadName.toLowerCase().endsWith('.zip')) {
-          downloadName += '.zip';
-        } else if (file.is_batch && !downloadName.includes('.')) {
-          if (!(file.files_in_batch && file.files_in_batch.length === 1 && file.batch_display_name?.includes('.'))) {
-            downloadName += '.zip';
+          let downloadName = fileDisplayName;
+          // If it's a batch download (which will be a zip), ensure .zip extension
+          if (file.is_batch && !downloadName.toLowerCase().endsWith('.zip')) {
+            // Exception: if it's a single-file batch and already has a proper extension, keep it.
+            const isSingleFileBatchWithExtension = file.files_in_batch &&
+              file.files_in_batch.length === 1 &&
+              file.files_in_batch[0].original_filename &&
+              file.files_in_batch[0].original_filename.includes('.');
+            if (!isSingleFileBatchWithExtension) {
+              downloadName += '.zip';
+            }
           }
-        }
 
-        link.download = downloadName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+          link.download = downloadName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
 
-        delete this.downloadingStates[file.access_id!];
-        this.cdRef.detectChanges();
+          delete this.downloadingStates[file.access_id!];
+          this.cdRef.detectChanges();
+        });
       },
       error: (err) => {
-        const displayName = this.getDisplayFilename(file);
-        console.error(`UserFilesPageComponent: Error downloading ${displayName}:`, err);
-        this.fileListError = `Failed to download "${displayName}". ${err.message || 'Please try again.'}`;
-        delete this.downloadingStates[file.access_id!];
-        this.cdRef.detectChanges();
+        this.zone.run(() => {
+          console.error(`UserFilesPageComponent: Error downloading ${fileDisplayName} (access_id: ${file.access_id}):`, err);
+          let detail = 'An unexpected error occurred. Check backend connection/logs.';
+          if (err && err.error && typeof err.error.message === 'string') {
+            detail = err.error.message;
+          } else if (err && err.error && typeof err.error.error === 'string') { // Flask might return {"error": "message"}
+            detail = err.error.error;
+          } else if (err && typeof err.message === 'string') {
+            detail = err.message;
+          } else if (typeof err === 'string') {
+            detail = err;
+          }
+          this.fileListError = `Failed to download "${fileDisplayName}". ${detail}`;
+          delete this.downloadingStates[file.access_id!];
+          this.cdRef.detectChanges();
+        });
       }
     });
   }
@@ -209,9 +233,6 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
     }
 
     const displayName = this.getDisplayFilename(file);
-
-    // *** KEY CHANGE: Use access_id as the primary identifier for deletion ***
-    // THIS LINE IS CRUCIAL AND CORRECT. IT USES THE UNIQUE access_id.
     const identifierForDelete = file.access_id;
 
     if (!identifierForDelete) {
@@ -230,17 +251,13 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
     this.fileListError = null;
     this.cdRef.detectChanges();
 
-    // 'identifierForDelete' (which is the access_id) is passed to the service.
-    // The backend MUST be prepared to use this access_id to find the record.
     this.apiService.deleteFileRecord(this.username, identifierForDelete).subscribe({
       next: (response) => this.zone.run(() => {
         console.log(`Delete successful for item with access_id ${identifierForDelete} (Display Name: "${displayName}"):`, response?.message);
-        this.loadFilesForLoggedInUser(); // Refresh list
+        this.loadFilesForLoggedInUser();
       }),
       error: (err) => this.zone.run(() => {
-        // The error message from the backend (err.message) will indicate "not found" if the backend
-        // is looking for the access_id in the wrong database column (e.g., filename column).
-        const errorMsg = `Failed to delete "${displayName}": ${err.message || 'Unknown server error'}`;
+        const errorMsg = `Failed to delete "${displayName}": ${err.message || (err.error && err.error.error) || 'Unknown server error'}`;
         this.fileListError = errorMsg;
         console.error(`Error deleting item with access_id ${identifierForDelete}:`, err);
         this.cdRef.detectChanges();

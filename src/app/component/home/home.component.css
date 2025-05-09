@@ -4,16 +4,12 @@
     /* --- Background Image --- */
     /* Make sure the path is correct relative to the CSS file OR use absolute path from root */
     background-image: url('/assets/image/transfernow_uploader_send_files_laptop_1.webp');
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
     background-color: #1e1f21;
     padding: 4rem 1.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
     color: var(--white-color);
-    width: 100%;
     /* position: fixed; */
     top: 0;
     left: 0;

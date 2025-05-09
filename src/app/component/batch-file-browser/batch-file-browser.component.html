@@ -1,3 +1,4 @@
+<!-- batch-file-browser.component.html -->
 <div class="container" *ngIf="!isLoading && batchDetails; else loadingOrError">
     <h1>File Batch</h1>
     <div class="batch-info">
@@ -10,8 +11,9 @@
 
     <hr>
 
-    <button class="download-all-btn" (click)="initiateDownloadAll()"
-        [disabled]="isProcessingDownload || !batchDetails.files?.length">
+    <!-- MODIFIED "Download All" button -->
+    <button *ngIf="batchDetails && batchDetails.files && batchDetails.files.length > 1" class="download-all-btn"
+        (click)="initiateDownloadAll()" [disabled]="isProcessingDownload">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
             style="vertical-align: text-bottom; margin-right: 5px;">
             <path
@@ -21,12 +23,13 @@
         </svg>
         Download All (.zip)
     </button>
+    <!-- End of MODIFIED "Download All" button -->
 
     <div *ngIf="downloadStatusMessage" class="status-message" [ngClass]="{
-            'info': downloadStatusType === 'info',
-            'error': downloadStatusType === 'error',
-            'success': downloadStatusType === 'success'
-         }">
+'info': downloadStatusType === 'info',
+'error': downloadStatusType === 'error',
+'success': downloadStatusType === 'success'
+}">
         {{ downloadStatusMessage }}
     </div>
 
@@ -35,7 +38,7 @@
         <ng-container *ngFor="let file of batchDetails.files">
             <li *ngIf="!file.skipped && !file.failed" [attr.data-filename]="file.original_filename">
                 <div class="file-info">
-                    <span class="file-icon">📄</span> <!-- Or use a dynamic icon function -->
+                    <span class="file-icon">📄</span>
                     <span class="file-name" [title]="file.original_filename">{{ file.original_filename }}</span>
                 </div>
                 <span class="file-size">{{ file.original_size | byteFormat }}</span>
@@ -44,7 +47,6 @@
                         [disabled]="isProcessingDownload" [title]="'Download ' + file.original_filename">
                         Download
                     </button>
-                    <!-- <span class="individual-status" style="font-size: 0.8em; margin-left: 10px; display: none;"></span> -->
                 </div>
             </li>
             <li *ngIf="file.skipped || file.failed" style="background-color: #fefefe; opacity: 0.6;">
@@ -68,5 +70,5 @@
 <ng-template #loadingOrError>
     <div *ngIf="isLoading" class="container text-center">Loading batch details...</div>
     <div *ngIf="error && !isLoading" class="container error-message">{{ error }}</div>
-    <div *ngIf="!batchAccessId && !isLoading" class="container error-message">Batch ID missing.</div>
+    <div *ngIf="!effectiveBatchAccessId && !isLoading && !error" class="container error-message">Batch ID missing.</div>
 </ng-template>

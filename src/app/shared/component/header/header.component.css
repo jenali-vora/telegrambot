@@ -116,7 +116,7 @@
 
 .user-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 20px);
     /* Position below the trigger */
     right: 0;
     background-color: #FFFFFF;

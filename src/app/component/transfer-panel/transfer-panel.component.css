@@ -4,14 +4,14 @@
     width: 100%;
     max-width: 380px;
     /* Adjust max-width */
-    color: #333;
+    color: var(--heading-color);
     /* Default text color for light theme */
 }
 
 /* Styles mimicking the light panel */
 .card-style {
-    background-color: #ffffff;
-    color: #333;
+    background-color: var(--white-color);
+    color: var(--heading-color);
     border-radius: 12px;
     /* More rounded corners */
     padding: 1rem 1.25rem;
@@ -64,7 +64,7 @@
     font-size: 1.1rem;
     /* Smaller icon */
     margin-bottom: 0.1rem;
-    color: #0073E6;
+    color: var(--background);
     /* Blue icon color */
     background-color: #e7f1ff;
     /* Light blue circle background */
@@ -83,7 +83,7 @@
 .btn-add:hover {
     background-color: #eef2f9;
     border-color: #c0c2c5;
-    color: #333;
+    color:  var(--heading-color);;
 }
 
 .file-list-section {
@@ -105,7 +105,7 @@
     align-items: center;
     font-size: 0.9rem;
     /* Slightly larger */
-    color: #333;
+    color: var(--heading-color);
     /* Dark text */
     margin-bottom: 0.5rem;
     padding: 0 0.25rem;
@@ -137,7 +137,7 @@
 }
 
 .btn-clear-all:hover {
-    color: #dc3545;
+    color: var(--delete-color);
     /* Red hover */
 }
 
@@ -182,7 +182,7 @@
     align-items: center;
     padding: 10px 5px;
     /* Adjust padding */
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-color);
     /* Lighter border */
     gap: 10px;
 }
@@ -225,7 +225,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #333;
+    color: var(--heading-color);
     font-weight: 500;
     margin-bottom: 0;
 }
@@ -264,7 +264,7 @@
 .share-link-display {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
 }
 
 .share-link-display label {
@@ -355,7 +355,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #333;
+    color: var(--heading-color);
     font-weight: 500;
     margin-bottom: 0;
 }
@@ -397,12 +397,12 @@
 }
 
 .btn-remove-item:hover {
-    color: #dc3545;
+    color: var(--delete-color);
     /* Red hover for delete */
 }
 
 .btn-download-item:hover {
-    color: #007bff;
+    color: var(--background);
     /* Blue hover for download */
 }
 
@@ -431,7 +431,7 @@
 .panel-actions-upload {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     /* Stack button and status */
@@ -445,8 +445,8 @@
     font-size: 0.95rem;
     font-weight: 600;
     /* Use your primary button colors */
-    background-color: #007bff;
-    color: white;
+    background-color: var(--background);
+    color: var(--white-color);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -465,7 +465,7 @@
 }
 
 .btn-upload-tg:not(:disabled):hover {
-    background-color: #0056b3;
+    background-color: var(--background-hover);
 }
 
 .btn-upload-tg i {

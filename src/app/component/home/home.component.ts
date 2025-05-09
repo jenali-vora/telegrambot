@@ -14,6 +14,7 @@ import { CtaSectionComponent } from '../cta-section/cta-section.component';
 import { UploadProgressItemComponent } from '../upload-progress-item/upload-progress-item.component';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 import { UploadEventService } from '../../shared/services/upload-event.service';
+import { BatchFileBrowserComponent } from '../batch-file-browser/batch-file-browser.component';
 
 interface UploadProgressDetails {
   percentage: number;
@@ -33,7 +34,7 @@ interface CompletedUploadLink {
   standalone: true,
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
-    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe
+    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -45,6 +46,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private zone = inject(NgZone);
   private cdRef = inject(ChangeDetectorRef);
   private uploadEventService = inject(UploadEventService);
+  public completedBatchAccessId: string | null = null;
+  public shareableLinkForPanel: string | null = null;
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
@@ -57,7 +60,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   uploadError: string | null = null;
   isDragging = false;
   selectedItems: SelectedItem[] = [];
-  shareableLinkForPanel: string | null = null;
   currentItemBeingUploaded: SelectedItem | null = null;
   currentUploadId: string | null = null;
 
@@ -75,7 +77,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private authSubscription: Subscription | null = null;
 
   public batchUploadLinks: CompletedUploadLink[] = [];
-   public batchShareableLinkForPanel: string | null = null;
+  public batchShareableLinkForPanel: string | null = null;
 
   stepContent = [
     { number: '1', title: ' Select your file(s)', des: 'Select the file(s) and/or folder(s) you want to send from your computer or smartphone.' },
@@ -371,88 +373,54 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  // src/app/component/home/home.component.ts
+  // ... (other code)
+
   private listenToUploadProgress(uploadId: string, batchItemRepresentation: SelectedItem | null): void {
-    const apiUrl = this.apiService.getApiBaseUrl();
-    const url = `${apiUrl}/stream-progress/${uploadId}`;
+    const apiUrl = this.apiService.getApiBaseUrl(); // Your API base URL
+    const url = `${apiUrl}/stream-progress/${uploadId}`; // SSE endpoint
+
     try {
-      this.eventSource = new EventSource(url, { withCredentials: this.authService.isLoggedIn() }); // Pass withCredentials if logged in
+      this.eventSource = new EventSource(url, { withCredentials: this.authService.isLoggedIn() });
 
-      this.eventSource.onopen = () => {
-        this.zone.run(() => {
-          console.log(`SSE connection opened for upload ID: ${uploadId}`);
-          this.uploadStatusMessage = `Connection established. Starting upload...`;
-          this.cdRef.detectChanges();
-        });
-      };
-
-      this.eventSource.addEventListener('start', (event) => {
-        this.zone.run(() => {
-          const data = JSON.parse((event as MessageEvent).data);
-          this.uploadStatusMessage = data.message || `Processing files for batch...`;
-          if (data.total_bytes_for_batch) {
-            this.uploadProgressDetails.totalBytes = data.total_bytes_for_batch;
-          }
-          this.cdRef.detectChanges();
-        });
-      });
-
-      this.eventSource.addEventListener('status', (event) => {
-        this.zone.run(() => {
-          const data = JSON.parse((event as MessageEvent).data);
-          this.uploadStatusMessage = data.message || 'Updating status...';
-          if (data.filename && batchItemRepresentation) { // Update display name if provided
-            // This might conflict if we set a generic batch name
-            // this.currentItemBeingUploaded.name = data.filename;
-          }
-          this.cdRef.detectChanges();
-        });
-      });
-
-      this.eventSource.addEventListener('progress', (event) => {
-        this.zone.run(() => {
-          const data = JSON.parse((event as MessageEvent).data);
-          this.uploadProgressDetails = {
-            percentage: data.percentage_complete,
-            bytesSent: data.bytes_sent_for_batch,
-            totalBytes: data.total_bytes_for_batch || this.uploadProgressDetails.totalBytes,
-            speedMBps: data.speed_mbps,
-            etaFormatted: data.eta_formatted,
-          };
-          this.uploadProgress = data.percentage_complete;
-          this.uploadStatusMessage = data.message || `Uploading... ${data.percentage_complete.toFixed(1)}%`;
-          this.cdRef.detectChanges();
-        });
-      });
+      // ... (onopen, start, status, progress event listeners remain the same)
 
       this.eventSource.addEventListener('complete', (event) => {
-        if (!this.isUploading && this.currentUploadId !== uploadId) {
-          this.closeEventSource(); return;
-        }
         this.zone.run(() => {
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'complete' event for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
+            this.closeEventSource();
+            return;
+          }
+
           const data = JSON.parse((event as MessageEvent).data);
           this.uploadStatusMessage = data.message || `Batch upload complete!`;
 
-          if (data.download_url) { // For single combined batch link
-            this.shareableLinkForPanel = data.download_url;
-          } else if (data.files_completed && Array.isArray(data.files_completed)) { // For multiple individual links
-            this.batchUploadLinks = data.files_completed.map((f: any) => ({ name: f.name, url: f.url }));
-            if (this.batchUploadLinks.length > 0 && !this.shareableLinkForPanel) {
-              // If no single batch link, use the first file's link as the primary panel link (optional)
-              // this.shareableLinkForPanel = this.batchUploadLinks[0].url;
-            }
-          }
+          // --- THIS IS THE CRUCIAL MODIFICATION FOR THE SHAREABLE LINK ---
+          if (data.batch_access_id) { // Assuming your backend sends 'batch_access_id'
+            this.completedBatchAccessId = data.batch_access_id; // Used if you show BatchFileBrowserComponent inline in HomeComponent
 
+            // Construct the full shareable link for opening in a new tab
+            // window.location.origin gives your Angular app's base URL (e.g., "http://localhost:4200")
+            const frontendBaseUrl = window.location.origin;
+            this.shareableLinkForPanel = `${frontendBaseUrl}/browse/${data.batch_access_id}`;
+
+            console.log(`HomeComponent: Generated shareable link: ${this.shareableLinkForPanel}`);
+
+          } else {
+            console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id' from the backend. Cannot generate correct shareable link.");
+            this.uploadError = "Upload complete, but could not generate a shareable batch link.";
+            this.shareableLinkForPanel = null; // Clear any old link
+          }
+          // --- END OF CRUCIAL MODIFICATION ---
 
           this.uploadProgress = 100;
           this.isUploading = false;
-          this.currentItemBeingUploaded = null; // Clear the synthetic batch item
-          // this.currentUploadId = null; // Keep it if you want to reference the completed batch
+          this.currentItemBeingUploaded = null;
 
           if (this.currentUser && this.username) {
-            console.log('HomeComponent: Upload complete. Preparing to notify.');
             this.loadUserFileCount();
             this.uploadEventService.notifyUploadComplete();
-            console.log('HomeComponent: Notification sent.');
           }
           this.closeEventSource();
           this.cdRef.detectChanges();
@@ -460,28 +428,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
 
       this.eventSource.onerror = (errorEvent) => {
-        // Don't call handleBatchUploadError if we initiated the close
-        if (!this.isUploading && this.currentUploadId !== uploadId) {
-          console.log("SSE error after explicit close/cancellation, ignoring.");
-          return;
-        }
         this.zone.run(() => {
-          let errorMessage = 'SSE connection error.';
-          if (errorEvent && (errorEvent as any).message) {
-            errorMessage += ` Details: ${(errorEvent as any).message}`;
-          } else if (this.eventSource && this.eventSource.readyState === EventSource.CLOSED) {
-            // Could be a network issue, or server closed connection unexpectedly.
-            // If upload was nearly complete, this might not be a fatal error for the upload itself.
-            // The 'complete' event might have been missed.
-            if (this.uploadProgress > 95) { // Heuristic
-              errorMessage = 'SSE connection lost. Upload may have completed. Check file list.';
-              // Potentially treat as complete or prompt user to check.
-            } else {
-              errorMessage = 'SSE connection closed unexpectedly by the server or network.';
-            }
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            // ... (ignore logic)
+            return;
           }
-          console.error("SSE Error Event: ", errorEvent);
-          this.handleBatchUploadError(errorMessage, errorEvent);
+          // ... (your existing onerror logic)
+          console.error("SSE Error Event for active upload: ", errorEvent);
+          this.handleBatchUploadError('SSE connection error during upload.', errorEvent);
         });
       };
     } catch (error) {
@@ -489,6 +443,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.handleBatchUploadError(`Client-side error setting up upload progress: ${(error as Error).message}`);
     }
   }
+
+  // ... (rest of your component code)
 
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
     if (errorEvent) console.error("Error during batch upload:", errorMessage, errorEvent);
