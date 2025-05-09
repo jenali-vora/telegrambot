@@ -353,7 +353,7 @@
 
 /* Simple error message display */
 .upload-error-message {
-    margin-top: 1rem;
+    /* margin-top: 1rem; */
     color: #f1b0b7;
     /* Light red text (from dark theme variables) */
     background-color: #58151c;
@@ -365,6 +365,7 @@
     border: 1px solid #a12b36;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
 }
 
 /* transfer section css end */
