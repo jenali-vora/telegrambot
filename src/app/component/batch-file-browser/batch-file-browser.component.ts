@@ -1,12 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core'; // Added Input, OnChanges, SimpleChanges
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment'; // Your environment file
+import { environment } from 'src/environments/environment';
 
-// Interfaces
 import {
   BatchDetails,
   FileInBatchInfo,
@@ -14,10 +13,9 @@ import {
   SseReadyPayload,
   SseProgressPayload,
   SseStatusPayload
-} from '../../interfaces/batch.interfaces'; // Adjust path as needed
+} from '../../interfaces/batch.interfaces';
 
-// Pipe
-import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjust path as needed
+import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
 @Component({
   selector: 'app-batch-file-browser',
@@ -27,14 +25,18 @@ import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjust 
   styleUrls: ['./batch-file-browser.component.css'],
   providers: [DatePipe]
 })
-export class BatchFileBrowserComponent implements OnInit, OnDestroy {
+export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges { // Implement OnChanges
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private cdRef = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
   private datePipe = inject(DatePipe);
 
-  batchAccessId: string | null = null;
+  @Input() batchAccessIdInput: string | null = null; // Renamed for clarity
+
+  // This property will hold the effective batch ID, whether from input or route
+  public effectiveBatchAccessId: string | null = null;
+
   batchDetails: BatchDetails | null = null;
   isLoading = true;
   error: string | null = null;
@@ -48,67 +50,125 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
 
   private readonly API_BASE_URL = environment.apiUrl;
 
-  ngOnInit(): void {
-    this.routeSubscription = this.route.paramMap.subscribe(params => {
-      this.batchAccessId = params.get('accessId'); // Assuming route is /your-path/:accessId
-      if (this.batchAccessId) {
-        this.fetchBatchDetails(this.batchAccessId);
-      } else {
-        this.error = 'Batch Access ID not found in URL.';
-        this.isLoading = false;
-        this.cdRef.detectChanges();
-      }
-    });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['batchAccessIdInput'] && this.batchAccessIdInput) {
+      // Input has changed and is valid, prioritize it
+      this.effectiveBatchAccessId = this.batchAccessIdInput;
+      this.resetStateAndFetch();
+    } else if (changes['batchAccessIdInput'] && !this.batchAccessIdInput && this.effectiveBatchAccessId) {
+      // Input was removed, if component relies on route, it might need re-evaluation
+      // or simply clear if it was solely dependent on input.
+      // For now, if input becomes null, we clear. If it was also routed, ngOnInit would handle.
+      this.batchDetails = null;
+      this.error = "Batch ID input removed.";
+      this.isLoading = false;
+      this.cdRef.detectChanges();
+    }
   }
 
+  ngOnInit(): void {
+    // If input is already set (e.g. component initialized with input), ngOnChanges handles it.
+    // This OnInit logic is primarily for when the component is routed directly.
+    if (!this.batchAccessIdInput) { // Only process route if no input is driving the component
+      this.routeSubscription = this.route.paramMap.subscribe(params => {
+        const accessIdFromRoute = params.get('accessId'); // 'accessId' must match the route param name (e.g., path: 'browse/:accessId')
+        console.log('BatchFileBrowserComponent: Received accessId from route parameters:', accessIdFromRoute); // For debugging
+
+        if (accessIdFromRoute) {
+          this.effectiveBatchAccessId = accessIdFromRoute;
+          this.resetStateAndFetch(); // This will call fetchBatchDetails with the ID
+        } else {
+          // No input and no route param
+          this.error = 'Batch Access ID not found in URL and no input provided.';
+          this.isLoading = false;
+          this.cdRef.detectChanges();
+          console.error('BatchFileBrowserComponent: Critical - accessIdFromRoute is null or undefined.');
+        }
+      });
+    } else if (this.batchAccessIdInput && !this.effectiveBatchAccessId) {
+      // Handles case where input is set before ngOnInit but ngOnChanges might not have run
+      // or to ensure effectiveBatchAccessId is set if ngOnChanges didn't set it.
+      this.effectiveBatchAccessId = this.batchAccessIdInput;
+      this.resetStateAndFetch();
+    } else if (this.effectiveBatchAccessId) {
+      // If effectiveBatchAccessId was already set by ngOnChanges from an input
+      this.resetStateAndFetch();
+    }
+  }
+
+  private resetStateAndFetch(): void {
+    if (this.effectiveBatchAccessId) {
+      this.isLoading = true;
+      this.error = null;
+      this.batchDetails = null; // Clear previous details
+      this.downloadStatusMessage = null; // Clear download status
+      this.isProcessingDownload = false;
+      this.cleanupSse(); // Clean up any existing SSE connection
+      this.cdRef.detectChanges(); // Update UI for loading state
+      this.fetchBatchDetails(this.effectiveBatchAccessId);
+    }
+  }
+
+
   fetchBatchDetails(accessId: string): void {
+    if (!accessId) {
+      this.error = "Access ID is missing for fetching batch details.";
+      this.isLoading = false;
+      this.cdRef.detectChanges();
+      return;
+    }
     this.isLoading = true;
     this.error = null;
-    this.http.get<BatchDetails>(`${this.API_BASE_URL}/batch-details/${accessId}`)
+
+    // MODIFIED LINE: Prepend '/api' to the endpoint path
+    const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`;
+    console.log(`Fetching batch details from: ${endpointUrl}`); // For debugging
+
+    this.http.get<BatchDetails>(endpointUrl) // Use the constructed endpointUrl
       .pipe(
         tap(details => console.log('Batch details fetched:', details)),
         catchError(err => {
           console.error('Error fetching batch details:', err);
-          this.error = `Failed to load batch details: ${err.message || 'Server error'}`;
+          this.error = `Failed to load batch details for ${accessId}: ${err.statusText || err.message || 'Server error'}`;
+          // More detailed error for 404
+          if (err.status === 404) {
+            this.error = `Batch with ID ${accessId} not found (404). Please check the ID or link.`;
+          }
           return throwError(() => err);
         })
       )
       .subscribe({
         next: (details) => {
           this.batchDetails = details;
-          // Jinja uses 'batch_name', 'username', 'upload_date', 'files', 'total_size', 'access_id'
-          // Ensure your BatchDetails interface and backend response align.
-          // If your backend sends 'batch_display_name', map it or use it directly.
-          // The example interface uses `batch_name` from the template.
           this.isLoading = false;
           this.cdRef.detectChanges();
         },
         error: () => {
+          // Error is already set in catchError, just ensure loading state is updated
           this.isLoading = false;
           this.cdRef.detectChanges();
         }
       });
   }
 
-  initiateDownloadAll(): void {
-    if (!this.batchAccessId || this.isProcessingDownload) return;
 
-    console.log(`Download All clicked for access_id: ${this.batchAccessId}`);
-    this.http.get<DownloadAllInitiationResponse>(`${this.API_BASE_URL}/initiate-download-all/${this.batchAccessId}`)
+  initiateDownloadAll(): void {
+    if (!this.effectiveBatchAccessId || this.isProcessingDownload) return;
+
+    console.log(`Download All clicked for access_id: ${this.effectiveBatchAccessId}`);
+    this.http.get<DownloadAllInitiationResponse>(`${this.API_BASE_URL}/initiate-download-all/${this.effectiveBatchAccessId}`)
       .pipe(
         catchError(err => {
           const errorMsg = err.error?.error || err.message || `HTTP error ${err.status}`;
           console.error("Error initiating Download All:", errorMsg);
           this.setDownloadStatus(`Error: ${errorMsg}`, 'error');
-          this.isProcessingDownload = false; // Re-enable if initiation failed
+          this.isProcessingDownload = false;
           return throwError(() => new Error(errorMsg));
         })
       )
       .subscribe(response => {
         if (response.sse_stream_url) {
           console.log("Download All initiation successful. SSE URL:", response.sse_stream_url);
-          // Note: SSE URLs might need to be relative to API_BASE_URL or absolute
-          // For simplicity, assuming backend provides a full or directly usable path
           const sseUrl = response.sse_stream_url.startsWith('http') ? response.sse_stream_url : `${this.API_BASE_URL}${response.sse_stream_url}`;
           this.setupSseConnection(sseUrl, true);
         } else {
@@ -120,15 +180,15 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
   }
 
   initiateIndividualDownload(file: FileInBatchInfo): void {
-    if (!this.batchAccessId || !file.original_filename || this.isProcessingDownload) return;
+    if (!this.effectiveBatchAccessId || !file.original_filename || this.isProcessingDownload) return;
 
-    console.log(`Individual download: BatchID=${this.batchAccessId}, Filename=${file.original_filename}`);
+    console.log(`Individual download: BatchID=${this.effectiveBatchAccessId}, Filename=${file.original_filename}`);
     const encodedFilename = encodeURIComponent(file.original_filename);
-    // This SSE URL is directly constructed based on template logic
-    const sseUrl = `${this.API_BASE_URL}/download-single/${this.batchAccessId}/${encodedFilename}`;
+    const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
     this.setupSseConnection(sseUrl, false);
   }
 
+  // ... (setupSseConnection, cleanupSse, setDownloadStatus, formatTime, formatUploadDate remain unchanged)
   private setupSseConnection(streamUrl: string, isDownloadAll: boolean): void {
     if (this.currentSse) {
       this.currentSse.close();
@@ -160,7 +220,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
         const data: SseProgressPayload = JSON.parse(event.data);
         const percentage = data.percentage !== undefined ? data.percentage.toFixed(0) : '?';
         const speed = data.speedMBps !== undefined ? data.speedMBps.toFixed(1) : '?';
-        const eta = data.etaFormatted || this.formatTime(NaN); // Use NaN for formatTime to get default
+        const eta = data.etaFormatted || this.formatTime(NaN);
         this.setDownloadStatus(`Preparing: ${percentage}% (${speed} MB/s, ETA: ${eta})`, 'info');
       } catch (e) { console.error("Progress parse error", e); }
     }));
@@ -175,12 +235,11 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
         console.log(`Preparation complete. Triggering download: ${finalDownloadUrl}`);
         this.setDownloadStatus(`Download ready: ${data.final_filename}`, 'success');
 
-        window.location.href = finalDownloadUrl; // Triggers download
+        window.location.href = finalDownloadUrl;
 
         this.cleanupSse();
-        setTimeout(() => { // Delay re-enabling and clearing status
+        setTimeout(() => {
           this.isProcessingDownload = false;
-          // this.setDownloadStatus(null, 'info'); // Optionally hide
           this.cdRef.detectChanges();
         }, 3000);
       } catch (e: any) {
@@ -203,8 +262,8 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
       this.cdRef.detectChanges();
     }));
 
-    this.currentSse.onerror = (err: Event) => this.zone.run(() => { // Generic EventSource error
-      if (this.currentSse) { // Only if not closed by 'ready' or 'error' event
+    this.currentSse.onerror = (err: Event) => this.zone.run(() => {
+      if (this.currentSse) {
         console.error("SSE EventSource connection error:", err);
         this.setDownloadStatus('Connection lost or server error.', 'error');
         this.cleanupSse();
@@ -241,7 +300,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy {
   formatUploadDate(timestamp: string | Date | undefined): string {
     if (!timestamp) return 'N/A';
     try {
-      // Assuming timestamp is ISO 8601 string or Date object
       return this.datePipe.transform(timestamp, 'yyyy-MM-dd HH:mm') || 'Invalid Date';
     } catch (e) {
       return 'Invalid Date';

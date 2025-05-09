@@ -35,8 +35,9 @@
                         </div>
                     </div>
                 </div>
-                <app-transfer-panel *ngIf="selectedItems.length > 0 || shareableLinkForPanel" [items]="selectedItems"
-                    [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
+                <app-transfer-panel
+                    *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
+                    [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                     [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
                     (requestAddFolder)="triggerFolderInput()" (itemRemoved)="handleItemRemovedFromPanel($event)"
                     (itemDownloadRequested)="handleDownloadRequest($event)"

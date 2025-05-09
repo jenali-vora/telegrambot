@@ -68,7 +68,7 @@ export const routes: Routes = [
     component: UserFilesPageComponent,
     canActivate: [authGuard]
   },
-  { path: 'browse/batch/:accessId', component: BatchFileBrowserComponent },
+  { path: 'browse/:accessId', component: BatchFileBrowserComponent },
 
   // Wildcard route redirects to the home page (which has the layout)
   {

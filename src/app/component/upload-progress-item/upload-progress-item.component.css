@@ -170,20 +170,20 @@
 }
 
 .item-progress-bar progress::-webkit-progress-value {
-  background-color: #28a745;
+  background-color: var(--background);
   /* Green progress */
   border-radius: 4px;
   transition: width 0.2s ease-out;
 }
 
 .item-progress-bar progress::-moz-progress-bar {
-  background-color: #28a745;
+  background-color: var(--background);
   border-radius: 4px;
   transition: width 0.2s ease-out;
 }
 
 .item-progress-bar progress::-ms-fill {
-  background-color: #28a745;
+  background-color: var(--background);
   border-radius: 4px;
   transition: width 0.2s ease-out;
 }
