@@ -56,6 +56,12 @@ export const routes: Routes = [
       },
       { path: 'blog/:slug', component: BlogDetailComponent },
       // Default empty path within the main layout redirects to home page
+      { path: 'browse/:accessId', component: BatchFileBrowserComponent },
+      {
+        path: 'my-files',
+        component: UserFilesPageComponent,
+        canActivate: [authGuard]
+      },
       {
         path: '',
         redirectTo: '/home',
@@ -63,12 +69,6 @@ export const routes: Routes = [
       }
     ]
   },
-  {
-    path: 'my-files',
-    component: UserFilesPageComponent,
-    canActivate: [authGuard]
-  },
-  { path: 'browse/:accessId', component: BatchFileBrowserComponent },
 
   // Wildcard route redirects to the home page (which has the layout)
   {

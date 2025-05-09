@@ -202,9 +202,9 @@
 }
 
 .error-message {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+    color: var(--background);
+    background-color: #e3e7f9;
+    border: 1px solid #e3e7f9;
     border-radius: .25rem;
     font-size: 0.9rem;
 }

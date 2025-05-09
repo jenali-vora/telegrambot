@@ -50,7 +50,7 @@ hr {
     padding: 0.8em 1em;
     border-bottom: 1px solid #eee;
     background-color: #fff;
-    margin-bottom: 5px;
+    margin-bottom: 16px;
     border-radius: 4px;
 }
 
@@ -58,17 +58,33 @@ hr {
     border-bottom: none;
 }
 
-.file-info {
+/* .file-info {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-grow: 1;
     overflow: hidden;
-    /* Important for text-overflow */
+} */
+
+.file-length .sharedby {
+    font-size: 12px;
+}
+
+.file-length .share-username {
+    color: var(--background);
+    font-size: 12px;
+}
+
+.file-length .file-list-length {
+    font-size: 12px;
+}
+
+.file-list-length .file-dot {
+    color: rgb(152 162 179);
 }
 
 .file-icon {
-    font-size: 1.5em;
+    font-size: 36px;
     /* Keep it simple as per template */
     color: #777;
 }
@@ -93,8 +109,8 @@ hr {
 .file-actions button,
 .file-actions a {
     /* If you use <a> tags as buttons */
-    background-color: #e7e7e7;
-    color: #333;
+    background-color: var(--white-color);
+    color: var(--background);
     border: none;
     padding: 6px 12px;
     border-radius: 4px;
@@ -103,11 +119,13 @@ hr {
     text-decoration: none;
     display: inline-block;
     margin-left: 5px;
+    border: 1px solid var(--background);
 }
 
 .file-actions button:hover,
 .file-actions a:hover {
-    background-color: #ddd;
+    background-color: var(--background-hover);
+    color: var(--white-color);
 }
 
 .file-actions button:disabled {
