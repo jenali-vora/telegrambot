@@ -165,50 +165,26 @@
   width: 100%;
   height: 100%;
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   border: none;
   background-color: transparent;
 }
 
-.item-progress-bar progress::-webkit-progress-value {
-  background-color: var(--background);
-  /* Green progress */
-  border-radius: 4px;
-  transition: width 0.2s ease-out;
-}
-
-.item-progress-bar progress::-moz-progress-bar {
-  background-color: var(--background);
-  border-radius: 4px;
-  transition: width 0.2s ease-out;
-}
-
-.item-progress-bar progress::-ms-fill {
-  background-color: var(--background);
-  border-radius: 4px;
-  transition: width 0.2s ease-out;
-}
 
 /* Row 3: ETA and Speed */
 .item-eta-speed-row {
   width: 100%;
   display: flex;
-  /* justify-content: center; /* Or flex-start if you want it left-aligned */
-  /* The screenshot looks like the ETA/Speed section is not full width but rather centered
-     or slightly indented. The wrapper below handles this. */
 }
 
 .item-speed-eta-content {
-  /* This wrapper allows for alignment of the content itself */
   display: flex;
   gap: 12px;
   align-items: center;
   font-size: 0.7rem;
   color: #777;
   white-space: nowrap;
-  /* If you want this block centered under the progress bar: */
-  /* margin: 0 auto; */
-  /* If you want it aligned with the icon/progress bar start: */
-  /* padding-left: 0; (default) */
 }
 
 
@@ -232,4 +208,67 @@
   border-radius: 10px;
   font-weight: 500;
   font-size: 0.7rem;
+}
+
+.screenshot-progress-bar-container {
+  width: 100%;
+  height: 15px;
+  /* Height of the progress bar area */
+  background-color: #f3f4f6;
+  /* Light gray track color (similar to screenshot's track) */
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  box-sizing: border-box;
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+}
+
+.screenshot-progress-bar-fill {
+  height: 100%;
+  background-color: var(--background);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 8px;
+  box-sizing: border-box;
+  color: white;
+  font-weight: 500;
+  transition: width 0.2s ease-out;
+}
+
+
+.screenshot-progress-details-line {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 0.75rem;
+  color: #4b5563;
+  padding-left: 2px;
+}
+
+.screenshot-progress-details-line .details-separator {
+  color: #6b7280;
+  padding-left: 0.1em;
+  padding-right: 0.1em;
+}
+
+/* END: Styles for the new screenshot-like progress bar and details line */
+
+/* Ensure .item-name-and-size-wrapper still looks good after removing item-uploaded-size-info */
+.item-name-and-size-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* This should keep the name vertically centered */
+  overflow: hidden;
+  /* gap: 1px; /* Original gap, may not be needed if only item-name is present */
+}
+
+.item-name {
+  /* (Existing styles are likely fine, but you might need to adjust line-height
+     if the vertical alignment within item-name-and-size-wrapper looks off) */
+  line-height: 1.3;
+  /* Example, adjust if needed */
 }

@@ -77,7 +77,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private authSubscription: Subscription | null = null;
 
   public batchUploadLinks: CompletedUploadLink[] = [];
-  public batchShareableLinkForPanel: string | null = null;
+  public batchShareableLinkForPanel: string | null = null; // Already exists, seems fine
 
   stepContent = [
     { number: '1', title: ' Select your file(s)', des: 'Select the file(s) and/or folder(s) you want to send from your computer or smartphone.' },
@@ -96,6 +96,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { img: "assets/android-ByKVTp40.svg", title: "Android" },
   ];
 
+
   ngOnInit(): void {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.zone.run(() => {
@@ -104,38 +105,37 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.username = this.currentUser?.username || this.currentUser?.email || '';
 
         const isLoggingOut = !user && wasLoggedIn;
-        const isSwitchingUser = !!user && wasLoggedIn && user.email !== this.currentUser?.email; // Assuming email is unique identifier
+        const isSwitchingUser = !!user && wasLoggedIn && this.currentUser && user.email !== this.currentUser.email;
 
         if (isLoggingOut || isSwitchingUser) {
-          this.resetUploadState(); // Reset on logout or user switch
+          this.resetUploadState();
         }
 
         if (this.currentUser && this.username) {
           this.loadUserFileCount();
         } else {
-          // User is not logged in (or just logged out)
           this.userFileCount = 0;
           this.isLoadingUserFileCount = false;
-          // If items were selected as anonymous and then user logs out,
-          // they should ideally persist if the anonymous_upload_id is still valid
-          // For now, resetUploadState clears selectedItems.
-          // If you want to keep them after logout, you'd need more complex state management.
         }
+        // If user logs in/out, and they had files selected, their limit might change.
+        // For simplicity, we could clear selectedItems if login state changes and items are present.
+        // Or, assume they continue with items selected under old limit rules until they add more.
+        // The current resetUploadState on logout/switch handles this well.
         this.cdRef.detectChanges();
       });
     });
 
-    // Initial check - might be redundant if subscription fires immediately
+    // Initial check for currentUser on component load
     this.currentUser = this.authService.currentUserValue;
     this.username = this.currentUser?.username || this.currentUser?.email || '';
     if (this.currentUser && this.username) {
       this.loadUserFileCount();
     } else {
-      this.resetUploadState(); // Ensure clean state if starting anonymous
       this.userFileCount = 0;
       this.isLoadingUserFileCount = false;
     }
   }
+
 
   private resetUploadState(): void {
     this.isUploading = false;
@@ -185,35 +185,45 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   triggerFileInput(): void { if (this.isUploading) return; this.fileInputRef?.nativeElement.click(); }
   triggerFolderInput(): void { if (this.isUploading) return; this.folderInputRef?.nativeElement.click(); }
-  // onFileSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files); input.value = ''; }
-  // onFolderSelected(event: Event): void { const input = event.target as HTMLInputElement; if (input.files?.length) this.handleFiles(input.files, true); input.value = ''; }
   onDragOver(event: DragEvent): void { if (this.isUploading) { if (event.dataTransfer) event.dataTransfer.dropEffect = 'none'; event.preventDefault(); event.stopPropagation(); return; } event.preventDefault(); event.stopPropagation(); this.isDragging = true; if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'; }
   onDragLeave(event: DragEvent): void { event.preventDefault(); event.stopPropagation(); const target = event.currentTarget as HTMLElement; const relatedTarget = event.relatedTarget as Node; if (!relatedTarget || !target.contains(relatedTarget)) this.isDragging = false; }
   onDrop(event: DragEvent): void { if (this.isUploading) { event.preventDefault(); event.stopPropagation(); this.isDragging = false; return; } event.preventDefault(); event.stopPropagation(); this.isDragging = false; const files = event.dataTransfer?.files; if (files && files.length > 0) this.handleFiles(files); }
 
-  handleFiles(fileList: FileList, isFolderSelection: boolean = false): void { // Renamed for clarity
+  handleFiles(fileList: FileList, isFolderSelection: boolean = false): void {
     if (this.isUploading) {
       alert("Wait for current upload or cancel it.");
       return;
     }
     if (this.shareableLinkForPanel || this.batchUploadLinks.length > 0) {
-      // Reset if starting a new selection after a completed upload
       this.selectedItems = [];
       this.nextItemId = 0;
       this.shareableLinkForPanel = null;
       this.batchUploadLinks = [];
     }
-    this.uploadError = null; // Clear previous errors
+    this.uploadError = null;
 
     if (!fileList || fileList.length === 0) return;
 
-    const MAX_TOTAL_FILES = 5; // Your defined limit
+    // --- MODIFICATION FOR DYNAMIC FILE LIMIT ---
+    let MAX_TOTAL_FILES: number;
+    const isLoggedIn = this.authService.isLoggedIn();
+
+    if (isLoggedIn) {
+      // Logged-in users can upload multiple files/folders (effectively no small limit on total file count)
+      MAX_TOTAL_FILES = Infinity; // Or a very large number like 10000 if Infinity causes issues elsewhere
+    } else {
+      // Anonymous users are limited to 5 files
+      MAX_TOTAL_FILES = 5;
+    }
+    console.log(`User is ${isLoggedIn ? 'logged in' : 'anonymous'}. MAX_TOTAL_FILES set to: ${MAX_TOTAL_FILES}`);
+    // --- END MODIFICATION ---
+
     const currentCount = this.selectedItems.length;
     let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
 
-    if (slotsActuallyAvailable <= 0) {
+    // Only show "already selected maximum" error if there's a finite limit and it's met/exceeded
+    if (slotsActuallyAvailable <= 0 && isFinite(MAX_TOTAL_FILES)) {
       this.uploadError = `You have already selected the maximum of ${MAX_TOTAL_FILES} files.`;
-      // Clear the input fields to allow re-selection
       if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
       if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
       this.cdRef.detectChanges();
@@ -225,20 +235,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     for (let i = 0; i < fileList.length; i++) {
       if (filesAddedInThisOperation >= slotsActuallyAvailable) {
-        // We've hit the MAX_TOTAL_FILES limit (considering existing items + new ones)
+        // This break condition handles both finite and infinite MAX_TOTAL_FILES correctly.
+        // If MAX_TOTAL_FILES is Infinity, slotsActuallyAvailable is Infinity,
+        // so this condition (filesAddedInThisOperation >= Infinity) will likely not be met
+        // unless an enormous number of files are processed.
         break;
       }
 
       const file = fileList[i];
       const name = isFolderSelection && file.webkitRelativePath ? file.webkitRelativePath : file.name;
 
-      // Skip empty files that are not part of a folder structure (e.g., an empty file explicitly selected)
       if (file.size === 0 && !isFolderSelection && !name.includes('/')) {
-        // console.log(`Skipping empty file: ${file.name}`);
         continue;
       }
-
-      // Skip .DS_Store files or other system files if desired
       if (name.toLowerCase().endsWith('.ds_store')) {
         continue;
       }
@@ -249,7 +258,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         name: name,
         size: file.size,
         icon: this.getFileIcon(name),
-        // Determine if it's a folder based on webkitRelativePath or if the derived name indicates a path
         isFolder: isFolderSelection || (file.webkitRelativePath && file.webkitRelativePath.includes('/')) || (name !== file.name && name.includes('/'))
       });
       filesAddedInThisOperation++;
@@ -257,48 +265,41 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (filesAddedInThisOperation > 0) {
       this.selectedItems = [...this.selectedItems, ...newItems];
-      console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length, this.selectedItems); // DEBUG
+      console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
       this.cdRef.detectChanges();
     }
 
-    // Set error message if not all files from the selection could be added
-    if (fileList.length > filesAddedInThisOperation && filesAddedInThisOperation < slotsActuallyAvailable) {
-      // This case means some files were valid but we hit the overall MAX_TOTAL_FILES limit partway through processing fileList
-      this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesAddedInThisOperation} file(s) were added from your selection.`;
-    } else if (fileList.length > slotsActuallyAvailable && filesAddedInThisOperation === 0 && currentCount < MAX_TOTAL_FILES) {
-      // This means the user already had some files, and the new selection itself was too large to add any.
-      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. No new files were added.`;
-    } else if (fileList.length > slotsActuallyAvailable) {
-      // This means the selection was larger than available slots, and we filled up the available slots.
-      this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. Only ${filesAddedInThisOperation} file(s) were added to reach the limit.`;
+    // Set error message only if a finite limit was in place and not all files could be added due to it.
+    if (isFinite(MAX_TOTAL_FILES)) {
+      if (fileList.length > filesAddedInThisOperation && filesAddedInThisOperation < slotsActuallyAvailable) {
+        this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesAddedInThisOperation} file(s) were added from your selection.`;
+      } else if (fileList.length > slotsActuallyAvailable && filesAddedInThisOperation === 0 && currentCount < MAX_TOTAL_FILES) {
+        this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. No new files were added.`;
+      } else if (fileList.length > slotsActuallyAvailable) {
+        this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. Only ${filesAddedInThisOperation} file(s) were added to reach the limit.`;
+      }
     }
 
-
-    // Always clear the input fields after processing
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
     if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
 
     if (this.uploadError) {
-      this.cdRef.detectChanges(); // Ensure error message is displayed
+      this.cdRef.detectChanges();
     }
   }
-
-  // ... (rest of the component: onFileSelected, onFolderSelected need to pass the flag)
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-      this.handleFiles(input.files, false); // Pass false for isFolderSelection
+      this.handleFiles(input.files, false);
     }
-    // input.value = ''; // Moved to inside handleFiles
   }
 
   onFolderSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-      this.handleFiles(input.files, true); // Pass true for isFolderSelection
+      this.handleFiles(input.files, true);
     }
-    // input.value = ''; // Moved to inside handleFiles
   }
 
   initiateTransferFromPanel(): void {
@@ -314,14 +315,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.currentItemBeingUploaded = {
       id: -1,
-      name: `Uploading ${this.selectedItems.length} item(s)...`,
+      name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
       size: totalBatchSize,
       file: null as any,
       icon: 'fas fa-archive',
       isFolder: false
     };
 
-    this.uploadProgressDetails = { percentage: 0, bytesSent: 0, totalBytes: totalBatchSize, speedMBps: 0, etaFormatted: '--:--' };
+    this.uploadProgressDetails = {
+      percentage: 0,
+      bytesSent: 0,
+      totalBytes: totalBatchSize,
+      speedMBps: 0,
+      etaFormatted: '--:--',
+    };
     this.uploadProgress = 0;
     this.uploadStatusMessage = `Initiating batch upload of ${this.selectedItems.length} item(s)...`;
     this.currentUploadId = null;
@@ -329,28 +336,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const formData = new FormData();
 
-    // --- MODIFICATION START ---
     if (this.authService.isLoggedIn()) {
-      // User is logged in. JWT will be attached by an interceptor (assumed).
-      // The backend `routes.py` uses `get_jwt_identity()` so 'username' form field is not strictly needed
-      // if JWT is present, but can be kept for logging or if backend logic changes.
       if (this.username) {
-        // formData.append('username', this.username); // Optional: Backend primarily uses JWT
         console.log('HomeComponent: Logged in user initiating transfer.');
       }
     } else {
-      // User is anonymous. Get or generate an anonymous ID and send it.
       const anonymousId = this.authService.getOrGenerateAnonymousUploadId();
       if (anonymousId) {
         formData.append('anonymous_upload_id', anonymousId);
         console.log('HomeComponent: Anonymous user initiating transfer with ID:', anonymousId);
       } else {
-        // Handle case where anonymous ID couldn't be generated (e.g., localStorage issue)
         this.handleBatchUploadError('Could not generate an identifier for anonymous upload. Please enable cookies/localStorage or try logging in.');
         return;
       }
     }
-    // --- MODIFICATION END ---
 
     for (const item of this.selectedItems) {
       formData.append('files[]', item.file, item.name);
@@ -373,51 +372,117 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // src/app/component/home/home.component.ts
-  // ... (other code)
-
   private listenToUploadProgress(uploadId: string, batchItemRepresentation: SelectedItem | null): void {
-    const apiUrl = this.apiService.getApiBaseUrl(); // Your API base URL
-    const url = `${apiUrl}/stream-progress/${uploadId}`; // SSE endpoint
+    const apiUrl = this.apiService.getApiBaseUrl();
+    const url = `${apiUrl}/stream-progress/${uploadId}`;
 
     try {
       this.eventSource = new EventSource(url, { withCredentials: this.authService.isLoggedIn() });
 
-      // ... (onopen, start, status, progress event listeners remain the same)
-
-      this.eventSource.addEventListener('complete', (event) => {
+      this.eventSource.onopen = () => {
         this.zone.run(() => {
           if (uploadId !== this.currentUploadId || !this.isUploading) {
-            console.log(`SSE 'complete' event for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
+            console.log(`SSE 'onopen' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
             this.closeEventSource();
             return;
           }
+          console.log(`SSE connection opened for upload ID: ${uploadId}`);
+          this.uploadStatusMessage = 'Upload connection established. Starting...';
+          this.cdRef.detectChanges();
+        });
+      };
 
-          const data = JSON.parse((event as MessageEvent).data);
+      this.eventSource.addEventListener('start', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'start' event for ${uploadId} ignored.`);
+            return;
+          }
+          const data = JSON.parse(event.data);
+          this.uploadStatusMessage = data.message || 'Upload started.';
+          if (data.totalBytes && data.totalBytes !== this.uploadProgressDetails.totalBytes) {
+            this.uploadProgressDetails.totalBytes = parseInt(data.totalBytes, 10);
+            if (this.currentItemBeingUploaded) {
+              this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
+            }
+          }
+          console.log('SSE "start" event data:', data);
+          this.cdRef.detectChanges();
+        });
+      });
+
+      this.eventSource.addEventListener('status', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'status' event for ${uploadId} ignored.`);
+            return;
+          }
+          const data = JSON.parse(event.data);
+          this.uploadStatusMessage = data.message || 'Processing...';
+          if (typeof data.percentage === 'number') {
+            this.uploadProgressDetails.percentage = Math.min(parseFloat(data.percentage), 100);
+            this.uploadProgress = this.uploadProgressDetails.percentage;
+          }
+          console.log('SSE "status" event data:', data);
+          this.cdRef.detectChanges();
+        });
+      });
+
+      this.eventSource.addEventListener('progress', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'progress' event for ${uploadId} ignored.`);
+            return;
+          }
+          try {
+            const data = JSON.parse(event.data);
+            this.uploadProgressDetails = {
+              percentage: data.percentage !== undefined ? Math.min(parseFloat(data.percentage), 100) : this.uploadProgressDetails.percentage,
+              bytesSent: data.bytesSent !== undefined ? parseInt(data.bytesSent, 10) : (data.bytesProcessed !== undefined ? parseInt(data.bytesProcessed, 10) : this.uploadProgressDetails.bytesSent),
+              totalBytes: data.totalBytes !== undefined ? parseInt(data.totalBytes, 10) : this.uploadProgressDetails.totalBytes,
+              speedMBps: data.speedMBps !== undefined ? parseFloat(data.speedMBps) : this.uploadProgressDetails.speedMBps,
+              etaFormatted: data.etaFormatted !== undefined ? data.etaFormatted : this.uploadProgressDetails.etaFormatted,
+            };
+            if (this.currentItemBeingUploaded && data.totalBytes !== undefined && this.currentItemBeingUploaded.size !== this.uploadProgressDetails.totalBytes) {
+              this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
+            }
+            this.uploadProgress = this.uploadProgressDetails.percentage;
+            this.uploadStatusMessage = data.message || `Uploading: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
+            this.cdRef.detectChanges();
+          } catch (e) {
+            console.error("Error parsing SSE 'progress' event data:", event.data, e);
+          }
+        });
+      });
+
+      this.eventSource.addEventListener('complete', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'complete' event for ${uploadId} ignored.`);
+            this.closeEventSource();
+            return;
+          }
+          const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || `Batch upload complete!`;
-
-          // --- THIS IS THE CRUCIAL MODIFICATION FOR THE SHAREABLE LINK ---
-          if (data.batch_access_id) { // Assuming your backend sends 'batch_access_id'
-            this.completedBatchAccessId = data.batch_access_id; // Used if you show BatchFileBrowserComponent inline in HomeComponent
-
-            // Construct the full shareable link for opening in a new tab
-            // window.location.origin gives your Angular app's base URL (e.g., "http://localhost:4200")
+          if (data.batch_access_id) {
+            this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
             this.shareableLinkForPanel = `${frontendBaseUrl}/browse/${data.batch_access_id}`;
-
             console.log(`HomeComponent: Generated shareable link: ${this.shareableLinkForPanel}`);
-
           } else {
-            console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id' from the backend. Cannot generate correct shareable link.");
+            console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id'.");
             this.uploadError = "Upload complete, but could not generate a shareable batch link.";
-            this.shareableLinkForPanel = null; // Clear any old link
+            this.shareableLinkForPanel = null;
           }
-          // --- END OF CRUCIAL MODIFICATION ---
-
+          this.uploadProgressDetails = {
+            percentage: 100,
+            bytesSent: data.bytesProcessed !== undefined ? parseInt(data.bytesProcessed, 10) : (data.totalBytes !== undefined ? parseInt(data.totalBytes, 10) : this.uploadProgressDetails.totalBytes),
+            totalBytes: data.totalBytes !== undefined ? parseInt(data.totalBytes, 10) : this.uploadProgressDetails.totalBytes,
+            speedMBps: 0,
+            etaFormatted: '00:00',
+          };
           this.uploadProgress = 100;
           this.isUploading = false;
-          this.currentItemBeingUploaded = null;
-
           if (this.currentUser && this.username) {
             this.loadUserFileCount();
             this.uploadEventService.notifyUploadComplete();
@@ -427,15 +492,26 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       });
 
-      this.eventSource.onerror = (errorEvent) => {
+      this.eventSource.onerror = (errorEvent: Event) => {
         this.zone.run(() => {
           if (uploadId !== this.currentUploadId || !this.isUploading) {
-            // ... (ignore logic)
+            console.log(`SSE 'onerror' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading}).`);
+            if (this.eventSource && this.eventSource.url.includes(uploadId)) {
+              this.closeEventSource();
+            }
             return;
           }
-          // ... (your existing onerror logic)
           console.error("SSE Error Event for active upload: ", errorEvent);
-          this.handleBatchUploadError('SSE connection error during upload.', errorEvent);
+          let errorMessage = 'SSE connection error during upload. The upload may have failed.';
+          if (errorEvent instanceof MessageEvent && (errorEvent as MessageEvent).data) {
+            try {
+              const parsedError = JSON.parse((errorEvent as MessageEvent).data);
+              errorMessage = parsedError.message || parsedError.error || `SSE error: ${(errorEvent as MessageEvent).data}`;
+            } catch (e) {
+              errorMessage = `SSE error (unparseable): ${(errorEvent as MessageEvent).data}`;
+            }
+          }
+          this.handleBatchUploadError(errorMessage, errorEvent);
         });
       };
     } catch (error) {
@@ -444,8 +520,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ... (rest of your component code)
-
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
     if (errorEvent) console.error("Error during batch upload:", errorMessage, errorEvent);
     else console.error("Error during batch upload:", errorMessage);
@@ -453,59 +527,44 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.zone.run(() => {
       this.uploadError = errorMessage;
       this.isUploading = false;
-      // Keep totalBytes for potential retry display, reset others
       this.uploadProgressDetails = {
         ...this.uploadProgressDetails,
         percentage: 0,
-        bytesSent: 0,
+        bytesSent: this.uploadProgressDetails.bytesSent,
         speedMBps: 0,
-        etaFormatted: '--:--',
+        etaFormatted: 'Error',
       };
-      this.uploadProgress = 0;
+      this.uploadProgress = this.uploadProgressDetails.percentage;
       this.uploadStatusMessage = 'Batch Upload Failed';
-      // Don't nullify currentItemBeingUploaded immediately,
-      // transfer panel might want to show the failed item.
-      // this.currentItemBeingUploaded = null;
-      // this.currentUploadId = null;
       this.closeEventSource();
       this.cdRef.detectChanges();
     });
   }
 
   handleCancelUpload(): void {
-    if (!this.isUploading) return;
+    if (!this.currentUploadId && !this.isUploading) {
+      console.log('HomeComponent: No active upload to cancel.');
+      return;
+    }
+    const uploadIdToCancel = this.currentUploadId;
+    console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel);
 
-    console.log('HomeComponent: Cancelling upload for ID:', this.currentUploadId);
-    const uploadIdToCancel = this.currentUploadId; // Capture before resetting
-
-    this.isUploading = false; // Set this first to prevent SSE error handlers from misinterpreting
+    this.isUploading = false;
     this.closeEventSource();
 
-    this.uploadStatusMessage = `Batch upload cancelled.`;
-    this.uploadError = `Batch upload cancelled by user.`;
-
-
-    // Client-side cancellation of further processing
-    this.currentItemBeingUploaded = null;
-    this.currentUploadId = null; // Important to nullify so SSE errors after this are ignored
+    this.uploadStatusMessage = `Upload cancelled.`;
+    this.uploadError = null;
 
     this.uploadProgressDetails = {
-      ...this.uploadProgressDetails,
+      totalBytes: this.uploadProgressDetails.totalBytes || this.currentItemBeingUploaded?.size || 0,
       percentage: 0,
       bytesSent: 0,
       speedMBps: 0,
       etaFormatted: '--:--',
     };
     this.uploadProgress = 0;
-
-    // TODO: If your backend supports cancelling an ongoing upload, call an API endpoint here
-    // if (uploadIdToCancel) {
-    //   this.apiService.cancelUploadOnServer(uploadIdToCancel).subscribe({
-    //     next: () => console.log(`Server notified of cancellation for ${uploadIdToCancel}`),
-    //     error: (err) => console.error(`Error notifying server of cancellation for ${uploadIdToCancel}`, err)
-    //   });
-    // }
-
+    this.currentItemBeingUploaded = null;
+    this.currentUploadId = null;
     this.cdRef.detectChanges();
   }
 
@@ -524,34 +583,29 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     if (itemOrUndefined) {
-      // Individual item removal
       this.selectedItems = this.selectedItems.filter(i => i.id !== itemOrUndefined.id);
       console.log('HomeComponent: Removed item:', itemOrUndefined.name);
       if (this.selectedItems.length === 0) {
-        // If all items are removed one by one, reset relevant state
         this.shareableLinkForPanel = null;
         this.uploadError = null;
         this.uploadStatusMessage = '';
         this.batchUploadLinks = [];
-        this.currentItemBeingUploaded = null; // Should be null if not uploading
-        // nextItemId is not reset here as new items will continue the sequence
+        this.currentItemBeingUploaded = null;
       }
     } else {
-      // Clear all items (undefined was emitted)
       this.shareableLinkForPanel = null;
       this.selectedItems = [];
       this.uploadError = null;
       this.uploadStatusMessage = '';
       this.batchUploadLinks = [];
       this.currentItemBeingUploaded = null;
-      this.nextItemId = 0; // Reset for a completely new selection
+      this.nextItemId = 0;
       console.log('HomeComponent: All items cleared from panel.');
     }
     this.cdRef.detectChanges();
   }
 
   handleDownloadRequest(itemToDownload: SelectedItem): void {
-    // ... (same as before)
     if (this.isUploading) return;
     try {
       if (!(itemToDownload.file instanceof File)) {
@@ -581,7 +635,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getFileIcon(filename: string | undefined): string {
-    // ... (same as before)
     if (!filename) return 'fas fa-question-circle';
     const baseNameForIcon = filename.includes('/') ? filename.substring(filename.lastIndexOf('/') + 1) : filename;
     if (!baseNameForIcon.includes('.')) return filename.includes('/') ? 'fas fa-folder' : 'fas fa-file';

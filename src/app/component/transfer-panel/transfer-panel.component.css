@@ -83,7 +83,8 @@
 .btn-add:hover {
     background-color: #eef2f9;
     border-color: #c0c2c5;
-    color:  var(--heading-color);;
+    color: var(--heading-color);
+    ;
 }
 
 .file-list-section {
@@ -295,14 +296,14 @@
     /* Style the copy button */
     padding: 6px 10px;
     font-size: 0.8rem;
-    background-color: #f1f1f1;
-    color: #444;
-    border: 1px solid #d2d2d2;
+    background-color: var(--white-color);
+    color: var(--background);
+    border: 1px solid var(--background);
 }
 
 .copy-button:hover {
-    background-color: #e0e0e0;
-    border-color: #c0c2c5;
+    background-color: var(--background);
+    color: var(--white-color);
 }
 
 .copy-button i {
