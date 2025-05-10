@@ -1,11 +1,11 @@
 /* General Body/Page Styles (Apply to a higher level container if needed, or scope to component) */
 :host {
     display: block;
-    padding: 1em 0;
+    padding: 1em 20px;
     /* Add some padding around the component */
 }
 
-.container {
+.all-file-list-wrapper {
     line-height: 1.6;
     color: #333;
     max-width: 800px;
@@ -22,7 +22,8 @@ h2 {
     color: #444;
     border-bottom: 1px solid #eee;
     padding-bottom: 0.5em;
-    margin-bottom: 1em;
+    margin-bottom: 18px;
+    font-size: 29px;
 }
 
 .batch-info p {
@@ -52,6 +53,13 @@ hr {
     background-color: #fff;
     margin-bottom: 16px;
     border-radius: 4px;
+    gap: 20px;
+}
+
+.icon-warning {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .file-list li:last-child {
@@ -79,7 +87,7 @@ hr {
     font-size: 12px;
 }
 
-.file-list-length .file-dot {
+.file-dot {
     color: rgb(152 162 179);
 }
 
@@ -91,7 +99,7 @@ hr {
 
 .file-name {
     font-weight: 500;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -99,11 +107,17 @@ hr {
 .file-size {
     font-size: 0.85em;
     color: #777;
-    white-space: nowrap;
-    margin-left: auto;
-    /* Pushes it to the right before actions */
+    /* white-space: nowrap; */
+    margin-right: 15px;
     padding-left: 15px;
-    /* Space between name/size and actions */
+    /* flex-shrink: 0; */
+}
+
+.file-controls-area {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    /* Prevent this whole area from shrinking */
 }
 
 .file-actions button,
@@ -156,6 +170,11 @@ hr {
     cursor: not-allowed;
 }
 
+.download-all-center {
+    justify-content: center;
+    display: flex;
+}
+
 .status-message {
     margin-top: 1em;
     margin-bottom: 1em;
@@ -200,4 +219,151 @@ hr {
     margin-left: 10px;
     display: none;
     /* Initially hidden */
+}
+
+.progress-container {
+    margin-top: 10px;
+    width: 100%;
+    padding: 5px 0;
+}
+
+.progress-container.individual-progress-container {
+    min-width: 180px;
+    margin-left: 10px;
+    padding: 6px 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Global Progress for "Download All" */
+.download-all-section {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progress-container.global-progress-container {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 15px;
+}
+
+.global-progress-container h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.05em;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.progress-container.individual-progress-container .progress-bar-wrapper {
+    height: 20px;
+    /* Slightly smaller for inline look */
+    margin-bottom: 5px;
+    /* Space between bar and details text */
+}
+
+.progress-container.individual-progress-container .progress-bar {
+    line-height: 20px;
+    /* Match new height */
+    font-size: 0.8em;
+    /* Smaller text inside bar */
+}
+
+.progress-container.individual-progress-container .progress-details {
+    font-size: 0.8em;
+    /* Smaller details text */
+    gap: 5px;
+    /* Less gap for compact details */
+    /* justify-content: flex-start; /* default */
+}
+
+.progress-bar-wrapper {
+    background-color: #e9ecef;
+    border-radius: .3rem;
+    height: 22px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid #ced4da;
+}
+
+.progress-bar {
+    background-color: var(--background);
+    /* Bootstrap primary blue */
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    line-height: 22px;
+    /* Match height of wrapper */
+    height: 100%;
+    transition: width .2s ease-out;
+    white-space: nowrap;
+    font-size: 0.85em;
+    border-radius: .2rem;
+}
+
+.progress-details {
+    font-size: 0.85em;
+    color: #495057;
+    display: flex;
+    justify-content: flex-start;
+    /* Align details to the start */
+    gap: 10px;
+    /* Space between detail items */
+    flex-wrap: wrap;
+    /* Allow details to wrap on smaller screens */
+}
+
+.progress-details span {
+    /* No margin needed due to gap */
+}
+
+.progress-details .progress-stage-message {
+    font-style: italic;
+    color: #5a5a5a;
+}
+
+.main-file-name {
+    flex-grow: 1;
+    min-width: 0;
+    margin-right: 15px;
+}
+
+.file-actions {
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .file-list li {
+        flex-direction: column;
+    }
+
+    .file-icon {
+        font-size: 28px;
+    }
+
+    .main-file-name {
+        margin-bottom: 20px;
+    }
+
+    .download-all-btn {
+        font-size: 15px;
+        padding: 8px 16px;
+    }
+
+    .all-file-list-wrapper {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .all-file-list-wrapper {
+        padding: 20px;
+    }
 }

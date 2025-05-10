@@ -2,7 +2,7 @@
 <div class="upload-progress-card card-style" *ngIf="item">
   <div class="progress-header">
     <span>1 Transfer</span>
-    <span class="percentage-badge header-badge">{{ percentage }}%</span>
+    <span class="percentage-badge header-badge">{{ percentage | number:'1.0-0' }}%</span>
     <i class="fas fa-chevron-down"></i>
   </div>
 
@@ -29,22 +29,23 @@
     </div>
   </div>
 
-  <!-- Row 2: Progress Bar -->
-  <div class="item-progress-bar-container">
-    <div class="item-progress-bar">
-      <progress [value]="percentage" max="100"></progress>
+  <!-- START: New Progress Bar and Info Line (Replaces old Row 2 and Row 3) -->
+  <div class="screenshot-progress-bar-container">
+    <div class="screenshot-progress-bar-fill" [style.width.%]="percentage">
+      <!-- <span class="screenshot-progress-bar-text" *ngIf="percentage > 5">{{ percentage | number:'1.0-0' }}%</span> -->
     </div>
   </div>
 
-  <!-- Row 3: ETA and Speed (below progress bar) -->
-  <div class="item-eta-speed-row">
-    <div class="item-speed-eta-content"> <!-- Wrapper for alignment -->
-      <span class="eta-info" title="Time Remaining">
-        <i class="fas fa-stopwatch"></i> {{ etaFormatted }}
-      </span>
-      <span class="speed-info" title="Upload Speed">
-        <i class="fas fa-tachometer-alt"></i> {{ speedMBps | number:'1.1-2' }} MB/s
-      </span>
-    </div>
+  <!-- This div contains the downloaded/total size, speed, and ETA -->
+  <div class="screenshot-progress-details-line">
+    <ng-container *ngIf="speedMBps !== null && speedMBps !== undefined && percentage < 100">
+      <span class="details-separator"> • </span>
+      <span>{{ speedMBps | number:'1.1-1' }} MB/s</span> <!-- Screenshot shows 1 decimal for MB/s -->
+    </ng-container>
+    <ng-container *ngIf="etaFormatted && etaFormatted !== '00:00' && percentage < 100">
+      <span class="details-separator"> • </span>
+      <span>ETA: {{ etaFormatted }}</span>
+    </ng-container>
   </div>
+  <!-- END: New Progress Bar and Info Line -->
 </div>

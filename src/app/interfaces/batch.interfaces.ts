@@ -32,9 +32,12 @@ export interface SseReadyPayload {
 // For SSE 'progress' event payload
 export interface SseProgressPayload {
     percentage: number;
+    bytesSent?: number;         // Used by _calculate_progress (e.g., for zipping)
+    bytesProcessed?: number;    // Used in some hardcoded backend progress events
+    totalBytes?: number;
     speedMBps?: number;
     etaFormatted?: string;
-    message?: string;
+    etaSeconds?: number;
 }
 
 // For SSE 'status' event payload
