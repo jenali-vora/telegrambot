@@ -1,7 +1,7 @@
 <!-- src/app/component/upload-progress-item/upload-progress-item.component.html -->
 <div class="upload-progress-card card-style" *ngIf="item">
   <div class="progress-header">
-    <span>1 Transfer</span>
+    <span>Transferring {{ itemsInTransfer }} {{ itemsInTransfer === 1 ? 'item' : 'items' }}</span>
     <span class="percentage-badge header-badge">{{ percentage | number:'1.0-0' }}%</span>
     <i class="fas fa-chevron-down"></i>
   </div>

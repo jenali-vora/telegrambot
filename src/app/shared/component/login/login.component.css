@@ -76,7 +76,7 @@
 
 .form-field input:focus {
     outline: none;
-    border-bottom-color: #0d6efd;
+    border-bottom-color: var(--background);
     /* Example focus color */
 }
 
@@ -162,6 +162,7 @@ input[type="checkbox"] {
     font-weight: 600;
     font-size: 14px;
     transition: background-color 0.2s ease;
+    width: auto;
 
     &:hover {
         background: var(--background-hover);
@@ -175,6 +176,7 @@ input[type="checkbox"] {
 .login-btn:disabled {
     background-color: var(--background);
     cursor: not-allowed;
+    opacity: .45;
 }
 
 .signup-footer {
@@ -233,7 +235,11 @@ input[type="checkbox"] {
 
 /* Basic error styling */
 .error-text {
-    margin-top: 4px;
+    color: var(--background);
+    background-color: #e3e7f9;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
 }
 
 .error-text small {

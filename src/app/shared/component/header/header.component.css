@@ -6,6 +6,7 @@
     padding: 20px;
     align-items: center;
     position: relative;
+    transition: transform .5s cubic-bezier(.79, 0, .178, 1);
 }
 
 .container {
@@ -19,6 +20,7 @@
     left: 0;
     z-index: 1000;
     background-color: var(--background-hover);
+    transition: transform .2s cubic-bezier(.79, 0, .178, 1);
 }
 
 .header-left {
@@ -88,7 +90,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 4px 10px;
+    padding: 4px 15px;
     /* Adjusted padding */
     border-radius: 25px;
     background-color: rgba(255, 255, 255, 0.08);
@@ -212,17 +214,25 @@
 
 .btn-logout {
     display: block;
-    width: 100%;
+    width: 50%;
     padding: 9px 10px;
     background-color: transparent;
     border: none;
-    color: #3c4043;
+    color: var(--background);
     text-align: left;
     font-size: 0.85rem;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.15s ease;
     box-sizing: border-box;
+    text-align: center;
+    border: 1px solid var(--background);
+}
+
+.text-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .btn-logout:hover {
@@ -383,6 +393,14 @@
     border: none;
     border-top: 1px solid var(--divider-color, #eeeeee);
     margin: 10px 0;
+}
+
+.mobile-btn {
+    border: 1px solid var(--background);
+    width: 50%;
+    border-radius: 4px;
+    color: var(--background) !important;
+    text-align: center;
 }
 
 /* toggle menu css end */

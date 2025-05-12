@@ -11,8 +11,10 @@
 
                 <!-- File Info (Name, sharer, etc.) -->
                 <div class="main-file-name row">
-                    <div class="col-2">
-                        <span class="file-icon">📄</span>
+                    <div class="col-2 file-icon-container"> <!-- Added a container class if needed for styling -->
+                        <span class="file-icon">
+                            <i class="fa" [ngClass]="getFileIconClass(file.original_filename)" aria-hidden="true"></i>
+                        </span>
                     </div>
                     <div class="col-10">
                         <div class="file-info">

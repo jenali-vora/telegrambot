@@ -1,6 +1,6 @@
 /* Ensure you have Font Awesome included in your project for the icons */
 .help-section {
-    padding: 0px 20px;
+    padding: 50px 20px;
 }
 
 .help-header {
@@ -48,9 +48,9 @@
 
 /* --- Individual Card Styling --- */
 .help-card {
-    background-color: #ffffff;
+    background-color: var(--white-color);
     /* White background for cards */
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
     /* Light grey border */
     border-radius: 8px;
     /* Rounded corners */
@@ -131,7 +131,7 @@
 .btn-visit {
     background-color: var(--background);
     /* Dark background */
-    color: #ffffff;
+    color: var(--white-color);
     width: fit-content;
     /* White text */
 }
@@ -139,21 +139,13 @@
 .btn-visit:hover {
     background-color: var(--background-hover);
     /* Slightly lighter on hover */
-    color: #ffffff;
+    color: var(--white-color);
 }
 
 .contact-section {
-    padding: 60px 15px;
-    background-color: #ffffff;
+    padding: 60px 0px;
+    background-color: var(--white-color);
     /* White background */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-.container {
-    max-width: 1140px;
-    /* Adjust max-width as needed */
-    margin: 0 auto;
-    padding: 0 15px;
 }
 
 /* --- Row and Column Layout --- */
@@ -307,20 +299,19 @@
 }
 
 
-.btn-primary {
+.btn-submit {
     color: #fff;
     background-color: var(--background);
 }
 
-.btn-primary:hover {
+.btn-submit:hover {
     color: #fff;
     background-color: var(--background-hover);
 }
 
-.btn-primary:focus {
-    color: #fff;
-    background-color: #3f4a94;
-    border-color: #394385;
+.btn-submit:focus {
+    color: var(--white-color);
+    background-color: var(--background);
     box-shadow: 0 0 0 0.2rem rgba(96, 107, 186, 0.5);
     /* Focus glow */
 }

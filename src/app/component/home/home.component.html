@@ -35,8 +35,7 @@
                         </div>
                     </div>
                 </div>
-                <app-transfer-panel
-                    *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
+                <app-transfer-panel *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
                     [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                     [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
                     (requestAddFolder)="triggerFolderInput()" (itemRemoved)="handleItemRemovedFromPanel($event)"
@@ -169,7 +168,7 @@
         <app-upload-progress-item [item]="currentItemBeingUploaded" [percentage]="uploadProgressDetails.percentage"
             [bytesSent]="uploadProgressDetails.bytesSent" [totalBytes]="uploadProgressDetails.totalBytes"
             [speedMBps]="uploadProgressDetails.speedMBps" [etaFormatted]="uploadProgressDetails.etaFormatted"
-            (cancelUpload)="handleCancelUpload()">
+            [itemsInTransfer]="selectedItems.length" (cancelUpload)="handleCancelUpload()">
         </app-upload-progress-item>
     </div>
 </div>

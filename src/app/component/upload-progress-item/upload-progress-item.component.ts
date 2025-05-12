@@ -23,6 +23,7 @@ export class UploadProgressItemComponent {
   @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
+  @Input() itemsInTransfer: number = 1;
 
   @Output() cancelUpload = new EventEmitter<void>();
 

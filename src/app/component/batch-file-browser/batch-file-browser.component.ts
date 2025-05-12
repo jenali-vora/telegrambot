@@ -377,6 +377,80 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       return 'Invalid Date';
     }
   }
+  getFileIconClass(filename: string): string {
+    if (!filename) {
+      return 'fa fa-file-o'; // Default icon if no filename
+    }
+
+    const extension = filename.split('.').pop()?.toLowerCase();
+    let iconClass = 'fa fa-file-o'; // Default file icon
+
+    switch (extension) {
+      case 'zip':
+      case 'rar':
+      case '7z':
+      case 'tar':
+      case 'gz':
+        iconClass = 'fa fa-file-archive-o'; // Archive icon (like in screenshot 2)
+        break;
+      case 'pdf':
+        iconClass = 'fa fa-file-pdf-o';
+        break;
+      case 'doc':
+      case 'docx':
+        iconClass = 'fa fa-file-word-o';
+        break;
+      case 'xls':
+      case 'xlsx':
+        iconClass = 'fa fa-file-excel-o';
+        break;
+      case 'ppt':
+      case 'pptx':
+        iconClass = 'fa fa-file-powerpoint-o';
+        break;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'svg':
+      case 'webp': // Added webp
+        iconClass = 'fa fa-file-image-o';
+        break;
+      case 'mp3':
+      case 'wav':
+      case 'ogg':
+      case 'aac':
+        iconClass = 'fa fa-file-audio-o';
+        break;
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+      case 'mkv':
+      case 'wmv':
+        iconClass = 'fa fa-file-video-o';
+        break;
+      case 'txt':
+        iconClass = 'fa fa-file-text-o';
+        break;
+      case 'js':
+      case 'ts':
+      case 'html':
+      case 'css':
+      case 'scss':
+      case 'json':
+      case 'xml':
+      case 'py':
+      case 'java':
+      case 'c':
+      case 'cpp':
+        iconClass = 'fa fa-file-code-o';
+        break;
+      // Add more cases as needed
+    }
+
+    return iconClass; // Return the determined class (e.g., 'fa fa-file-archive-o')
+  }
 
   ngOnDestroy(): void {
     this.cleanupPreviousDownloadState(); // Ensures SSE is closed and state is clean

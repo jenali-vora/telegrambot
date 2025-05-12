@@ -129,7 +129,7 @@
 
 .form-field input:focus {
     outline: none;
-    border-color: #4285f4;
+    border-color: var(--background);
     box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.15);
 }
 
@@ -202,7 +202,8 @@
 }
 
 .checkbox-group label a {
-    color: rgba(51, 51, 51, 0.4);;
+    color: rgba(51, 51, 51, 0.4);
+    ;
     text-decoration: none;
 }
 
@@ -224,7 +225,7 @@
     width: 100%;
     margin-top: 10px;
 
-    &:hover{
+    &:hover {
         background-color: var(--background-hover);
     }
 }
@@ -236,23 +237,27 @@
 .signup-btn:disabled {
     background-color: var(--background);
     cursor: not-allowed;
+    opacity: .45;
 }
 
 /* Info Column */
 .info-column {
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     padding: 40px 20px 40px 40px;
 }
 
 .info-content {
     max-width: 380px;
 }
-.info-content img{
+
+.info-content img {
     width: 100%;
+    margin-bottom: 20px
 }
+
 .feature-item {
     display: flex;
     align-items: flex-start;
@@ -293,6 +298,11 @@
 /* Error/Success Text */
 .error-text {
     margin-top: 4px;
+    color: var(--background);
+    background-color: #e3e7f9;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
 }
 
 .error-text small {
@@ -405,7 +415,7 @@
 }
 
 @media only screen and (max-width: 480px) {
-    .signup-card h2{
+    .signup-card h2 {
         font-size: 22px;
     }
 }
