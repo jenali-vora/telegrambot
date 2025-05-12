@@ -326,7 +326,7 @@
 .transfer-step .step-heading {
     line-height: 38px;
     text-align: center;
-    background-color: rgba(63, 81, 181, .5);
+    background-color: var(--background);
     color: var(--white-color);
     width: 38px;
     height: 38px;

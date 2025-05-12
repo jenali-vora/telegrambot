@@ -305,7 +305,7 @@ hr {
     transition: width .2s ease-out;
     white-space: nowrap;
     font-size: 0.85em;
-    border-radius: .2rem;
+    border-radius: 20px;
 }
 
 .progress-details {
