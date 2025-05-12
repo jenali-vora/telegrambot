@@ -15,8 +15,8 @@ a:active {
 
 :root {
     /* --background: #3f51b5; */
-    --background: #000080;
     /* --background-hover: #6472c3; */
+    --background: #000080;
     --background-hover: #2a52be;
     --border: #9d9d9d;
     --black-color: #000;
@@ -24,8 +24,8 @@ a:active {
     --background-color: #f4f4f4;
     --border-color: #e0e0e0;
     --heading-color: #333;
-    --delete-color:#dc3545;
-    --theme-border-color-r: 42;
-    --theme-border-color-g: 82;
-    --theme-border-color-b: 190;
+    --delete-color: #dc3545;
+    --theme-border-color-r: 108;
+    --theme-border-color-g: 93;
+    --theme-border-color-b: 211;
 }
