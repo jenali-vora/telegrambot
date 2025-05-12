@@ -8,6 +8,19 @@
     position: relative;
 }
 
+.container {
+    display: flex;
+    justify-content: space-between
+}
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: var(--background-hover);
+}
+
 .header-left {
     display: flex;
     gap: 40px;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Renderer2, ElementRef, HostListener, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ElementRef, HostListener, inject, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -29,8 +29,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Listener cleanup functions for mobile menu
   private unlistenOverlayClick: (() => void) | null = null;
   private unlistenEscKey: (() => void) | null = null;
+  @ViewChild('header') header!: ElementRef;
 
   constructor() { }
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const headerElement = this.header.nativeElement;
+    if (window.scrollY > 100) {
+      headerElement.classList.add('fixed-header');
+    } else {
+      headerElement.classList.remove('fixed-header');
+    }
+  }
 
   ngOnInit(): void {
     this.authSubscription.add(
