@@ -3,7 +3,7 @@
 .hero-section {
     /* --- Background Image --- */
     /* Make sure the path is correct relative to the CSS file OR use absolute path from root */
-    background-image: url('/assets/image/transfernow_uploader_send_files_laptop_1.webp');
+    background-image: url('/assets/image/upgrade-file-upload.png');
     background-color: #1e1f21;
     padding: 4rem 1.5rem;
     text-align: center;
@@ -31,7 +31,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(0deg, rgba(62, 161, 219, 0) 10%, rgb(63, 80, 179));
+    background: linear-gradient(0deg, rgba(62, 161, 219, 0) 10%, var(--background));
     z-index: 1;
 }
 
@@ -91,7 +91,7 @@
     padding: 0;
     overflow: hidden;
     background: var(--white-color);
-    color: #f5681f;
+    color: var(--background-hover);
     animation: uploader_ripple__yH_nl 2s infinite;
     margin-top: 30px;
 }
