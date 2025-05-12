@@ -91,7 +91,7 @@
     padding: 0;
     overflow: hidden;
     background: var(--white-color);
-    color: var(--background-hover);
+    color:#e36812;
     animation: uploader_ripple__yH_nl 2s infinite;
     margin-top: 30px;
 }
