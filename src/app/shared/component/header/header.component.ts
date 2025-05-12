@@ -35,7 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @HostListener('window:scroll', [])
   onWindowScroll() {
     const headerElement = this.header.nativeElement;
-    if (window.scrollY > 100) {
+    if (window.scrollY > 60) {
       headerElement.classList.add('fixed-header');
     } else {
       headerElement.classList.remove('fixed-header');

@@ -1,36 +1,38 @@
 <!-- src/app/blog/blog-list/blog-list.component.html -->
-<h1>Transfer blog</h1>
-<p>Hi, welcome to our blog. Here you'll find informative articles...</p>
+<div class="container">
+    <h1>Transfer blog</h1>
+    <p>Hi, welcome to our blog. Here you'll find informative articles...</p>
 
-<div class="blog-grid" *ngIf="paginatedPosts.length > 0; else noPosts">
-    <article *ngFor="let post of paginatedPosts" class="blog-post-card">
-        <!-- Assuming you'll have a detail route like /blog/:slug -->
-        <a [routerLink]="['/blog', post.slug]" class="post-image-link">
-            <img [src]="post.featuredImageUrl" [alt]="post.title">
-        </a>
-        <div class="post-content">
-            <p class="post-meta">
-                <span class="post-author">{{ post.author }}</span> •
-                <time [attr.datetime]="post.publishDate" class="post-date">
-                    {{ post.publishDate | date:'longDate' }} <!-- Angular DatePipe -->
-                </time>
-            </p>
-            <h2 class="post-title">
-                <a [routerLink]="['/blog', post.slug]">{{ post.title }}</a>
-            </h2>
-            <a [routerLink]="['/blog', post.slug]" class="read-more">Read more →</a>
-        </div>
-    </article>
-</div>
+    <div class="blog-grid" *ngIf="paginatedPosts.length > 0; else noPosts">
+        <article *ngFor="let post of paginatedPosts" class="blog-post-card">
+            <!-- Assuming you'll have a detail route like /blog/:slug -->
+            <a [routerLink]="['/blog', post.slug]" class="post-image-link">
+                <img [src]="post.featuredImageUrl" [alt]="post.title">
+            </a>
+            <div class="post-content">
+                <p class="post-meta">
+                    <span class="post-author">{{ post.author }}</span> •
+                    <time [attr.datetime]="post.publishDate" class="post-date">
+                        {{ post.publishDate | date:'longDate' }} <!-- Angular DatePipe -->
+                    </time>
+                </p>
+                <h2 class="post-title">
+                    <a [routerLink]="['/blog', post.slug]">{{ post.title }}</a>
+                </h2>
+                <a [routerLink]="['/blog', post.slug]" class="read-more">Read more →</a>
+            </div>
+        </article>
+    </div>
 
-<ng-template #noPosts>
-    <p>Loading posts or no posts found...</p>
-</ng-template>
+    <ng-template #noPosts>
+        <p>Loading posts or no posts found...</p>
+    </ng-template>
 
-<!-- Basic Pagination Controls -->
-<div class="pagination" *ngIf="totalPages > 1">
-    <button (click)="prevPage()" [disabled]="currentPage === 1">←</button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button (click)="nextPage()" [disabled]="currentPage === totalPages">→</button>
-    <!-- You could add page number buttons here too -->
+    <!-- Basic Pagination Controls -->
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button (click)="prevPage()" [disabled]="currentPage === 1">←</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">→</button>
+        <!-- You could add page number buttons here too -->
+    </div>
 </div>

@@ -5,7 +5,7 @@
         <h2>Transfer</h2>
       </a>
     </div>
-  
+
     <div class="header-main">
       <!-- Main Navigation Links - Always visible on desktop -->
       <nav class="main-nav">
@@ -14,7 +14,7 @@
         <a routerLink="/faq" routerLinkActive="active" class="nav-link">FAQs</a>
         <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
       </nav>
-  
+
       <!-- Auth Section: Shows Login/Signup OR User Profile -->
       <div class="auth-section">
         <!-- If NOT Logged In -->
@@ -22,17 +22,17 @@
           <a routerLink="/login" class="btn btn-login">Log In</a>
           <a routerLink="/register" class="btn btn-register">Sign Up</a>
         </nav>
-  
+
         <!-- If Logged In -->
         <div class="user-profile-area" *ngIf="isLoggedIn && currentUser">
-  
+
           <!-- User Profile Trigger -->
           <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
             <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span>
             <!-- Create a placeholder or use a generic icon if you don't have user avatars -->
             <img src="assets/image/user-loginimage.png" alt="User Avatar" class="user-avatar-sm">
           </div>
-  
+
           <!-- User Dropdown Menu -->
           <div class="user-dropdown-menu" [class.active]="isUserMenuOpen" (click)="$event.stopPropagation()">
             <div class="dropdown-header-info">
@@ -40,26 +40,28 @@
               <div class="dropdown-user-details">
                 <span class="username">{{ currentUser.username || 'Username' }}</span>
               </div>
-              <i class="fas fa-chevron-down dropdown-arrow" [class.fa-chevron-up]="isUserMenuOpen"></i>
+              <!-- <i class="fas fa-chevron-down dropdown-arrow" [class.fa-chevron-up]="isUserMenuOpen"></i> -->
             </div>
-  
+
             <hr class="dropdown-divider">
-  
-            <button class="btn-logout" (click)="logout()">Log out</button>
+            <div class="text-center">
+              <button class="btn-logout" (click)="logout()">Log out</button>
+            </div>
           </div>
         </div>
       </div>
-  
+
       <!-- Hamburger Button (Shown on mobile by CSS) -->
       <button class="mobile-menu-toggle" id="hamburger-button" (click)="openMenu()" aria-label="Open menu"
         [attr.aria-expanded]="isMenuOpen" aria-controls="mobile-sidebar">
         <i class="fas fa-bars"></i>
       </button>
     </div>
-  
+
     <!-- Mobile Sidebar Menu & Overlay (Keep existing) -->
     <div class="mobile-menu-overlay" id="menu-overlay" [class.is-open]="isMenuOpen"></div>
-    <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen" [attr.aria-hidden]="!isMenuOpen">
+    <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen"
+      [attr.aria-hidden]="!isMenuOpen">
       <div class="sidebar-header">
         <button class="sidebar-close-button" id="close-sidebar-button" (click)="closeMenu()" aria-label="Close menu">
           <i class="fas fa-times"></i>
@@ -74,12 +76,11 @@
         <hr class="sidebar-divider">
         <ng-container *ngIf="!isLoggedIn">
           <a routerLink="/login" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Log In</a>
-          <a routerLink="/register" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Sign Up</a>
+          <a routerLink="/register" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Sign
+            Up</a>
         </ng-container>
         <ng-container *ngIf="isLoggedIn && currentUser">
-          <a (click)="handleDropdownNavigation('/account-settings'); onSidebarLinkClick();" class="nav-link">Account
-            Settings</a>
-          <a (click)="logout(); onSidebarLinkClick();" class="nav-link">Log out</a>
+          <a (click)="logout(); onSidebarLinkClick();" class="nav-link mobile-btn">Log out</a>
         </ng-container>
       </nav>
     </aside>

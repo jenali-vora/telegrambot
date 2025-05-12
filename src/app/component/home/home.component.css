@@ -354,15 +354,15 @@
 /* Simple error message display */
 .upload-error-message {
     /* margin-top: 1rem; */
-    color: #f1b0b7;
+    color: var(--background);
     /* Light red text (from dark theme variables) */
-    background-color: #58151c;
+    background-color: #e3e7f9;
     /* Dark red background (from dark theme variables) */
     padding: 0.75rem 1rem;
     border-radius: 4px;
     font-size: 0.9rem;
     max-width: 500px;
-    border: 1px solid #a12b36;
+    border: 1px solid #e3e7f9;
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;

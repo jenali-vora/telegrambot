@@ -8,110 +8,113 @@
     </div>
 
     <!-- Cards Container -->
-    <div class="help-cards-container">
+    <div class="container">
+        <div class="help-cards-container">
 
-        <!-- Card 1: Help Centre -->
-        <div class="help-card">
-            <div class="card-icon">
-                <img src="assets/image/thunderbird.svg" alt="">
-            </div>
-            <h3 class="card-title">Explore the Help Centre</h3>
-            <p class="card-description">
-                Find answers to common questions and issues in our Help Centre.
-            </p>
-            <a href="#" class="btn btn-visit">Visit Help Centre</a> <!-- Link styled as button -->
-        </div>
-
-        <!-- Card 2: Log in / Email -->
-        <div class="help-card">
-            <div class="card-icon">
-                <img src="assets/image/lifebuoy.svg" alt="">
-            </div>
-            <h3 class="card-title">Log in to get support</h3>
-            <p class="card-description">
-                If you are unable to log in then email <a href="mailto:transfer@gmail.com">transfer&#64;gmail.com</a>. To
-                prioritise your enquiry effectively, tell us if you’re a paying user and give us the email
-                associated with your account.
-            </p>
-            <a href="#" class="btn btn-visit">Log in to get support</a> <!-- Link styled as button -->
-        </div>
-
-    </div>
-</section>
-
-<section class="contact-section">
-    <div class="contact-row row">
-        <!-- Left Column: Form -->
-        <div class="contact-form-column col-5">
-            <div class="contact-header">
-                <h2 class="contact-title">Contact us</h2>
-                <p class="contact-subtitle">Get the support you need</p>
-            </div>
-
-            <form action="#" method="post" class="contact-form">
-                <!-- Subject Dropdown -->
-                <div class="form-group">
-                    <select name="subject_request" id="subject_request" required>
-                        <option value="" disabled selected hidden>What is the subject of your request?</option>
-                        <option value="general">General Inquiry</option>
-                        <option value="technical">Technical Support</option>
-                        <option value="billing">Billing Question</option>
-                        <option value="feedback">Feedback</option>
-                        <option value="other">Other</option>
-                    </select>
+            <!-- Card 1: Help Centre -->
+            <div class="help-card">
+                <div class="card-icon">
+                    <img src="assets/image/thunderbird.svg" alt="">
                 </div>
-
-                <!-- Name -->
-                <div class="form-group">
-                    <input type="text" name="name" id="name" placeholder="Name" required>
-                </div>
-
-                <!-- Email -->
-                <div class="form-group">
-                    <input type="email" name="email" id="email" placeholder="Email address used on TransferNow"
-                        required>
-                </div>
-
-                <!-- Company (Optional) -->
-                <div class="form-group">
-                    <input type="text" name="company" id="company" placeholder="Company (optional)">
-                </div>
-
-                <!-- Link (Optional) -->
-                <div class="form-group">
-                    <input type="url" name="link" id="link" placeholder="Link (optional)">
-                </div>
-
-                <!-- Subject Line -->
-                <div class="form-group">
-                    <input type="text" name="subject_line" id="subject_line"
-                        placeholder="Subject : it is the first thing we see" required>
-                </div>
-
-                <!-- Message -->
-                <div class="form-group">
-                    <textarea name="message" id="message" rows="5" placeholder="Your message : how can we assist you?"
-                        required></textarea>
-                </div>
-
-                <!-- Form Hint -->
-                <p class="form-hint">
-                    In order to be as efficient as possible, please provide a maximum of information about your
-                    request.
+                <h3 class="card-title">Explore the Help Centre</h3>
+                <p class="card-description">
+                    Find answers to common questions and issues in our Help Centre.
                 </p>
+                <a href="#" class="btn btn-visit">Visit Help Centre</a> <!-- Link styled as button -->
+            </div>
 
-                <!-- Submit Button -->
-                <div class="form-group form-submit-group">
-                    <button type="submit" class="btn btn-primary btn-submit">Send</button>
+            <!-- Card 2: Log in / Email -->
+            <div class="help-card">
+                <div class="card-icon">
+                    <img src="assets/image/lifebuoy.svg" alt="">
                 </div>
-            </form>
-        </div>
+                <h3 class="card-title">Log in to get support</h3>
+                <p class="card-description">
+                    If you are unable to log in then email <a
+                        href="mailto:transfer@gmail.com">transfer&#64;gmail.com</a>.
+                    To
+                    prioritise your enquiry effectively, tell us if you’re a paying user and give us the email
+                    associated with your account.
+                </p>
+                <a href="#" class="btn btn-visit">Log in to get support</a> <!-- Link styled as button -->
+            </div>
 
-        <!-- Right Column: Image -->
-        <div class="contact-image-column col-5">
-            <img src="assets/image/support.webp"
-                alt="Support illustration with buildings, FAQ, and envelope" class="contact-illustration">
-            <!-- Make sure to replace 'path/to/your/support-illustration.png' with the actual path to your image -->
         </div>
+        <section class="contact-section">
+            <div class="contact-row row">
+                <!-- Left Column: Form -->
+                <div class="contact-form-column col-5">
+                    <div class="contact-header">
+                        <h2 class="contact-title">Contact us</h2>
+                        <p class="contact-subtitle">Get the support you need</p>
+                    </div>
+
+                    <form action="#" method="post" class="contact-form">
+                        <!-- Subject Dropdown -->
+                        <div class="form-group">
+                            <select name="subject_request" id="subject_request" required>
+                                <option value="" disabled selected hidden>What is the subject of your request?</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="technical">Technical Support</option>
+                                <option value="billing">Billing Question</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="form-group">
+                            <input type="text" name="name" id="name" placeholder="Name" required>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <input type="email" name="email" id="email" placeholder="Email address used on TransferNow"
+                                required>
+                        </div>
+
+                        <!-- Company (Optional) -->
+                        <div class="form-group">
+                            <input type="text" name="company" id="company" placeholder="Company (optional)">
+                        </div>
+
+                        <!-- Link (Optional) -->
+                        <div class="form-group">
+                            <input type="url" name="link" id="link" placeholder="Link (optional)">
+                        </div>
+
+                        <!-- Subject Line -->
+                        <div class="form-group">
+                            <input type="text" name="subject_line" id="subject_line"
+                                placeholder="Subject : it is the first thing we see" required>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="form-group">
+                            <textarea name="message" id="message" rows="5"
+                                placeholder="Your message : how can we assist you?" required></textarea>
+                        </div>
+
+                        <!-- Form Hint -->
+                        <p class="form-hint">
+                            In order to be as efficient as possible, please provide a maximum of information about your
+                            request.
+                        </p>
+
+                        <!-- Submit Button -->
+                        <div class="form-group form-submit-group">
+                            <button type="submit" class="btn btn-submit">Send</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Column: Image -->
+                <div class="contact-image-column col-5">
+                    <img src="assets/image/support.webp" alt="Support illustration with buildings, FAQ, and envelope"
+                        class="contact-illustration">
+                    <!-- Make sure to replace 'path/to/your/support-illustration.png' with the actual path to your image -->
+                </div>
+            </div>
+        </section>
     </div>
 </section>

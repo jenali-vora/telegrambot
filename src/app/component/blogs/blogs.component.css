@@ -2,13 +2,7 @@
 
 :host {
     display: block;
-    /* Ensure the component takes up block space */
-    max-width: 1200px;
-    /* Adjust max width as needed */
-    margin: 2rem auto;
-    /* Center the content area */
-    padding: 0 15px;
-    /* Add some padding on the sides */
+    padding-top: 30px;
 }
 
 h1 {
