@@ -212,11 +212,11 @@
 
 .screenshot-progress-bar-container {
   width: 100%;
-  height: 15px;
+  height: 13px;
   /* Height of the progress bar area */
-  background-color: #f3f4f6;
+  background-color: #e4e4e4;
   /* Light gray track color (similar to screenshot's track) */
-  border: 1px solid #d1d5db;
+  /* border: 1px solid #d1d5db; */
   border-radius: 20px;
   box-sizing: border-box;
   margin-bottom: 0.3rem;
