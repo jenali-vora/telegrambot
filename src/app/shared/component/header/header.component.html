@@ -1,3 +1,4 @@
+<!-- header.component.html -->
 <header class="app-header" #header>
   <div class="container">
     <div class="header-left">
@@ -29,18 +30,24 @@
           <!-- User Profile Trigger -->
           <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
             <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span>
-            <!-- Create a placeholder or use a generic icon if you don't have user avatars -->
-            <img src="assets/image/user-loginimage.png" alt="User Avatar" class="user-avatar-sm">
+            <!-- MODIFIED: Display initial instead of image -->
+            <div class="user-avatar-sm user-initial-avatar">
+              <span>{{ getUserInitial() }}</span>
+            </div>
           </div>
 
           <!-- User Dropdown Menu -->
           <div class="user-dropdown-menu" [class.active]="isUserMenuOpen" (click)="$event.stopPropagation()">
             <div class="dropdown-header-info">
-              <img src="assets/image/user-loginimage.png" alt="User Avatar" class="user-avatar-lg">
-              <div class="dropdown-user-details">
-                <span class="username">{{ currentUser.username || 'Username' }}</span>
+              <!-- MODIFIED: Display initial instead of image -->
+              <div class="user-avatar-lg user-initial-avatar">
+                <span>{{ getUserInitial() }}</span>
               </div>
-              <!-- <i class="fas fa-chevron-down dropdown-arrow" [class.fa-chevron-up]="isUserMenuOpen"></i> -->
+              <div class="dropdown-user-details">
+                <span class="username">{{ currentUser.username || 'User' }}</span>
+                <!-- ADDED: Display user email -->
+                <span class="email">{{ currentUser.email }}</span>
+              </div>
             </div>
 
             <hr class="dropdown-divider">
@@ -59,6 +66,7 @@
     </div>
 
     <!-- Mobile Sidebar Menu & Overlay (Keep existing) -->
+    <!-- ... (rest of your mobile menu HTML remains the same) ... -->
     <div class="mobile-menu-overlay" id="menu-overlay" [class.is-open]="isMenuOpen"></div>
     <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen"
       [attr.aria-hidden]="!isMenuOpen">
@@ -84,6 +92,5 @@
         </ng-container>
       </nav>
     </aside>
-
   </div>
 </header>

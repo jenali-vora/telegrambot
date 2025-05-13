@@ -116,33 +116,73 @@
     /* Adjust as needed */
 }
 
-.user-avatar-sm {
+.user-initial-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Color from your second screenshot (dark magenta/purple) */
+    background-color: #A70078;
+    color: white;
+    font-weight: 500;
+    /* Or bold if you prefer */
+    text-transform: uppercase;
+    /* Ensure initial is uppercase */
+}
+
+.user-initial-avatar span {
+    line-height: 1;
+    /* Better vertical alignment for single characters */
+}
+
+.user-avatar-sm.user-initial-avatar {
     width: 28px;
-    /* Adjusted size */
     height: 28px;
-    /* Adjusted size */
+    border-radius: 50%;
+    /* Circular */
+    /* Remove image-specific styles if they were in .user-avatar-sm before */
+    object-fit: unset;
+    border: none;
+    /* Or '1px solid rgba(255, 255, 255, 0.2);' if you liked the subtle border */
+}
+
+.user-avatar-sm.user-initial-avatar span {
+    font-size: 0.9rem;
+    /* Adjust size of the initial character */
+}
+
+.user-avatar-lg.user-initial-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    /* Rounded square as in screenshot */
+    margin-right: 10px;
+    /* Remove image-specific styles if they were in .user-avatar-lg before */
+    object-fit: unset;
+}
+
+.user-avatar-lg.user-initial-avatar span {
+    font-size: 1.2rem;
+    /* Adjust size of the initial character */
+}
+
+/* .user-avatar-sm {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
     background-color: #67a56a;
-    /* Placeholder color like screenshot */
     border: 1px solid rgba(255, 255, 255, 0.2);
-    /* Subtle border */
-}
+} */
 
 .user-dropdown-menu {
     position: absolute;
     top: calc(100% + 20px);
-    /* Position below the trigger */
     right: 0;
     background-color: #FFFFFF;
-    /* White background */
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.05);
-    /* Softer shadow */
     width: 290px;
-    /* Width from screenshot */
     z-index: 1000;
-    /* Ensure it's above other header content */
     opacity: 0;
     visibility: hidden;
     transform: translateY(5px);
@@ -162,23 +202,17 @@
     display: flex;
     align-items: center;
     padding: 8px 6px;
-    /* Adjusted padding */
     cursor: default;
-    /* It's not clickable itself */
 }
 
-.user-avatar-lg {
+/* .user-avatar-lg {
     width: 36px;
-    /* Adjusted size */
     height: 36px;
-    /* Adjusted size */
     border-radius: 6px;
-    /* Rounded square like screenshot */
     object-fit: cover;
     margin-right: 10px;
     background-color: #67a56a;
-    /* Placeholder color */
-}
+} */
 
 .dropdown-user-details {
     display: flex;
@@ -190,6 +224,14 @@
     font-weight: 600;
     font-size: 0.9rem;
     color: #202124;
+}
+
+.dropdown-user-details .email {
+    font-size: 0.8rem;
+    color: #5f6368;
+    margin-top: 2px;
+    line-height: 1.2;
+    word-break: break-all;
 }
 
 .dropdown-arrow {

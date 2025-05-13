@@ -234,12 +234,13 @@ input[type="checkbox"] {
 }
 
 /* Basic error styling */
-.error-text {
+.form-error {
     color: var(--background);
     background-color: #e3e7f9;
     padding: 20px;
     margin-top: 20px;
     border-radius: 8px;
+    text-align: center;
 }
 
 .error-text small {

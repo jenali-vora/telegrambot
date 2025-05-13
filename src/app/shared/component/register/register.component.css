@@ -296,7 +296,7 @@
 /* Hide link if using feature list */
 
 /* Error/Success Text */
-.error-text {
+.form-error {
     margin-top: 4px;
     color: var(--background);
     background-color: #e3e7f9;
@@ -326,10 +326,6 @@
     text-align: center;
     margin-top: 15px;
     font-weight: 500;
-}
-
-.form-error {
-    color: #a50e0e;
 }
 
 .form-success {
