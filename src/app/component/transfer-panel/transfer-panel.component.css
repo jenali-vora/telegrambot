@@ -289,16 +289,28 @@
     border-radius: 4px;
     border: 1px solid #ced4da;
     background-color: #f8f9fa;
-    color: #333;
+    color: var(--heading-color);
+    height: 32.5px;
+    box-sizing: border-box;
+}
+
+.copy-button-wrapper {
+    position: relative;
+    display: flex;
 }
 
 .copy-button {
-    /* Style the copy button */
     padding: 6px 10px;
     font-size: 0.8rem;
     background-color: var(--white-color);
     color: var(--background);
     border: 1px solid var(--background);
+    white-space: nowrap;
+    height: 32.5px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .copy-button:hover {
@@ -312,6 +324,55 @@
 
 
 /* Actions Panel (If kept, usually removed when form panel exists) */
+.copy-success-tooltips-container {
+    position: absolute;
+    /* bottom: calc(100% + 6px); */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 5px;
+    z-index: 100;
+    width: max-content;
+    pointer-events: none;
+}
+
+.copy-success-tooltip {
+    background-color: #e3e7f9;
+    color: var(--background);
+    border: 1px solid var(--background);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    animation: fadeInHoldFadeOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInHoldFadeOut {
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.9);
+    }
+
+    15% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.9);
+    }
+}
+
 .panel-actions {
     display: none;
     /* Hide this if submit is in form panel */

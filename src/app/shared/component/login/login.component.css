@@ -57,7 +57,7 @@
 .form-field label {
     display: block;
     font-size: 13px;
-    color: #777;
+    color: var(--heading-color);
     margin-bottom: 5px;
 }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Renderer2, ElementRef, HostListener, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ElementRef, HostListener, inject, ViewChild } from '@angular/core'; // <-- Make sure HostListener is imported
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -17,8 +17,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isLoggedIn = false;
   currentUser: User | null = null;
-  // For user's plan - this would ideally come from backend, hardcoding for example
-  // If your User object from authService contains plan info, use that.
 
   private authSubscription: Subscription = new Subscription();
   private renderer = inject(Renderer2);
@@ -31,16 +29,35 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private unlistenEscKey: (() => void) | null = null;
   @ViewChild('header') header!: ElementRef;
 
+  // --- Define the breakpoint (should match your CSS @media query) ---
+  private mobileBreakpoint = 992;
+
   constructor() { }
+
   @HostListener('window:scroll', [])
   onWindowScroll() {
     const headerElement = this.header.nativeElement;
-    if (window.scrollY > 60) {
-      headerElement.classList.add('fixed-header');
-    } else {
-      headerElement.classList.remove('fixed-header');
+    // Ensure header element exists before trying to access classList
+    if (headerElement) {
+      if (window.scrollY > 150) {
+        this.renderer.addClass(headerElement, 'fixed-header');
+      } else {
+        this.renderer.removeClass(headerElement, 'fixed-header');
+      }
     }
   }
+
+  // --- Add HostListener for window resize ---
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(event: Event): void {
+    // Check if the mobile menu is open AND the window width is now *above* the mobile breakpoint
+    if (this.isMenuOpen && window.innerWidth > this.mobileBreakpoint) {
+      // console.log('Window resized above breakpoint while mobile menu was open. Closing menu.'); // Optional: for debugging
+      this.closeMenu();
+    }
+  }
+  // --- End HostListener for window resize ---
+
 
   ngOnInit(): void {
     this.authSubscription.add(
@@ -54,7 +71,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authSubscription.add(
       this.authService.currentUser$.subscribe(user => {
         this.currentUser = user;
-        // Example: if user object had a plan: this.userPlan = user?.plan || 'Free plan';
       })
     );
   }
@@ -86,7 +102,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.renderer.removeClass(overlay, 'is-open');
       this.renderer.removeClass(document.body, 'mobile-menu-active');
       this.renderer.setAttribute(sidebar, 'aria-hidden', 'true');
-      this.renderer.setAttribute(hamburger, 'aria-expanded', 'false');
+      // Only reset aria-expanded if the hamburger button still exists (might not in desktop view)
+      if (hamburger) {
+        this.renderer.setAttribute(hamburger, 'aria-expanded', 'false');
+      }
+      this.isMenuOpen = false;
+      this.removeCloseListeners();
+    } else {
+      // Fallback in case elements aren't found but state is inconsistent
+      this.renderer.removeClass(document.body, 'mobile-menu-active');
       this.isMenuOpen = false;
       this.removeCloseListeners();
     }
@@ -94,12 +118,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private addCloseListeners(): void {
     const overlay = this.el.nativeElement.querySelector('#menu-overlay');
-    if (overlay) {
+    if (overlay && !this.unlistenOverlayClick) { // Prevent adding multiple listeners
       this.unlistenOverlayClick = this.renderer.listen(overlay, 'click', () => this.closeMenu());
     }
-    this.unlistenEscKey = this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && this.isMenuOpen) this.closeMenu();
-    });
+    if (!this.unlistenEscKey) { // Prevent adding multiple listeners
+      this.unlistenEscKey = this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Escape' && this.isMenuOpen) this.closeMenu();
+      });
+    }
   }
 
   private removeCloseListeners(): void {
@@ -113,7 +139,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // --- End Mobile Hamburger Menu Logic ---
 
 
-  // --- User Dropdown Menu Logic ---
+  // --- User Dropdown Menu Logic (Keep existing) ---
   toggleUserMenu(event: MouseEvent): void {
     event.stopPropagation();
     this.isUserMenuOpen = !this.isUserMenuOpen;
@@ -121,22 +147,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
+    // Close user dropdown if click is outside
     const userMenuTrigger = this.el.nativeElement.querySelector('.user-profile-trigger');
     const userMenuDropdown = this.el.nativeElement.querySelector('.user-dropdown-menu');
     if (this.isUserMenuOpen && userMenuTrigger && userMenuDropdown) {
-      if (!userMenuTrigger.contains(event.target as Node) && !userMenuDropdown.contains(event.target as Node)) {
+      const clickedInsideTrigger = userMenuTrigger.contains(event.target as Node);
+      const clickedInsideDropdown = userMenuDropdown.contains(event.target as Node);
+      if (!clickedInsideTrigger && !clickedInsideDropdown) {
         this.isUserMenuOpen = false;
       }
     }
   }
 
-  // Logout Method
   logout(): void {
-    this.authService.logout(); // AuthService handles navigation
-    this.isUserMenuOpen = false;
+    this.authService.logout();
+    this.isUserMenuOpen = false; // Ensure dropdown closes on logout
+    this.closeMenu(); // Also ensure mobile menu closes if open
   }
 
-  // Helper for dropdown links
   handleDropdownNavigation(path: string, isExternal: boolean = false): void {
     if (isExternal) {
       window.open(path, '_blank');
@@ -145,22 +173,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     this.isUserMenuOpen = false;
   }
-  
+
   getUserInitial(): string {
     if (this.currentUser && this.currentUser.email) {
       return this.currentUser.email.charAt(0).toUpperCase();
     } else if (this.currentUser && this.currentUser.username) {
-      // Fallback to username initial if email is not available
       return this.currentUser.username.charAt(0).toUpperCase();
     }
-    return '?'; // Default if no email or username
+    return '?';
   }
 
   ngOnDestroy(): void {
     this.authSubscription.unsubscribe();
-    this.removeCloseListeners(); // For mobile menu
+    this.removeCloseListeners(); // Clean up mobile menu listeners
+    // Ensure body class is removed if component is destroyed while menu is open
     if (this.isMenuOpen) {
       this.renderer.removeClass(document.body, 'mobile-menu-active');
     }
+    // No need to explicitly remove the window:resize listener, Angular handles it.
   }
 }

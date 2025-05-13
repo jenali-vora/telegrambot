@@ -42,32 +42,39 @@
                             <i class="fas fa-download"></i>
                         </button>
                         <!-- The clearAllItems button now handles removal -->
-                        
+
                         <button class="btn icon-btn btn-remove-item" title="Remove this item"
                             (click)="requestItemRemoval(item, $event)" [disabled]="isUploading">
                             <i class="fas fa-trash-alt"></i>
-                        </button> 
-                         
+                        </button>
+
                     </div>
                 </li>
                 }
                 <!-- Empty state not strictly needed if section is hidden, but keep for safety -->
                 @empty {
-                 <li class="empty-list">Select a file or folder</li>
+                <li class="empty-list">Select a file or folder</li>
                 }
             </ul>
         </div>
     </div>
 
-   <!-- Shareable Link Display (Conditional) -->
+    <!-- Shareable Link Display (Conditional) -->
     <div *ngIf="batchShareableLink" class="share-link-display">
         <label>Your download link:</label>
         <div class="share-link-input-group">
             <input type="text" readonly [value]="batchShareableLink" title="Shareable download link">
             <button type="button" class="btn btn-secondary copy-button" (click)="copyLink(batchShareableLink, $event)"
                 title="Copy link to clipboard">
-                <i class="fas fa-copy"></i> {{ copyButtonText }}
+                <i class="fas fa-copy"></i>Copy link
             </button>
+            <div class="copy-success-tooltips-container">
+                @for(tooltip of tooltips; track tooltip.id) {
+                <div class="copy-success-tooltip">
+                    {{ tooltip.message }}
+                </div>
+                }
+            </div>
         </div>
     </div>
 
@@ -79,7 +86,7 @@
             {{ isUploading ? 'Uploading...' : 'Upload' }}
         </button>
         <div *ngIf="isUploading && uploadStatusMessage" class="upload-status-message">
-             {{ uploadStatusMessage }} <!-- Display status from HomeComponent -->
+            {{ uploadStatusMessage }} <!-- Display status from HomeComponent -->
         </div>
     </div>
 
