@@ -6,12 +6,13 @@
     padding: 20px;
     align-items: center;
     position: relative;
-    transition: transform .5s cubic-bezier(.79, 0, .178, 1);
+    /* transition: transform .5s cubic-bezier(.79, 0, .178, 1); */
+    /* transition: all .3s cubic-bezier(0.65,0.05,0.36,1); */
 }
 
 .container {
     display: flex;
-    justify-content: space-between
+    justify-content: space-between;
 }
 
 .fixed-header {
@@ -20,7 +21,18 @@
     left: 0;
     z-index: 1000;
     background-color: var(--background-hover);
-    transition: transform .2s cubic-bezier(.79, 0, .178, 1);
+    animation: slideDown 0.9s ease-out;
+    /* transition: transform .2s cubic-bezier(.79, 0, .178, 1); */
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
 }
 
 .header-left {
@@ -50,6 +62,7 @@
 .header-main {
     display: flex;
     gap: 50px;
+    align-items: center;
 }
 
 .btn-login:hover {
@@ -87,25 +100,11 @@
 
 
 .user-profile-trigger {
-    display: flex;
-    align-items: center;
     cursor: pointer;
-    padding: 4px 15px;
-    /* Adjusted padding */
-    border-radius: 25px;
-    background-color: rgba(255, 255, 255, 0.08);
-    /* Subtler highlight */
-    transition: background-color 0.2s ease;
-    min-width: 0;
-    /* Prevent shrinking too much */
-}
-
-.user-profile-trigger:hover {
-    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .user-name-display {
-    color: white;
+    color: var(--white-color);
     font-size: 0.85rem;
     font-weight: 500;
     margin-right: 6px;
@@ -153,7 +152,7 @@
 .user-avatar-lg.user-initial-avatar {
     width: 36px;
     height: 36px;
-    border-radius: 6px;
+    border-radius: 50%;
     /* Rounded square as in screenshot */
     margin-right: 10px;
     /* Remove image-specific styles if they were in .user-avatar-lg before */
@@ -342,25 +341,17 @@
     position: fixed;
     top: 0;
     right: 0;
-    /* Position on the right */
     width: 300px;
-    /* Adjust width as needed */
     max-width: 85%;
-    /* Ensure it doesn't take full width on small devices */
     height: 100vh;
-    /* Full viewport height */
     background-color: var(--sidebar-bg, var(--white-color));
-    /* Use variable or fallback */
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
     padding: 20px;
     padding-top: 15px;
     z-index: 1050;
-    /* Above overlay */
     transform: translateX(100%);
-    /* Start off-screen to the right */
     transition: transform 0.3s ease-in-out;
     overflow-y: auto;
-    /* Allow scrolling if content exceeds height */
     display: flex;
     flex-direction: column;
 }
@@ -471,11 +462,8 @@
 
     .header-main {
         gap: 15px;
-        /* Adjust gap for hamburger */
         flex-grow: 0;
-        /* Don't let it take extra space */
         flex-shrink: 0;
-        /* Prevent shrinking */
     }
 
     .user-profile-trigger {

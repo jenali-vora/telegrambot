@@ -29,7 +29,7 @@
 
           <!-- User Profile Trigger -->
           <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
-            <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span>
+            <!-- <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span> -->
             <!-- MODIFIED: Display initial instead of image -->
             <div class="user-avatar-sm user-initial-avatar">
               <span>{{ getUserInitial() }}</span>

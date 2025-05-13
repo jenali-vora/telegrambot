@@ -26,6 +26,11 @@ export interface RegistrationResponse {
     email: string;
   };
 }
+
+// --- NEW Interface for Password Reset Responses ---
+export interface PasswordResetResponse {
+  message: string;
+}
 // --- End of Interfaces ---
 
 const AUTH_TOKEN_KEY = 'authToken';
@@ -46,6 +51,11 @@ export class AuthService {
   private loginUrl = `${this.baseApiUrl}/api/auth/login`;
   private registerUrl = `${this.baseApiUrl}/register`; // Matches Python route
 
+  // --- NEW URLs for Password Reset ---
+  private requestPasswordResetUrl = `${this.baseApiUrl}/api/auth/request-password-reset`;
+  private resetPasswordUrlBase = `${this.baseApiUrl}/api/auth/reset-password`; // Base URL, token will be appended
+
+
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -53,6 +63,9 @@ export class AuthService {
     console.log('AuthService initialized.');
     console.log('Register URL configured:', this.registerUrl);
     console.log('Login URL configured:', this.loginUrl);
+    // --- NEW Console logs for new URLs ---
+    console.log('Request Password Reset URL configured:', this.requestPasswordResetUrl);
+    console.log('Base Reset Password URL configured:', this.resetPasswordUrlBase);
   }
 
   public get currentUserValue(): User | null {
@@ -78,10 +91,11 @@ export class AuthService {
           console.log('AuthService: Login successful for:', response.user.email, '(Username:', response.user.username || 'N/A', ')');
         } else {
           console.error("AuthService: Invalid login response structure received:", response);
+          // Propagate a new error that will be caught by catchError
           throw new Error('Invalid login response structure from server.');
         }
       }),
-      catchError(this.handleError)
+      catchError(this.handleError) // handleError will transform the error
     );
   }
 
@@ -120,7 +134,7 @@ export class AuthService {
       localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
     }
     this.currentUserSubject.next(null);
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home']); // Consider navigating to '/login' or another appropriate page
   }
 
   public getToken(): string | null {
@@ -169,38 +183,101 @@ export class AuthService {
     return null;
   }
 
+  // --- NEW: Method to request password reset link ---
+  requestPasswordReset(email: string): Observable<PasswordResetResponse> {
+    console.log(`AuthService: Requesting password reset for ${email} via ${this.requestPasswordResetUrl}`);
+    return this.http.post<PasswordResetResponse>(this.requestPasswordResetUrl, { email }).pipe(
+      tap(response => console.log('AuthService: Password reset request API call successful:', response?.message)),
+      catchError(this.handleError) // Your existing handleError will be used
+    );
+  }
+
+  // --- NEW: Method to reset password using token ---
+  resetPassword(
+    token: string,
+    password: string,
+    confirmPassword: string,
+    logoutAll?: boolean // Optional parameter
+  ): Observable<PasswordResetResponse> {
+    const url = `${this.resetPasswordUrlBase}/${token}`; // Append token to the base URL
+    const payload = {
+      password,
+      confirmPassword,
+      logoutAllDevices: logoutAll ?? false // Backend expects 'logoutAllDevices'
+    };
+    console.log(`AuthService: Attempting to reset password with token via ${url}. Payload:`, payload);
+    return this.http.post<PasswordResetResponse>(url, payload).pipe(
+      tap(response => console.log('AuthService: Password reset API call successful:', response?.message)),
+      catchError(this.handleError) // Your existing handleError will be used
+    );
+  }
+  // --- END OF NEW METHODS ---
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let userMessage = 'An unexpected error occurred. Please try again.';
-    console.error(`AuthService HTTP Error: Status ${error.status}, URL: ${error.url}, Body: `, error.error);
+    // Log the detailed error object for debugging
+    console.error(`AuthService HTTP Error: Status ${error.status}, URL: ${error.url}, Message: ${error.message}, Error Object: `, error.error);
 
     if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred.
       userMessage = `Network error: ${error.error.message}`;
     } else if (error.status === 0) {
-      const apiUrl = (this as any)?.baseApiUrl || 'the server';
-      userMessage = `Cannot connect to ${apiUrl}. Please check network or server status.`;
+      // This typically means the request couldn't be made (e.g., CORS issue before preflight, server down, network disconnected)
+      const apiUrlForError = this.baseApiUrl || 'the application server';
+      userMessage = `Cannot connect to ${apiUrlForError}. Please check your network connection or if the server is running.`;
     } else {
+      // The backend returned an unsuccessful response code.
+      // The response body (`error.error`) may contain clues as to what went wrong.
       if (error.error) {
-        if (typeof error.error.error === 'string') { userMessage = error.error.error; }
-        else if (typeof error.error.message === 'string') { userMessage = error.error.message; }
+        if (typeof error.error.error === 'string') { // Backend format: { "error": "message" }
+          userMessage = error.error.error;
+        } else if (typeof error.error.message === 'string') { // Backend format: { "message": "message" } (less common for errors)
+          userMessage = error.error.message;
+        } else if (typeof error.error === 'string') { // Backend might send a plain string error
+          userMessage = error.error;
+        }
+        // Add more specific checks if your backend has a consistent error object structure
       }
-      else if (error.status === 400) { userMessage = 'Invalid request data provided. Check username format or other fields.'; }
-      else if (error.status === 401) { userMessage = 'Authentication failed.'; }
-      else if (error.status === 403) { userMessage = 'Forbidden.'; }
-      else if (error.status === 404) { userMessage = 'API endpoint not found.'; }
-      else if (error.status === 409) { userMessage = 'Conflict. Username or Email may already be taken.'; }
-      else if (error.status === 500) { userMessage = 'Server error. Please try again later.'; }
-      else if (error.statusText) { userMessage = `Server Error ${error.status}: ${error.statusText}`; }
+
+      // Fallback to status-based messages if a detailed message wasn't extracted from error.error
+      if (userMessage === 'An unexpected error occurred. Please try again.') {
+        switch (error.status) {
+          case 400:
+            userMessage = 'Invalid request. Please check the data you provided.';
+            break;
+          case 401:
+            userMessage = 'Authentication failed. Please check your credentials.';
+            break;
+          case 403:
+            userMessage = 'You do not have permission to perform this action.';
+            break;
+          case 404:
+            userMessage = 'The requested resource or API endpoint was not found on the server.';
+            break;
+          case 409:
+            userMessage = 'There was a conflict with the data provided (e.g., email or username already in use).';
+            break;
+          case 500:
+            userMessage = 'A server error occurred. Please try again later.';
+            break;
+          default:
+            userMessage = `Error ${error.status}: ${error.statusText || 'An unknown server error occurred.'}`;
+        }
+      }
     }
+    // It's crucial to return an Observable that emits an Error object for .subscribe(error => ...) in components
     return throwError(() => new Error(userMessage));
   }
 
   // Method to get or generate anonymous ID
   public getOrGenerateAnonymousUploadId(): string | null {
     if (typeof localStorage === 'undefined' || typeof crypto === 'undefined' || typeof crypto.randomUUID === 'undefined') {
-      console.warn('localStorage or crypto.randomUUID not available for anonymous ID generation.');
-      // Fallback or error handling if needed, for now, returning null.
-      // You could use a simpler random string generator if crypto.randomUUID is not available.
-      return 'fallback-anon-id-' + Date.now(); // Basic fallback
+      console.warn('AuthService: localStorage or crypto.randomUUID not available for anonymous ID generation.');
+      // Provide a very basic fallback for environments where crypto.randomUUID might not be available (e.g., very old browsers or specific non-browser contexts)
+      // However, for modern browsers, crypto.randomUUID is standard.
+      const timestamp = Date.now();
+      const randomPart = Math.random().toString(36).substring(2, 15);
+      return `fallback-anon-id-${timestamp}-${randomPart}`;
     }
 
     let anonId = localStorage.getItem(ANONYMOUS_UPLOAD_ID_KEY);

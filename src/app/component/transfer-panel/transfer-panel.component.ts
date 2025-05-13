@@ -1,10 +1,15 @@
 // src/app/component/transfer-panel/transfer-panel.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
-// Keep SelectedItem Interface Export
 export interface SelectedItem { id: number; file: File; name: string; size: number; isFolder?: boolean; icon: string; }
+
+interface TooltipMessage {
+  id: number;
+  message: string;
+  timeoutId?: any; // To store the timeout ID for potential cleanup
+}
 
 @Component({
   selector: 'app-transfer-panel',
@@ -14,82 +19,99 @@ export interface SelectedItem { id: number; file: File; name: string; size: numb
   styleUrls: ['./transfer-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransferPanelComponent {
+export class TransferPanelComponent implements OnDestroy {
   @Input() items: SelectedItem[] = [];
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
-  @Input() uploadStatusMessage: string = ''; // Add input for status message
+  @Input() uploadStatusMessage: string = '';
 
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
-  // itemRemoved now always signals clearing the current batch
-  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // Correctly emits only undefined
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
 
-  copyButtonText: string = 'Copy link';
-  copyTimeout: any = null;
+  tooltips: TooltipMessage[] = [];
+  private nextTooltipId: number = 0;
 
-  // Calculate total size/count based on the current items array
   get totalSize(): number { return this.items.reduce((acc, item) => acc + item.size, 0); }
   get totalCount(): number { return this.items.length; }
 
-  // These buttons are now hidden when items.length > 0, but keep methods
   addMoreFiles(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFiles.emit(); }
   addFolder(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFolder.emit(); }
 
-  // "Clear All" button now triggers the removal
   clearAllItems(): void {
     if (!this.isUploading) {
-      console.log('Requesting removal of the current selection');
-      this.itemRemoved.emit(undefined); // Signal to clear the batch - THIS IS CORRECT
+      this.itemRemoved.emit(undefined);
     }
   }
 
-  // *** REMOVED the conflicting requestItemRemoval method ***
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
-    event.stopPropagation(); // Prevent potential parent clicks
+    event.stopPropagation();
     if (!this.isUploading) {
-      console.log('Requesting removal of item:', item.name);
-      this.itemRemoved.emit(item); // Emit the specific item to be removed
+      this.itemRemoved.emit(item);
     }
   }
 
-  // Download request remains the same
   requestItemDownload(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
     if (!this.isUploading) {
-      console.warn('Requesting download of LOCAL item:', item.name);
       this.itemDownloadRequested.emit(item);
     }
   }
 
-  // Transfer button remains the same
   startTransfer(): void {
     if (this.items.length > 0 && !this.isUploading) {
-      console.log('Transfer button clicked in panel, emitting event.');
       this.transferInitiated.emit();
     }
-    // No need for else-if check as button is hidden when items.length === 0
   }
 
-  // Copy link remains the same
   copyLink(link: string | null | undefined, event: MouseEvent): void {
-    if (!link) return;
-    navigator.clipboard.writeText(link).then(() => {
-      this.copyButtonText = 'Copied!';
-      if (this.copyTimeout) clearTimeout(this.copyTimeout);
-      this.copyTimeout = setTimeout(() => { this.copyButtonText = 'Copy link'; }, 2000);
-    }).catch(err => {
-      console.error('Failed to copy link: ', err);
-      alert('Failed to copy link.'); // Provide feedback
-    });
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
+    if (!link) return;
+
+    navigator.clipboard.writeText(link).then(() => {
+      const tooltipId = this.nextTooltipId++;
+      const message = 'Download link copied to clipboard';
+
+      const newTooltip: TooltipMessage = {
+        id: tooltipId,
+        message: message,
+      };
+
+      newTooltip.timeoutId = setTimeout(() => {
+        this.removeTooltip(tooltipId);
+      }, 3000); // Tooltip visible for 3 seconds
+
+      // Add to the end of the array. With flex-direction: column-reverse,
+      // this will appear at the bottom of the stack (closest to the button).
+      this.tooltips.push(newTooltip);
+
+    }).catch(err => {
+      console.error('Failed to copy link: ', err);
+      alert('Failed to copy link.');
+    });
   }
 
-  // TrackBy remains the same
-  trackById(index: number, item: SelectedItem): number { return item.id; }
+  private removeTooltip(tooltipId: number): void {
+    this.tooltips = this.tooltips.filter(t => t.id !== tooltipId);
+  }
+
+  // ngOnDestroy to clear any pending timeouts
+  ngOnDestroy(): void {
+    this.tooltips.forEach(tooltip => {
+      if (tooltip.timeoutId) {
+        clearTimeout(tooltip.timeoutId);
+      }
+    });
+    this.tooltips = []; // Also clear the array itself
+  }
+
+  // TrackBy for @for loop optimization
+  trackTooltipById(index: number, tooltip: TooltipMessage): number {
+    return tooltip.id;
+  }
 }
