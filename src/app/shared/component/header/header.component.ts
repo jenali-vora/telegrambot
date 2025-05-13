@@ -145,6 +145,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     this.isUserMenuOpen = false;
   }
+  
+  getUserInitial(): string {
+    if (this.currentUser && this.currentUser.email) {
+      return this.currentUser.email.charAt(0).toUpperCase();
+    } else if (this.currentUser && this.currentUser.username) {
+      // Fallback to username initial if email is not available
+      return this.currentUser.username.charAt(0).toUpperCase();
+    }
+    return '?'; // Default if no email or username
+  }
 
   ngOnDestroy(): void {
     this.authSubscription.unsubscribe();
