@@ -232,7 +232,7 @@
   justify-content: flex-start;
   padding-left: 8px;
   box-sizing: border-box;
-  color: white;
+  color: var(--white-color);
   font-weight: 500;
   transition: width 0.2s ease-out;
 }

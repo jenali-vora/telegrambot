@@ -130,7 +130,6 @@
 .form-field input:focus {
     outline: none;
     border-color: var(--background);
-    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.15);
 }
 
 .password-input-wrapper {
