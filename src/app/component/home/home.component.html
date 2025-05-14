@@ -11,11 +11,12 @@
                 <div class="upload-main-wrapper" #dropZoneTarget
                     *ngIf="selectedItems.length === 0 && !shareableLinkForPanel" (dragover)="onDragOver($event)"
                     (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over-active]="isDragging">
+                   
                     <!-- ... Start button content (as before) ... -->
                     <div class="upload-welcome-wrapper">
                         <div class="position-relative custo-start">
                             <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
-                                <span class="upload-start-label">Start</span>
+                                <span class="upload-start-label">Uploading</span>
                                 <span class="upload-strat-icon"><img src="assets/image/9974321.png"
                                         alt="Start Upload"></span>
                                 <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>

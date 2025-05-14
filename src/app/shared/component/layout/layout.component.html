@@ -1,7 +1,11 @@
 <div class="layout-container">
-    <app-header class="header-main"></app-header>
-    <main class="layout-content">
-      <router-outlet></router-outlet> <!-- Content goes here -->
-    </main>
-    <app-footer></app-footer>
-  </div>
+  <app-header class="header-main"></app-header>
+  <main class="layout-content">
+    <router-outlet></router-outlet> <!-- Content goes here -->
+  </main>
+  <app-footer></app-footer>
+  <button *ngIf="showScrollToTopButton" (click)="scrollToTop()" class="app-scroll-to-top-btn" aria-label="Scroll to top"
+    title="Go to top">
+    <img src="assets/image/up-errow.svg" alt="" class="go-to-top">
+  </button>
+</div>

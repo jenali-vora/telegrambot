@@ -117,15 +117,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.userFileCount = 0;
           this.isLoadingUserFileCount = false;
         }
-        // If user logs in/out, and they had files selected, their limit might change.
-        // For simplicity, we could clear selectedItems if login state changes and items are present.
-        // Or, assume they continue with items selected under old limit rules until they add more.
-        // The current resetUploadState on logout/switch handles this well.
         this.cdRef.detectChanges();
       });
     });
 
-    // Initial check for currentUser on component load
     this.currentUser = this.authService.currentUserValue;
     this.username = this.currentUser?.username || this.currentUser?.email || '';
     if (this.currentUser && this.username) {
@@ -204,24 +199,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (!fileList || fileList.length === 0) return;
 
-    // --- MODIFICATION FOR DYNAMIC FILE LIMIT ---
     let MAX_TOTAL_FILES: number;
     const isLoggedIn = this.authService.isLoggedIn();
 
     if (isLoggedIn) {
-      // Logged-in users can upload multiple files/folders (effectively no small limit on total file count)
-      MAX_TOTAL_FILES = Infinity; // Or a very large number like 10000 if Infinity causes issues elsewhere
+      MAX_TOTAL_FILES = Infinity;
     } else {
-      // Anonymous users are limited to 5 files
       MAX_TOTAL_FILES = 5;
     }
     console.log(`User is ${isLoggedIn ? 'logged in' : 'anonymous'}. MAX_TOTAL_FILES set to: ${MAX_TOTAL_FILES}`);
-    // --- END MODIFICATION ---
 
     const currentCount = this.selectedItems.length;
     let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
 
-    // Only show "already selected maximum" error if there's a finite limit and it's met/exceeded
     if (slotsActuallyAvailable <= 0 && isFinite(MAX_TOTAL_FILES)) {
       this.uploadError = `You have already selected the maximum of ${MAX_TOTAL_FILES} files.`;
       if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
@@ -235,10 +225,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     for (let i = 0; i < fileList.length; i++) {
       if (filesAddedInThisOperation >= slotsActuallyAvailable) {
-        // This break condition handles both finite and infinite MAX_TOTAL_FILES correctly.
-        // If MAX_TOTAL_FILES is Infinity, slotsActuallyAvailable is Infinity,
-        // so this condition (filesAddedInThisOperation >= Infinity) will likely not be met
-        // unless an enormous number of files are processed.
         break;
       }
 
@@ -269,7 +255,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.cdRef.detectChanges();
     }
 
-    // Set error message only if a finite limit was in place and not all files could be added due to it.
     if (isFinite(MAX_TOTAL_FILES)) {
       if (fileList.length > filesAddedInThisOperation && filesAddedInThisOperation < slotsActuallyAvailable) {
         this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesAddedInThisOperation} file(s) were added from your selection.`;
@@ -313,13 +298,31 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
 
+    let batchIcon: string;
+    let batchIsFolder = false; // Initialized as boolean
+
+    if (this.selectedItems.length === 1) {
+      const singleItem = this.selectedItems[0];
+      // --- MODIFICATION START ---
+      batchIsFolder = singleItem.isFolder ?? false; // Ensure batchIsFolder is boolean
+      // --- MODIFICATION END ---
+      if (batchIsFolder) { // Now batchIsFolder is definitely boolean
+        batchIcon = 'fas fa-folder'; // Explicitly set folder icon for single folder
+      } else {
+        batchIcon = singleItem.icon; // Use the icon determined by getFileIcon
+      }
+    } else {
+      batchIcon = 'fas fa-archive'; // Default for multiple items (like in screenshot)
+      batchIsFolder = false; // A batch of multiple items is not considered a single folder
+    }
+
     this.currentItemBeingUploaded = {
-      id: -1,
+      id: -1, // Special ID for the batch representation
       name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
       size: totalBatchSize,
-      file: null as any,
-      icon: 'fas fa-archive',
-      isFolder: false
+      file: null as any, // No single file represents the batch
+      icon: batchIcon,
+      isFolder: batchIsFolder // batchIsFolder is now strictly boolean
     };
 
     this.uploadProgressDetails = {
@@ -637,6 +640,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   getFileIcon(filename: string | undefined): string {
     if (!filename) return 'fas fa-question-circle';
     const baseNameForIcon = filename.includes('/') ? filename.substring(filename.lastIndexOf('/') + 1) : filename;
+
+    // This logic handles files without extensions and files within folders that might be extensionless (treated as folders).
+    // It's the original logic from the provided code.
     if (!baseNameForIcon.includes('.')) return filename.includes('/') ? 'fas fa-folder' : 'fas fa-file';
 
     const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
@@ -650,6 +656,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'svg': case 'webp': return 'fas fa-file-image text-purple';
       case 'mp3': case 'wav': case 'ogg': case 'aac': case 'flac': return 'fas fa-file-audio text-orange';
       case 'mp4': case 'mov': case 'avi': case 'mkv': case 'wmv': case 'webm': return 'fas fa-file-video text-teal';
+      case 'html': case 'htm': return 'fas fa-file-code text-info'; // Added HTML/HTM icon
       default: return 'fas fa-file text-muted';
     }
   }
