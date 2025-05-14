@@ -208,3 +208,9 @@
     border-radius: .25rem;
     font-size: 0.9rem;
 }
+
+@media (max-width: 480px) {
+    .page-header h1 {
+        font-size: 20px;
+    }
+}

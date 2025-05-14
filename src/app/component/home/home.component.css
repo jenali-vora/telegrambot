@@ -91,7 +91,7 @@
     padding: 0;
     overflow: hidden;
     background: var(--white-color);
-    color:#e36812;
+    color: #e36812;
     animation: uploader_ripple__yH_nl 2s infinite;
     margin-top: 30px;
 }
@@ -622,6 +622,10 @@
         font-size: 0.9rem;
         padding: 0.6rem 1.2rem;
     }
+
+    .upload-welcome-wrapper {
+        padding-bottom: 0;
+    }
 }
 
 @media (max-width: 768px) {
@@ -712,5 +716,10 @@
     .transfer-main .share-image img {
         width: 100%;
         height: auto;
+    }
+    .upload-progress-overlay{
+        right: 0;
+        width: 100%;
+        padding: 10px;
     }
 }

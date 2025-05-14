@@ -98,6 +98,9 @@ hr {
 
 .file-icon-container {
     text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
 }
 
 .file-name {
