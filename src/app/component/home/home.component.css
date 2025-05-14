@@ -606,13 +606,13 @@
         gap: 40px;
     }
 
-    .section-my-files-link {
+    /* .section-my-files-link {
         padding: 1.5rem 1rem;
-    }
+    } */
 
-    .my-files-link-panel.card-style {
+    /* .my-files-link-panel.card-style {
         padding: 1.5rem 1rem;
-    }
+    } */
 
     .my-files-link-panel h3 {
         font-size: 1.25rem;
