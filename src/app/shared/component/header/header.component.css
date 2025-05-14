@@ -129,8 +129,8 @@
     align-items: center;
     justify-content: center;
     /* Color from your second screenshot (dark magenta/purple) */
-    background-color: #A70078;
-    color: white;
+    background-color: #657ee4;
+    color: var(--white-color);
     font-weight: 500;
     /* Or bold if you prefer */
     text-transform: uppercase;
@@ -186,7 +186,7 @@
     position: absolute;
     top: calc(100% + 20px);
     right: 0;
-    background-color: #FFFFFF;
+    background-color: var(--white-color);
     border-radius: 16px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.05);
     width: 290px;
@@ -559,5 +559,19 @@
     .user-avatar-sm {
         width: 26px;
         height: 26px;
+    }
+
+    .user-dropdown-menu {
+        position: fixed;
+        width: 290px;
+        max-width: calc(100vw - 30px);
+        left: 50%;
+        right: auto;
+        top: 85px;
+        transform: translate(-50%, 5px);
+    }
+
+    .user-dropdown-menu.active {
+        transform: translate(-50%, 0);
     }
 }
