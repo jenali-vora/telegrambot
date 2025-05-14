@@ -1,5 +1,5 @@
 // src/app/component/transfer-panel/transfer-panel.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core'; // Import ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
@@ -17,7 +17,7 @@ interface TooltipMessage {
   imports: [CommonModule, ByteFormatPipe],
   templateUrl: './transfer-panel.component.html',
   styleUrls: ['./transfer-panel.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush // Keep OnPush
 })
 export class TransferPanelComponent implements OnDestroy {
   @Input() items: SelectedItem[] = [];
@@ -33,6 +33,9 @@ export class TransferPanelComponent implements OnDestroy {
 
   tooltips: TooltipMessage[] = [];
   private nextTooltipId: number = 0;
+
+  // 1. Inject ChangeDetectorRef
+  constructor(private cdr: ChangeDetectorRef) { }
 
   get totalSize(): number { return this.items.reduce((acc, item) => acc + item.size, 0); }
   get totalCount(): number { return this.items.length; }
@@ -84,33 +87,39 @@ export class TransferPanelComponent implements OnDestroy {
 
       newTooltip.timeoutId = setTimeout(() => {
         this.removeTooltip(tooltipId);
-      }, 3000); // Tooltip visible for 3 seconds
+        // 2. Call detectChanges when tooltip is removed (already good)
+        this.cdr.detectChanges();
+      }, 3000);
 
-      // Add to the end of the array. With flex-direction: column-reverse,
-      // this will appear at the bottom of the stack (closest to the button).
-      this.tooltips.push(newTooltip);
+      // 3. Use immutable update for the tooltips array
+      this.tooltips = [...this.tooltips, newTooltip];
+
+      // 2. Call detectChanges after adding the tooltip
+      this.cdr.detectChanges();
 
     }).catch(err => {
       console.error('Failed to copy link: ', err);
       alert('Failed to copy link.');
+      // Optionally trigger change detection here too if an error state needs to be reflected in the UI
+      this.cdr.detectChanges();
     });
   }
 
   private removeTooltip(tooltipId: number): void {
+    // 3. Use immutable update for removing from the tooltips array
     this.tooltips = this.tooltips.filter(t => t.id !== tooltipId);
+    // Change detection will be called by the setTimeout callback that invokes this.
   }
 
-  // ngOnDestroy to clear any pending timeouts
   ngOnDestroy(): void {
     this.tooltips.forEach(tooltip => {
       if (tooltip.timeoutId) {
         clearTimeout(tooltip.timeoutId);
       }
     });
-    this.tooltips = []; // Also clear the array itself
+    this.tooltips = [];
   }
 
-  // TrackBy for @for loop optimization
   trackTooltipById(index: number, tooltip: TooltipMessage): number {
     return tooltip.id;
   }
