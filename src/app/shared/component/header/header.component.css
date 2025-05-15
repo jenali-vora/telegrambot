@@ -80,7 +80,7 @@
 
 .auth-nav {
     background-color: var(--white-color);
-    border-radius: 8px;
+    border-radius: 5px;
     padding: 0 6px;
 }
 
@@ -90,7 +90,7 @@
     color: var(--white-color);
     padding: 0 13px;
     line-height: 31px;
-    border-radius: 6px;
+    border-radius: 5px;
 
     &:hover {
         background-color: var(--background-hover);
@@ -271,7 +271,7 @@
     color: var(--background);
     text-align: left;
     font-size: 0.85rem;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.15s ease;
     box-sizing: border-box;
@@ -413,7 +413,7 @@
 }
 
 .sidebar-nav a {
-    color: var(--text-color-dark, #111);
+    color: var(--heading-color);
     /* Dark text for light background */
     padding: 12px 0;
     /* Vertical padding */
@@ -422,6 +422,7 @@
     display: block;
     /* Make the whole area clickable */
     transition: background-color 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-nav a:hover,
@@ -433,16 +434,119 @@
 
 .sidebar-divider {
     border: none;
-    border-top: 1px solid var(--divider-color, #eeeeee);
+    border-top: 1px solid #eeeeee;
     margin: 10px 0;
 }
 
 .mobile-btn {
     border: 1px solid var(--background);
-    width: 50%;
     border-radius: 4px;
     color: var(--background) !important;
     text-align: center;
+    padding: 10px;
+}
+
+.sidebar-user-info-container {
+    display: flex;
+    align-items: center;
+    padding: 10px 0px;
+    margin-bottom: 10px;
+    gap: 12px;
+}
+
+.sidebar-auth-buttons-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.sidebar-user-avatar.user-initial-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+}
+
+.sidebar-user-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.sidebar-username {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--heading-color, #202124);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-email {
+    font-size: 0.8rem;
+    color: var(--text-muted, #5f6368);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.sidebar-user-info-container .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--border-color, #e0e0e0);
+    margin: 15px -20px 10px -20px;
+}
+
+.sidebar-action-buttons {
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.sidebar-btn-logout {
+    flex: 1;
+    background-color: var(--white-color, #ffffff);
+    border: 1px solid var(--button-border-color, var(--background, #333));
+    color: var(--button-text-color, var(--background, #333));
+}
+
+.sidebar-btn-logout:hover {
+    background-color: var(--button-hover-light, #f8f9fa);
+    opacity: 1;
+}
+
+.sidebar-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    box-sizing: border-box;
+    line-height: 1.4;
+}
+
+.sidebar-btn:hover {
+    opacity: 0.85;
+    /* General hover effect, can be customized per button */
+}
+
+.sidebar-btn-login {
+    background-color: var(--white-color);
+    border: 1px solid var(--background);
+    color: var(--background);
+}
+
+.sidebar-btn-signup {
+    background-color: var(--background);
+    color: var(--white-color);
 }
 
 /* toggle menu css end */
@@ -481,6 +585,16 @@
 
     .fixed-header {
         animation: none;
+    }
+
+    .user-profile-area {
+        display: none !important;
+    }
+
+    .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 10px;
     }
 }
 

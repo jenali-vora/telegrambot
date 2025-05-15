@@ -13,22 +13,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!--
-    IMPORTANT: If styles.css defines --black-color and --background, ensure it's loaded.
-    If these are defined elsewhere or you want to ensure the preloader is self-contained,
-    define them directly in the <style> block below.
-  -->
   <link rel="stylesheet" href="styles.css">
 
   <style>
-    /* Define CSS variables here if not guaranteed by styles.css for preloader */
-    /*
-    :root {
-      --black-color: #000000;
-      --background: #007bff; /* Example color for loader divs */
-    /* }
-    */
-
     .loader-mask {
       position: fixed;
       top: 0;
@@ -36,16 +23,12 @@
       right: 0;
       bottom: 0;
       background: radial-gradient(453.32% 127.15% at 21.47% 100%, var(--background-hover) 0, #ae5dd73d 100%), var(--white-color);
-      /* Fallback */
       z-index: 99999;
       opacity: 1;
-      /* Start visible */
       transition: opacity 0.4s ease-out;
-      /* For smooth fade-out */
     }
 
     .loader-mask.is-hidden {
-      /* Class to trigger fade-out */
       opacity: 0;
       pointer-events: none;
     }
@@ -57,22 +40,14 @@
       width: 50px;
       height: 50px;
       font-size: 0;
-      /* color: #00c9d0; */
-      /* Original color, can be removed if using --background */
       display: inline-block;
       margin: -25px 0 0 -25px;
       text-indent: -9999em;
       transform: translateZ(0);
     }
 
-    /* .lead style was present but not used by loader, can be removed if not needed elsewhere */
-    /* .lead {
-      font-size: 13px;
-    } */
-
     .loader div {
       background-color: var(--background);
-      /* Fallback for loader balls */
       display: inline-block;
       float: none;
       position: absolute;
@@ -120,7 +95,7 @@
     (function () {
       const loaderMaskElement = document.getElementById('pageLoaderMask');
       // const loaderInnerElement = document.getElementById('pageLoaderInner'); // Not strictly needed for hiding
-      const displayDuration = 2000; // 1000 milliseconds = 1 second
+      const displayDuration = 1000; // 1000 milliseconds = 1 second
 
       if (loaderMaskElement) {
         setTimeout(function () {
