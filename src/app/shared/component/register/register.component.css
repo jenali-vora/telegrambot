@@ -306,15 +306,16 @@
 /* Error/Success Text */
 .form-error {
     margin-top: 4px;
-    color: var(--background);
+    color: var(--delete-color);
     background-color: #e3e7f9;
-    padding: 20px;
+    padding: 15px;
     margin-top: 20px;
-    border-radius: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--delete-color);
 }
 
 .error-text small {
-    color: #dc3545;
+    color: var(--delete-color);
     font-size: 12px;
     display: block;
     /* Ensure it takes space */
@@ -330,7 +331,7 @@
 
 .form-error,
 .form-success {
-    font-size: 13px;
+    font-size: 15px;
     text-align: center;
     margin-top: 15px;
     font-weight: 500;

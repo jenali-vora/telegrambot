@@ -21,36 +21,30 @@
       <div class="auth-section">
         <!-- If NOT Logged In -->
         <nav class="auth-nav" *ngIf="!isLoggedIn">
-          <a routerLink="/login" class="btn btn-login">Log In</a>
-          <a routerLink="/register" class="btn btn-register">Sign Up</a>
+          <span routerLink="/login" class="btn btn-login">Log In</span>
+          <span routerLink="/register" class="btn btn-register">Sign Up</span>
         </nav>
 
         <!-- If Logged In -->
+        <!-- The 'user-profile-area' will be hidden on mobile via CSS -->
         <div class="user-profile-area" *ngIf="isLoggedIn && currentUser">
-
           <!-- User Profile Trigger -->
           <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
-            <!-- <span class="user-name-display">{{ currentUser.username || currentUser.email }}</span> -->
-            <!-- MODIFIED: Display initial instead of image -->
             <div class="user-avatar-sm user-initial-avatar">
               <span>{{ getUserInitial() }}</span>
             </div>
           </div>
-
-          <!-- User Dropdown Menu -->
+          <!-- User Dropdown Menu (for desktop) -->
           <div class="user-dropdown-menu" [class.active]="isUserMenuOpen" (click)="$event.stopPropagation()">
             <div class="dropdown-header-info">
-              <!-- MODIFIED: Display initial instead of image -->
               <div class="user-avatar-lg user-initial-avatar">
                 <span>{{ getUserInitial() }}</span>
               </div>
               <div class="dropdown-user-details">
                 <span class="username">{{ currentUser.username || 'User' }}</span>
-                <!-- ADDED: Display user email -->
                 <span class="email">{{ currentUser.email }}</span>
               </div>
             </div>
-
             <hr class="dropdown-divider">
             <div class="text-center">
               <button class="btn-logout" (click)="logout()">Log out</button>
@@ -66,8 +60,7 @@
       </button>
     </div>
 
-    <!-- Mobile Sidebar Menu & Overlay (Keep existing) -->
-    <!-- ... (rest of your mobile menu HTML remains the same) ... -->
+    <!-- Mobile Sidebar Menu & Overlay -->
     <div class="mobile-menu-overlay" id="menu-overlay" [class.is-open]="isMenuOpen"></div>
     <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen"
       [attr.aria-hidden]="!isMenuOpen">
@@ -76,22 +69,42 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
+
+      <!-- NEW: Sidebar User Info (visible when logged in) -->
+      <div class="sidebar-user-info-container" *ngIf="isLoggedIn && currentUser">
+        <div class="sidebar-user-avatar user-initial-avatar"> <!-- Re-use avatar style -->
+          <span>{{ getUserInitial() }}</span>
+        </div>
+        <div class="sidebar-user-details">
+          <span class="sidebar-username">{{ currentUser.username || 'User' }}</span>
+          <span class="sidebar-email">{{ currentUser.email }}</span>
+        </div>
+        <hr class="sidebar-divider"> <!-- Optional divider -->
+      </div>
+
       <nav class="sidebar-nav">
         <a routerLink="/pricing" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Pricing</a>
         <a routerLink="/blog" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Blog</a>
         <a routerLink="/faq" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">FAQs</a>
         <a routerLink="/contact-us" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Contact
           Us</a>
-        <hr class="sidebar-divider">
-        <ng-container *ngIf="!isLoggedIn">
-          <a routerLink="/login" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Log In</a>
-          <a routerLink="/register" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Sign
-            Up</a>
-        </ng-container>
-        <ng-container *ngIf="isLoggedIn && currentUser">
-          <a (click)="logout(); onSidebarLinkClick();" class="nav-link mobile-btn">Log out</a>
-        </ng-container>
       </nav>
+
+      <!-- Logged IN state: Logout button container -->
+      <ng-container *ngIf="isLoggedIn && currentUser">
+        <div class="sidebar-action-buttons"> <!-- Changed container class -->
+          <a (click)="logout(); onSidebarLinkClick();" class="sidebar-btn sidebar-btn-logout">Log out</a>
+        </div>
+      </ng-container>
+
+      <!-- Logged OUT state: Login/Signup buttons container -->
+      <ng-container *ngIf="!isLoggedIn">
+        <div class="sidebar-auth-buttons-container">
+          <a routerLink="/login" class="sidebar-btn sidebar-btn-login" (click)="onSidebarLinkClick()">Log In</a>
+          <a routerLink="/register" class="sidebar-btn sidebar-btn-signup" (click)="onSidebarLinkClick()">Sign Up</a>
+        </div>
+      </ng-container>
+
     </aside>
   </div>
 </header>
