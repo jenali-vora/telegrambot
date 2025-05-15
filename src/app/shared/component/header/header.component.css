@@ -478,6 +478,10 @@
     .user-profile-trigger {
         padding: 5px;
     }
+
+    .fixed-header {
+        animation: none;
+    }
 }
 
 /* --- Media Query: Mobile Phones (e.g., below 768px) --- */
