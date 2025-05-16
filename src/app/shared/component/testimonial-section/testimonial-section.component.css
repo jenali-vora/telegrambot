@@ -1,0 +1,165 @@
+/* testimonial-section.component.css */
+
+.testimonial-section-wrapper {
+    background-color: #f8f8f8;
+    padding: 60px 0;
+    /* Vertical padding for the section */
+    position: relative;
+    /* overflow-x: hidden; NgbCarousel should handle its own overflow */
+}
+
+/* Optional: Container for the NgbCarousel itself for max-width and centering */
+.testimonials-carousel-container {
+    max-width: 900px;
+    /* Adjust as needed, Bootstrap carousel items are full width by default */
+    margin: 0 auto;
+    /* background-color: #fff; */
+    /* Optional: if you want a different background for the carousel itself */
+    /* box-shadow: 0 2px 10px rgba(0,0,0,0.1); */
+    /* Optional: subtle shadow */
+}
+
+/* Wrapper for content within each slide to center it if needed */
+.testimonial-slide-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 60px;
+    /* Padding inside the slide, around your testimonial-item. Adjust based on nav arrow space */
+    min-height: 400px;
+    /* Example: Set a min-height for slides to be consistent, adjust as needed */
+}
+
+/*
+.testimonials-container {
+    REMOVED or MODIFIED: NgbCarousel now handles this.
+}
+*/
+
+.testimonial-item {
+    background-color: transparent;
+    text-align: center;
+    padding: 20px;
+    /* Padding for the item itself */
+    box-sizing: border-box;
+    /* flex: 1 1 300px; NgbCarousel shows one item at a time, this is not applicable */
+    max-width: 500px;
+    /* Control the max-width of the content area within the slide */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 25px;
+    filter: grayscale(100%);
+}
+
+.name {
+    font-size: 1.8em;
+    color: var(--background);
+    /* Ensure --background CSS variable is defined globally or in a parent */
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.quote-text {
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    min-height: 100px;
+    /* Good for alignment */
+}
+
+.quotation-marks {
+    font-size: 3.5em;
+    color: var(--background);
+    /* Ensure --background CSS variable is defined globally or in a parent */
+    line-height: 0.5;
+    font-family: 'Georgia', serif;
+}
+
+/* --- NgbCarousel Customization (Optional) --- */
+/*
+  To style Bootstrap's default carousel elements from within this component's CSS,
+  you'll likely need ::ng-deep because of Angular's view encapsulation.
+*/
+
+/* Example: Change color of navigation arrows */
+:host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
+:host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
+    /* background-color: rgba(0, 0, 0, 0.3); */
+    background-color: var(--background);
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-size: 60% 60%;
+}
+
+/* Example: Change color of navigation indicators */
+:host ::ng-deep .testimonials-carousel-container .carousel-indicators [data-bs-target] {
+    background-color: #ccc;
+    /* Inactive indicators */
+}
+
+:host ::ng-deep .testimonials-carousel-container .carousel-indicators .active {
+    background-color: var(--background);
+    /* Active indicator - using your theme color */
+}
+
+/* Responsive adjustments for ITEM CONTENT */
+/* NgbCarousel is typically one item at a time, so responsive changes are for content within the slide */
+@media (max-width: 768px) {
+    .testimonial-slide-content {
+        padding: 20px 40px;
+        /* Reduce padding for smaller screens */
+        min-height: 350px;
+        /* Adjust min-height */
+    }
+
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+    }
+
+    .name {
+        font-size: 1.6em;
+    }
+
+    .testimonial-item {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .testimonial-slide-content {
+        padding: 15px 20px;
+        /* Further reduce padding */
+    }
+
+    .profile-pic {
+        width: 100px;
+        height: 100px;
+    }
+
+    .name {
+        font-size: 1.4em;
+    }
+
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
+        width: 30px;
+        height: 30px;
+    }
+
+    .testimonial-item {
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+}
