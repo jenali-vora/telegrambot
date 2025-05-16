@@ -5,14 +5,21 @@
         <div class="hero-content">
             <h2 class="hero-title">Transfer and have your files travel for free</h2>
             <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
-
+            <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
+                class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
+                (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
+                <div class="drag-overlay-content">
+                    <img src="assets/image/upload.svg" alt="Drop files" class="drag-overlay-icon">
+                    <h2>Drop your files here</h2>
+                    <p>Add your files or folders by drag-and-dropping them on this window 😉</p>
+                </div>
+            </div>
             <!-- Main Upload Interaction Area -->
             <div class="upload-interaction-area">
-                <div class="upload-main-wrapper" #dropZoneTarget
-                    *ngIf="selectedItems.length === 0 && !shareableLinkForPanel" (dragover)="onDragOver($event)"
-                    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.drag-over-active]="isDragging">
-                   
-                    <!-- ... Start button content (as before) ... -->
+                <div class="upload-main-wrapper"
+                    *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
+                    <!-- Removed #dropZoneTarget and its drag event handlers -->
+
                     <div class="upload-welcome-wrapper">
                         <div class="position-relative custo-start">
                             <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
@@ -156,11 +163,15 @@
         </div>
     </section>
 
-    <section class="section-5">
+    <section class="section-6">
         <app-faq-accordion></app-faq-accordion>
     </section>
 
-    <section class="section-6">
+    <section class="section-5">
+        <app-testimonial-section></app-testimonial-section>
+    </section>
+    
+    <section class="section-7">
         <app-cta-section></app-cta-section>
     </section>
 

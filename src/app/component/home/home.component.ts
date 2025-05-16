@@ -1,9 +1,9 @@
 // src/app/component/home/home.component.ts
-import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener } from '@angular/core'; // Added HostListener
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService, User } from '../../shared/services/auth.service'; // AuthService
+import { AuthService, User } from '../../shared/services/auth.service';
 import {
   FileManagerApiService,
   InitiateUploadResponse,
@@ -15,6 +15,7 @@ import { UploadProgressItemComponent } from '../upload-progress-item/upload-prog
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 import { UploadEventService } from '../../shared/services/upload-event.service';
 import { BatchFileBrowserComponent } from '../batch-file-browser/batch-file-browser.component';
+import { TestimonialSectionComponent } from '@app/shared/component/testimonial-section/testimonial-section.component';
 
 interface UploadProgressDetails {
   percentage: number;
@@ -34,14 +35,14 @@ interface CompletedUploadLink {
   standalone: true,
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
-    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent
+    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent,TestimonialSectionComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   providers: [DatePipe]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  private authService = inject(AuthService); // Injected
+  private authService = inject(AuthService);
   private apiService = inject(FileManagerApiService);
   private zone = inject(NgZone);
   private cdRef = inject(ChangeDetectorRef);
@@ -51,14 +52,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
-  @ViewChild('dropZoneTarget') dropZoneRef!: ElementRef<HTMLElement>;
+  // @ViewChild('dropZoneTarget') dropZoneRef!: ElementRef<HTMLElement>; // No longer needed
 
   currentUser: User | null = null;
-  username: string = ''; // Will be set if user is logged in
+  username: string = '';
 
   isUploading: boolean = false;
   uploadError: string | null = null;
-  isDragging = false;
+  // isDragging = false; // Replaced by isDraggingOverWindow for global behavior
   selectedItems: SelectedItem[] = [];
   currentItemBeingUploaded: SelectedItem | null = null;
   currentUploadId: string | null = null;
@@ -77,7 +78,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   private authSubscription: Subscription | null = null;
 
   public batchUploadLinks: CompletedUploadLink[] = [];
-  public batchShareableLinkForPanel: string | null = null; // Already exists, seems fine
+  public batchShareableLinkForPanel: string | null = null;
+
+  // New properties for global drag state
+  public isDraggingOverWindow: boolean = false;
+  private dragEnterCounter = 0; // To correctly handle dragenter/dragleave over child elements
 
   stepContent = [
     { number: '1', title: ' Select your file(s)', des: 'Select the file(s) and/or folder(s) you want to send from your computer or smartphone.' },
@@ -95,7 +100,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { img: "assets/image/ios-B-i3hJIr.svg", title: "iOS" },
     { img: "assets/android-ByKVTp40.svg", title: "Android" },
   ];
-
 
   ngOnInit(): void {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
@@ -131,7 +135,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-
   private resetUploadState(): void {
     this.isUploading = false;
     this.uploadError = null;
@@ -146,6 +149,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadProgress = 0;
     this.nextItemId = 0;
     this.batchUploadLinks = [];
+    this.isDraggingOverWindow = false; // Reset drag state
+    this.dragEnterCounter = 0;
     this.closeEventSource();
 
     if (this.fileInputRef?.nativeElement) {
@@ -178,13 +183,87 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  // --- Global Drag and Drop Event Handlers ---
+  @HostListener('window:dragenter', ['$event'])
+  onWindowDragEnter(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragEnterCounter++;
+
+    if (this.selectedItems.length === 0 && !this.shareableLinkForPanel && !this.isUploading) {
+      if (!this.isDraggingOverWindow) {
+        this.isDraggingOverWindow = true;
+        this.cdRef.detectChanges();
+      }
+    } else {
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'none'; // Indicate drop is not allowed
+      }
+    }
+  }
+
+  @HostListener('window:dragover', ['$event'])
+  onWindowDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Set dropEffect to 'copy' if drop is allowed, 'none' otherwise
+    if (this.selectedItems.length === 0 && !this.shareableLinkForPanel && !this.isUploading) {
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'copy';
+      }
+      // Ensure overlay stays visible if conditions are met
+      if (!this.isDraggingOverWindow) {
+        this.isDraggingOverWindow = true;
+        this.cdRef.detectChanges();
+      }
+    } else {
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'none';
+      }
+    }
+  }
+
+  @HostListener('window:dragleave', ['$event'])
+  onWindowDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.dragEnterCounter--;
+    if (this.dragEnterCounter <= 0) {
+      this.dragEnterCounter = 0; // Ensure it doesn't go negative
+      if (this.isDraggingOverWindow) {
+        this.isDraggingOverWindow = false;
+        this.cdRef.detectChanges();
+      }
+    }
+  }
+
+  @HostListener('window:drop', ['$event'])
+  onWindowDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const wasDragging = this.isDraggingOverWindow;
+    this.isDraggingOverWindow = false;
+    this.dragEnterCounter = 0;
+    this.cdRef.detectChanges(); // Hide overlay immediately
+
+    // Process drop only if overlay was meant to be active and not uploading
+    if (wasDragging && this.selectedItems.length === 0 && !this.shareableLinkForPanel && !this.isUploading) {
+      const files = event.dataTransfer?.files;
+      if (files && files.length > 0) {
+        this.handleFiles(files);
+      }
+    }
+  }
+  // --- End Global Drag and Drop ---
+
   triggerFileInput(): void { if (this.isUploading) return; this.fileInputRef?.nativeElement.click(); }
   triggerFolderInput(): void { if (this.isUploading) return; this.folderInputRef?.nativeElement.click(); }
-  onDragOver(event: DragEvent): void { if (this.isUploading) { if (event.dataTransfer) event.dataTransfer.dropEffect = 'none'; event.preventDefault(); event.stopPropagation(); return; } event.preventDefault(); event.stopPropagation(); this.isDragging = true; if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'; }
-  onDragLeave(event: DragEvent): void { event.preventDefault(); event.stopPropagation(); const target = event.currentTarget as HTMLElement; const relatedTarget = event.relatedTarget as Node; if (!relatedTarget || !target.contains(relatedTarget)) this.isDragging = false; }
-  onDrop(event: DragEvent): void { if (this.isUploading) { event.preventDefault(); event.stopPropagation(); this.isDragging = false; return; } event.preventDefault(); event.stopPropagation(); this.isDragging = false; const files = event.dataTransfer?.files; if (files && files.length > 0) this.handleFiles(files); }
+  // onDragOver, onDragLeave, onDrop specific to #dropZoneTarget are removed as they are now global.
 
   handleFiles(fileList: FileList, isFolderSelection: boolean = false): void {
+    // ... (existing handleFiles logic remains the same)
     if (this.isUploading) {
       alert("Wait for current upload or cancel it.");
       return;
@@ -274,6 +353,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onFileSelected(event: Event): void {
+    // ... (existing onFileSelected logic remains the same)
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.handleFiles(input.files, false);
@@ -281,6 +361,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onFolderSelected(event: Event): void {
+    // ... (existing onFolderSelected logic remains the same)
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.handleFiles(input.files, true);
@@ -288,6 +369,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   initiateTransferFromPanel(): void {
+    // ... (existing initiateTransferFromPanel logic remains the same)
     if (this.isUploading || this.selectedItems.length === 0) return;
 
     this.isUploading = true;
@@ -299,30 +381,28 @@ export class HomeComponent implements OnInit, OnDestroy {
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
 
     let batchIcon: string;
-    let batchIsFolder = false; // Initialized as boolean
+    let batchIsFolder = false;
 
     if (this.selectedItems.length === 1) {
       const singleItem = this.selectedItems[0];
-      // --- MODIFICATION START ---
-      batchIsFolder = singleItem.isFolder ?? false; // Ensure batchIsFolder is boolean
-      // --- MODIFICATION END ---
-      if (batchIsFolder) { // Now batchIsFolder is definitely boolean
-        batchIcon = 'fas fa-folder'; // Explicitly set folder icon for single folder
+      batchIsFolder = singleItem.isFolder ?? false;
+      if (batchIsFolder) {
+        batchIcon = 'fas fa-folder';
       } else {
-        batchIcon = singleItem.icon; // Use the icon determined by getFileIcon
+        batchIcon = singleItem.icon;
       }
     } else {
-      batchIcon = 'fas fa-archive'; // Default for multiple items (like in screenshot)
-      batchIsFolder = false; // A batch of multiple items is not considered a single folder
+      batchIcon = 'fas fa-archive';
+      batchIsFolder = false;
     }
 
     this.currentItemBeingUploaded = {
-      id: -1, // Special ID for the batch representation
+      id: -1,
       name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
       size: totalBatchSize,
-      file: null as any, // No single file represents the batch
+      file: null as any,
       icon: batchIcon,
-      isFolder: batchIsFolder // batchIsFolder is now strictly boolean
+      isFolder: batchIsFolder
     };
 
     this.uploadProgressDetails = {
@@ -376,6 +456,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private listenToUploadProgress(uploadId: string, batchItemRepresentation: SelectedItem | null): void {
+    // ... (existing listenToUploadProgress logic remains the same)
     const apiUrl = this.apiService.getApiBaseUrl();
     const url = `${apiUrl}/stream-progress/${uploadId}`;
 
@@ -524,6 +605,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
+    // ... (existing handleBatchUploadError logic remains the same)
     if (errorEvent) console.error("Error during batch upload:", errorMessage, errorEvent);
     else console.error("Error during batch upload:", errorMessage);
 
@@ -545,6 +627,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   handleCancelUpload(): void {
+    // ... (existing handleCancelUpload logic remains the same)
     if (!this.currentUploadId && !this.isUploading) {
       console.log('HomeComponent: No active upload to cancel.');
       return;
@@ -572,6 +655,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private closeEventSource(): void {
+    // ... (existing closeEventSource logic remains the same)
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
@@ -580,6 +664,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   handleItemRemovedFromPanel(itemOrUndefined: SelectedItem | undefined): void {
+    // ... (existing handleItemRemovedFromPanel logic remains the same)
     if (this.isUploading) {
       alert("Cannot remove items during upload. Please cancel the upload first.");
       return;
@@ -609,6 +694,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   handleDownloadRequest(itemToDownload: SelectedItem): void {
+    // ... (existing handleDownloadRequest logic remains the same)
     if (this.isUploading) return;
     try {
       if (!(itemToDownload.file instanceof File)) {
@@ -638,11 +724,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getFileIcon(filename: string | undefined): string {
+    // ... (existing getFileIcon logic remains the same)
     if (!filename) return 'fas fa-question-circle';
     const baseNameForIcon = filename.includes('/') ? filename.substring(filename.lastIndexOf('/') + 1) : filename;
 
-    // This logic handles files without extensions and files within folders that might be extensionless (treated as folders).
-    // It's the original logic from the provided code.
     if (!baseNameForIcon.includes('.')) return filename.includes('/') ? 'fas fa-folder' : 'fas fa-file';
 
     const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
@@ -656,7 +741,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'svg': case 'webp': return 'fas fa-file-image text-purple';
       case 'mp3': case 'wav': case 'ogg': case 'aac': case 'flac': return 'fas fa-file-audio text-orange';
       case 'mp4': case 'mov': case 'avi': case 'mkv': case 'wmv': case 'webm': return 'fas fa-file-video text-teal';
-      case 'html': case 'htm': return 'fas fa-file-code text-info'; // Added HTML/HTM icon
+      case 'html': case 'htm': return 'fas fa-file-code text-info';
       default: return 'fas fa-file text-muted';
     }
   }

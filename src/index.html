@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Telegrambot</title> <!-- Consider changing this -->
+  <title>Telegrambot</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css"> <!-- Your global styles -->
 
   <style>
     .loader-mask {
@@ -22,10 +22,14 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: radial-gradient(453.32% 127.15% at 21.47% 100%, var(--background-hover) 0, #ae5dd73d 100%), var(--white-color);
+      background: var(--background-hover, #2a52be);
+      /* Site's blue background */
       z-index: 99999;
       opacity: 1;
       transition: opacity 0.4s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .loader-mask.is-hidden {
@@ -33,84 +37,134 @@
       pointer-events: none;
     }
 
-    .loader {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 0;
+    /* CSS for Typewriter Effect WITHIN the loader */
+    #loaderTypewriterText {
+      font-family: 'Poppins', sans-serif;
+      font-size: 60px;
+      font-weight: bold;
+      /* Good for gradient visibility */
+      white-space: nowrap;
       display: inline-block;
-      margin: -25px 0 0 -25px;
-      text-indent: -9999em;
-      transform: translateZ(0);
+      letter-spacing: 0.05em;
+      text-align: center;
+
+      /* --- BLUE THEMED GRADIENT TEXT --- */
+      /* Gradient from a bright sky blue to your site's white color */
+      background-image: linear-gradient(45deg, #5F9EA0, var(--white-color, #FFFFFF) 70%);
+      /* Cadet Blue to White */
+      /* Alternative: A slightly more vibrant blue to white */
+      /* background-image: linear-gradient(45deg, #4FC3F7, var(--white-color, #FFFFFF) 70%); */
+      /* Alternative: A deeper blue to a lighter blue */
+      /* background-image: linear-gradient(45deg, #1E90FF, #ADD8E6); */
+
+
+      /* Clip the background to the text shape */
+      -webkit-background-clip: text;
+      background-clip: text;
+
+      /* Make the actual text color transparent so the gradient background shows through */
+      -webkit-text-fill-color: transparent;
+      color: transparent;
     }
 
-    .loader div {
-      background-color: var(--background);
+    #loaderTypewriterText .cursor {
       display: inline-block;
-      float: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 50px;
-      height: 50px;
-      opacity: .5;
-      border-radius: 50%;
-      animation: ballPulseDouble 2s ease-in-out infinite;
+      background-color: var(--white-color, #FFFFFF);
+      /* Solid white cursor for contrast */
+      width: 3px;
+      height: 1em;
+      margin-left: 5px;
+      animation: blink-loader-cursor 0.7s step-end infinite;
+      position: relative;
+      bottom: -0.05em;
     }
 
-    .loader div:last-child {
-      animation-delay: -1s;
-    }
+    @keyframes blink-loader-cursor {
 
-    @keyframes ballPulseDouble {
-
-      0%,
-      100% {
-        transform: scale(0);
+      from,
+      to {
+        background-color: transparent;
       }
 
       50% {
-        transform: scale(1);
+        background-color: var(--white-color, #FFFFFF);
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- Loader HTML remains outside app-root -->
+  <!-- Modified Loader: It will now contain the typewriter text -->
   <div class="loader-mask" id="pageLoaderMask">
-    <div class="loader" id="pageLoaderInner">
-      <div></div>
-      <div></div>
-    </div>
+    <div id="loaderTypewriterText"></div>
   </div>
 
-  <app-root>
+  <app-root style="visibility: hidden;">
     <!-- Angular will bootstrap here -->
   </app-root>
 
   <script>
+    // JavaScript from the previous correct version (no changes needed here)
+    function startLoaderTypewriter(elementId, textToType, speed, callbackOnDone) {
+      const targetElement = document.getElementById(elementId);
+      if (!targetElement) {
+        console.error("Loader typewriter target element not found:", elementId);
+        if (callbackOnDone) callbackOnDone();
+        return;
+      }
+
+      let i = 0;
+      let currentText = '';
+
+      targetElement.innerHTML = ''; // Clear previous content
+      const textNode = document.createTextNode('');
+      const cursorSpan = document.createElement('span');
+      cursorSpan.className = 'cursor';
+      targetElement.appendChild(textNode);
+      targetElement.appendChild(cursorSpan);
+
+      function typeCharacter() {
+        if (i < textToType.length) {
+          currentText += textToType.charAt(i);
+          textNode.nodeValue = currentText;
+          i++;
+          setTimeout(typeCharacter, speed);
+        } else {
+          if (callbackOnDone) {
+            callbackOnDone();
+          }
+        }
+      }
+      typeCharacter();
+    }
+
     (function () {
       const loaderMaskElement = document.getElementById('pageLoaderMask');
-      // const loaderInnerElement = document.getElementById('pageLoaderInner'); // Not strictly needed for hiding
-      const displayDuration = 1000; // 1000 milliseconds = 1 second
+      const appRootElement = document.querySelector('app-root');
+
+      const textToAnimate = "Transfernow";
+      const typingSpeedMs = 150;
+      const postTypingDisplayDuration = 500;
 
       if (loaderMaskElement) {
-        setTimeout(function () {
-          // Add a class to the mask to trigger CSS fade-out
-          loaderMaskElement.classList.add('is-hidden');
-
-          // Optional: After the fade-out transition, remove the element from DOM
-          // The transition duration for loader-mask is 0.4s (400ms)
+        startLoaderTypewriter('loaderTypewriterText', textToAnimate, typingSpeedMs, function () {
           setTimeout(function () {
-            if (loaderMaskElement.parentNode) {
-              loaderMaskElement.parentNode.removeChild(loaderMaskElement);
-            }
-          }, 400); // Match CSS transition duration
-
-        }, displayDuration);
+            loaderMaskElement.classList.add('is-hidden');
+            setTimeout(function () {
+              if (loaderMaskElement.parentNode) {
+                loaderMaskElement.parentNode.removeChild(loaderMaskElement);
+              }
+              if (appRootElement) {
+                appRootElement.style.visibility = 'visible';
+              }
+            }, 400);
+          }, postTypingDisplayDuration);
+        });
+      } else {
+        if (appRootElement) {
+          appRootElement.style.visibility = 'visible';
+        }
+        console.warn("Loader mask not found.");
       }
     })();
   </script>

@@ -1,4 +1,57 @@
 /* Add these styles to home.component.css */
+.fullscreen-drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(64, 82, 181, .6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    color: white;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.drag-overlay-content {
+    padding: 30px 40px;
+    border: 5px dashed rgba(255, 255, 255, 0.75);
+    border-radius: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.drag-overlay-icon {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 25px;
+}
+
+.drag-overlay-content h2 {
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.drag-overlay-content p {
+    font-size: 1.15rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+    /* max-width: 450px; */
+    text-align: center;
+}
 
 .hero-section {
     /* --- Background Image --- */
@@ -15,6 +68,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    min-height: 100vh;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: 50%;
@@ -280,12 +334,6 @@
 
 }
 
-
-/* transfer section css */
-.transfer-file-section {
-    padding: 70px 30px 30px;
-}
-
 .transfer-content h2 {
     text-align: center;
     font-size: 26px;
@@ -413,6 +461,7 @@
     justify-content: center;
     display: flex;
     flex-direction: column;
+    text-align: center;
 }
 
 /* section-3 css end */
@@ -717,7 +766,8 @@
         width: 100%;
         height: auto;
     }
-    .upload-progress-overlay{
+
+    .upload-progress-overlay {
         right: 0;
         width: 100%;
         padding: 10px;

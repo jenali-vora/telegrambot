@@ -296,7 +296,7 @@
     display: none;
     background-color: transparent;
     border: none;
-    color: var(--white-color, var(--background));
+    color: var(--white-color);
     font-size: 1.4rem;
     cursor: pointer;
     padding: 5px;
