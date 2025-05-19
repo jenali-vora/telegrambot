@@ -114,7 +114,7 @@
     /* Adjusted gap */
 }
 
-/* .logo-link h2.logo-text-typewriter {
+.logo-link h2.logo-text-typewriter {
     color: var(--white-color);
     margin-bottom: 0;
     display: inline-block;
@@ -205,7 +205,7 @@
     50% {
         opacity: 0;
     }
-} */
+}
 
 .user-profile-trigger {
     cursor: pointer;
