@@ -622,9 +622,9 @@
     padding: 0.75rem 1.8rem;
     font-size: 1rem;
     font-weight: 500;
-    background-color: var(--background);
+    background-color: var(--button-color);
     /* Primary button color */
-    color: white;
+    color: var(--white-color);
     border: none;
     border-radius: 5px;
     text-decoration: none;
@@ -632,7 +632,7 @@
 }
 
 .btn.view-my-files-btn:hover {
-    background-color: var(--background-hover);
+    background-color: var(--button-hover);
     /* Darker shade */
 }
 
