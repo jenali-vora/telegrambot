@@ -2,7 +2,7 @@
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 
 body {
-    font-family: 'Poppins';
+    font-family:  Poppins, arial, sans-serif;;
 }
 
 a {
@@ -14,12 +14,11 @@ a:active {
 }
 
 :root {
-    /* --background: #3f51b5; */
-    /* --background-hover: #6472c3; */
     --background: #000080;
     /* --background: #272757; */
     --background-hover: #2a52be;
-    --button-color:#00934b;
+    --button-color: #3e57da;
+    --button-hover:#1f235b;
     --border: #9d9d9d;
     --black-color: #000;
     --white-color: #fff;

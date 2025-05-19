@@ -8,12 +8,12 @@
 
 .faq-accordion-container {
     /* Optional container styling */
-    
+
     padding: 50px 30px;
 }
 
 .faq-title {
-    font-size: 1.75rem;
+    font-size: 50px;
     /* Adjust size */
     font-weight: 700;
     color: #2d3748;
@@ -130,11 +130,21 @@
     /* Remove outline for mouse users */
 }
 
+@media (max-width: 768px) {
+    .faq-title {
+        font-size: 40px;
+    }
+}
+
 @media (max-width: 480px) {
     .faq-answer {
         padding: 30px;
     }
-    .faq-question{
+
+    .faq-question {
         font-size: 17px;
+    }
+    .faq-title{
+        font-size: 35px;
     }
 }
