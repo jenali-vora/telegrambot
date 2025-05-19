@@ -367,7 +367,7 @@
     padding: 9px 10px;
     background-color: transparent;
     border: none;
-    color: var(--background);
+    color: var(--button-color);
     text-align: left;
     font-size: 0.85rem;
     border-radius: 5px;
@@ -375,7 +375,7 @@
     transition: background-color 0.15s ease;
     box-sizing: border-box;
     text-align: center;
-    border: 1px solid var(--background);
+    border: 1px solid var(--button-color);
 }
 
 .text-center {
