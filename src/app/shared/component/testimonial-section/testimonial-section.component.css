@@ -82,7 +82,6 @@
     color: var(--background);
     /* Ensure --background CSS variable is defined globally or in a parent */
     line-height: 0.5;
-    font-family: 'Georgia', serif;
 }
 
 /* --- NgbCarousel Customization (Optional) --- */
@@ -95,7 +94,7 @@
 :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
 :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
     /* background-color: rgba(0, 0, 0, 0.3); */
-    background-color: var(--background);
+    background-color: var(--button-color);
     border-radius: 50%;
     width: 2.5rem;
     height: 2.5rem;

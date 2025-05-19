@@ -37,7 +37,7 @@
   z-index: 999;
   border: none;
   outline: none;
-  background-color: var(--background);
+  background-color: var(--button-color);
   color: var(--white-color);
   cursor: pointer;
   padding: 10px;
@@ -51,7 +51,7 @@
   transition: background-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
 
   &:hover {
-    background-color: var(--background-hover);
+    background-color: var(--button-hover);
     transform: translateY(-2px);
   }
 

@@ -23,14 +23,14 @@
 .btn-outline-secondary {
     /* Basic button style */
     padding: 0.4rem 0.8rem;
-    border: 1px solid var(--background);
-    color: var(--background);
+    border: 1px solid var(--button-color);
+    color: var(--button-color);
     border-radius: 5px;
     text-decoration: none;
 }
 
 .btn-outline-secondary:hover {
-    background-color: var(--background-hover);
+    background-color: var(--button-hover);
     color: var(--white-color);
 }
 
@@ -180,7 +180,7 @@
 }
 
 .user-file-list-panel .btn-download-item:hover {
-    color: var(--background);
+    color: var(--button-color);
 }
 
 .user-file-list-panel .btn-remove-item:hover {

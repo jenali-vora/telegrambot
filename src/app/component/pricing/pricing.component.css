@@ -13,7 +13,7 @@
 }
 
 .pricing-header h2 {
-    font-size: 2.5rem;
+    font-size: 50px;
     font-weight: 700;
     margin-bottom: 15px;
     color: #212529;
@@ -48,13 +48,13 @@
     border: none;
     background-color: var(--white-color);
     /* Default white */
-    color: var(--background);
+    color: var(--button-color);
     /* Default blue text */
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
     transition: background-color 0.2s ease, color 0.2s ease;
-    border-left: 1px solid #a1a9cb;
+    border-left: 1px solid var(--button-color);
     /* Separator */
 }
 
@@ -65,7 +65,7 @@
 
 .toggle-btn.active,
 .toggle-btn:hover {
-    background-color: var(--background);
+    background-color: var(--button-color);
     /* Active/hover blue */
     color: var(--white-color);
     /* White text */
@@ -272,13 +272,14 @@
 }
 
 .btn-outline-primary {
-    color: var(--background);
-    border: 1px solid var(--background);
+    color: var(--button-color);
+    border: 1px solid var(--button-color);
     background-color: transparent;
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--background);
+    background-color: var(--button-hover);
+    border: 1px solid var(--button-hover);
     color: var(--white-color);
 }
 
@@ -328,7 +329,8 @@
     border: 1px solid rgba(63, 81, 181, 0.1);
     /* Light border */
     border-radius: 8px;
-    border-left: 5px solid rgba(63, 81, 181, 0.1);;
+    border-left: 5px solid rgba(63, 81, 181, 0.1);
+    ;
     /* Blue accent on the left */
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
@@ -406,7 +408,7 @@
 }
 
 .section-title {
-    font-size: 2.2rem;
+    font-size: 50px;
     font-weight: 700;
     text-align: center;
     margin-bottom: 40px;
@@ -524,7 +526,7 @@
 }
 
 /* --- Other Sections --- */
-.section-5{
+.section-5 {
     padding: 40px 20px;
 }
 
@@ -554,7 +556,7 @@
     }
 
     .section-title {
-        font-size: 2rem;
+        font-size: 40px;
         /* Slightly smaller title */
     }
 
@@ -577,10 +579,12 @@
         animation-duration: 28s;
         /* Adjust speed */
     }
-    .section-5{
+
+    .section-5 {
         padding: 0px;
     }
-    .pricing-section{
+
+    .pricing-section {
         padding: 30px 20px;
     }
 
@@ -600,10 +604,6 @@
         /* Max width for single card */
     }
 
-    .pricing-header h2 {
-        font-size: 1.8rem;
-    }
-
     .pricing-header p {
         font-size: 0.95rem;
     }
@@ -611,10 +611,6 @@
     .info-cards-grid {
         grid-template-columns: 1fr;
         /* Stack info cards */
-    }
-
-    .section-title {
-        font-size: 1.8rem;
     }
 
     .logo-card {
@@ -644,7 +640,7 @@
 
 @media (max-width: 480px) {
     .pricing-header h2 {
-        font-size: 1.6rem;
+        font-size: 35px;
     }
 
     .pricing-header p {
@@ -669,7 +665,7 @@
     }
 
     .section-title {
-        font-size: 1.6rem;
+        font-size: 35px;
     }
 
     .logo-card {
