@@ -316,6 +316,7 @@
 
 .copy-button:hover {
     background-color: var(--button-hover);
+    border: 1px solid var(--button-hover);
     color: var(--white-color);
 }
 
