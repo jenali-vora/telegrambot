@@ -9,17 +9,11 @@
 
 .cta-container {
     background-color: #2a3b8f;
-    /* Dark blue background - Adjust if needed */
     color: var(--white-color);
-    /* White text */
     padding: 50px 40px;
-    /* Vertical and horizontal padding */
     border-radius: 20px;
-    /* Rounded corners */
     text-align: center;
-    /* Limit maximum width */
-    margin: 0 30px 60px;
-    /* Center the container itself if :host is full width */
+    /* margin: 0 30px 60px; */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     /* Optional subtle shadow */
 }
@@ -38,11 +32,11 @@
 } */
 
 .cta-title {
-    font-size: 1.75rem;
+    font-size: 50px;
     /* Adjust size as needed (e.g., 28px) */
     font-weight: 700;
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 25px;
     /* Space below title */
 }
 
@@ -93,13 +87,13 @@
 
 /* Primary button ("Register") */
 .cta-buttons .btn-primary {
-    background-color: #5469d4;
+    background-color: var(--button-color);
     /* Slightly lighter blue/purple - Adjust as needed */
     color: #ffffff;
 }
 
 .cta-buttons .btn-primary:hover {
-    background-color: #4a5cc8;
+    background-color: var(--button-hover);
     /* Darker shade on hover */
 }
 
@@ -107,14 +101,14 @@
 .cta-buttons .btn-secondary {
     background-color: transparent;
     color: var(--white-color);
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--white-color);
     /* White border with some transparency */
 }
 
 .cta-buttons .btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--button-hover);
     /* Subtle background on hover */
-    border-color: var(--white-color);
+    border-color: var(--button-hover);
     /* Make border solid white on hover */
 }
 
@@ -125,7 +119,7 @@
     }
 
     .cta-title {
-        font-size: 1.5rem;
+        font-size: 40px;
     }
 
     .cta-description {
@@ -151,5 +145,9 @@
     .cta-buttons .btn {
         width: 100%;
 
+    }
+    
+    .cta-title {
+        font-size: 35px;
     }
 }

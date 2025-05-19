@@ -23,7 +23,6 @@
       right: 0;
       bottom: 0;
       background: var(--background-hover, #2a52be);
-      /* Site's blue background */
       z-index: 99999;
       opacity: 1;
       transition: opacity 0.4s ease-out;
@@ -42,35 +41,21 @@
       font-family: 'Poppins', sans-serif;
       font-size: 60px;
       font-weight: bold;
-      /* Good for gradient visibility */
       white-space: nowrap;
       display: inline-block;
       letter-spacing: 0.05em;
       text-align: center;
-
-      /* --- BLUE THEMED GRADIENT TEXT --- */
-      /* Gradient from a bright sky blue to your site's white color */
-      background-image: linear-gradient(45deg, #5F9EA0, var(--white-color, #FFFFFF) 70%);
-      /* Cadet Blue to White */
-      /* Alternative: A slightly more vibrant blue to white */
-      /* background-image: linear-gradient(45deg, #4FC3F7, var(--white-color, #FFFFFF) 70%); */
-      /* Alternative: A deeper blue to a lighter blue */
-      /* background-image: linear-gradient(45deg, #1E90FF, #ADD8E6); */
-
-
-      /* Clip the background to the text shape */
-      -webkit-background-clip: text;
-      background-clip: text;
-
-      /* Make the actual text color transparent so the gradient background shows through */
-      -webkit-text-fill-color: transparent;
-      color: transparent;
+      /* background-image: linear-gradient(45deg, #5F9EA0, var(--white-color, #FFFFFF) 70%); */
+      color: var(--white-color);
+      /* -webkit-background-clip: text; */
+      /* background-clip: text; */
+      /* -webkit-text-fill-color: transparent; */
+      /* color: transparent; */
     }
 
     #loaderTypewriterText .cursor {
       display: inline-block;
       background-color: var(--white-color, #FFFFFF);
-      /* Solid white cursor for contrast */
       width: 3px;
       height: 1em;
       margin-left: 5px;
@@ -89,6 +74,12 @@
       50% {
         background-color: var(--white-color, #FFFFFF);
       }
+    }
+
+    @media (max-width: 480px) {
+       #loaderTypewriterText {
+        font-size: 40px;
+       }
     }
   </style>
 </head>
