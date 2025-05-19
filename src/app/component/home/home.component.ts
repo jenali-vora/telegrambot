@@ -35,7 +35,7 @@ interface CompletedUploadLink {
   standalone: true,
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
-    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent,TestimonialSectionComponent
+    CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -101,6 +101,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     { img: "assets/android-ByKVTp40.svg", title: "Android" },
   ];
 
+  @HostListener('window:beforeunload', ['$event'])
+  handleBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.isUploading) {
+      const confirmationMessage = 'An upload is currently in progress. If you leave or refresh this page, the upload will be cancelled. Are you sure you want to proceed?';
+      event.returnValue = confirmationMessage; // Standard for most browsers
+      // For some older browsers, you might also need:
+      // return confirmationMessage;
+    }
+  }
   ngOnInit(): void {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.zone.run(() => {
@@ -544,6 +553,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           if (uploadId !== this.currentUploadId || !this.isUploading) {
             console.log(`SSE 'complete' event for ${uploadId} ignored.`);
             this.closeEventSource();
+            this.isUploading = false;
             return;
           }
           const data = JSON.parse(event.data);
