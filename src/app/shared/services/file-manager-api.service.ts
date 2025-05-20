@@ -1,10 +1,10 @@
 // src/app/shared/services/file-manager-api.service.ts
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http'; // Added HttpHeaders
-import { Observable, throwError, EMPTY } from 'rxjs'; // Added EMPTY
-import { catchError, tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError, EMPTY } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators'; // Added map
 import { environment } from 'src/environments/environment';
-import { AuthService } from './auth.service'; // Assuming AuthService is correctly located
+import { AuthService } from './auth.service';
 
 // --- Interfaces ---
 export interface FileInBatch {
@@ -20,7 +20,7 @@ export interface TelegramFileMetadata {
   original_filename?: string;
   original_size?: number;
   upload_timestamp?: string | Date;
-  access_id?: string; // This is the key identifier
+  access_id?: string;
   name?: string;
   type?: 'file' | 'batch';
   icon?: string;
@@ -39,6 +39,11 @@ export interface TelegramFileMetadata {
   username?: string;
   is_anonymous?: boolean;
   compressed_size?: number;
+  // Fields for archived items (will only be present when listing archived files)
+  archived_timestamp?: string | Date;
+  archived_by_username?: string;
+  [key: string]: any; // To allow other dynamic properties
+
 }
 
 export interface InitiateUploadResponse {
@@ -49,11 +54,20 @@ export interface InitiateUploadResponse {
   access_id?: string;
 }
 
+// You can use this, or if you have a similar one like `BasicApiResponse` that fits, use that.
+// The restore endpoint returns a similar structure.
+export interface ApiResponse { // Renamed from BasicApiResponse to match my example, or keep yours
+  success?: boolean;
+  message?: string;
+  error?: string;
+}
+// Keep your existing BasicApiResponse if it's used elsewhere and distinct
 export interface BasicApiResponse {
   success?: boolean;
   message?: string;
   error?: string;
 }
+
 
 export interface SelectedItem {
   id: number;
@@ -64,7 +78,6 @@ export interface SelectedItem {
   icon: string;
 }
 
-// Added interfaces from previous context for downloadFileBlob
 export interface DownloadAllInitiationResponse {
   message?: string;
   prep_id_for_zip?: string;
@@ -75,7 +88,6 @@ export interface DownloadAllInitiationResponse {
 export interface SseReadyPayload {
   temp_file_id: string;
   final_filename: string;
-  // ... any other fields
 }
 // --- End of Interfaces ---
 
@@ -83,13 +95,12 @@ export interface SseReadyPayload {
 export class FileManagerApiService {
   private apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
-  private authService = inject(AuthService); // Injected AuthService
+  private authService = inject(AuthService);
 
   public getApiBaseUrl(): string {
     return this.apiUrl;
   }
 
-  // Added getAuthHeaders from previous context
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : new HttpHeaders();
@@ -97,7 +108,7 @@ export class FileManagerApiService {
 
   listFiles(username: string): Observable<TelegramFileMetadata[]> {
     if (!username) { return throwError(() => new Error('Username required.')); }
-    return this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/files/${encodeURIComponent(username)}`, { headers: this.getAuthHeaders() }) // Added headers
+    return this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/files/${encodeURIComponent(username)}`, { headers: this.getAuthHeaders() })
       .pipe(
         tap(files => console.log(`Fetched ${files?.length ?? 0} files for ${username}`)),
         catchError(this.handleError)
@@ -105,39 +116,74 @@ export class FileManagerApiService {
   }
 
   initiateUpload(formData: FormData): Observable<InitiateUploadResponse> {
-    return this.http.post<InitiateUploadResponse>(`${this.apiUrl}/initiate-upload`, formData, { headers: this.getAuthHeaders() }) // Added headers
+    return this.http.post<InitiateUploadResponse>(`${this.apiUrl}/initiate-upload`, formData, { headers: this.getAuthHeaders() })
       .pipe(
         tap(res => console.log('Initiate Upload Resp:', res)),
         catchError(this.handleError)
       );
   }
 
-  deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
+  // This method now calls the backend endpoint that "archives" the file.
+  // The URL /delete-file/... is correct as per our backend changes.
+  deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> { // Or ApiResponse if you unified them
     if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
     const encodedIdentifier = encodeURIComponent(identifier);
-    return this.http.delete<BasicApiResponse>(`${this.apiUrl}/delete-file/${encodeURIComponent(username)}/${encodedIdentifier}`, { headers: this.getAuthHeaders() }) // Added headers
+    return this.http.delete<BasicApiResponse>(`${this.apiUrl}/delete-file/${encodeURIComponent(username)}/${encodedIdentifier}`, { headers: this.getAuthHeaders() })
       .pipe(
-        tap(res => console.log(`Delete response for ${identifier}:`, res)),
+        tap(res => console.log(`Archive (delete) response for ${identifier}:`, res)), // Updated log
         catchError(this.handleError)
       );
   }
 
-  // *** UPDATED downloadFileBlob method from Step 2 ***
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++ ADD THE NEW METHODS HERE ++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
+    if (!username) { return throwError(() => new Error('Username required for listing archived files.')); }
+    return this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/archive/list-files/${encodeURIComponent(username)}`, { headers: this.getAuthHeaders() })
+      .pipe(
+        tap(files => console.log(`Fetched ${files?.length ?? 0} archived files for ${username}`)),
+        catchError(this.handleError)
+      );
+  }
+
+  restoreFile(accessId: string): Observable<ApiResponse> { // Using ApiResponse, adjust if you kept BasicApiResponse
+    if (!accessId) { return throwError(() => new Error('Access ID required for restoring file.')); }
+    // POST request with an empty body {} as the access_id is in the URL
+    return this.http.post<ApiResponse>(`${this.apiUrl}/archive/restore-file/${encodeURIComponent(accessId)}`, {}, { headers: this.getAuthHeaders() })
+      .pipe(
+        tap(res => console.log(`Restore response for ${accessId}:`, res)),
+        catchError(this.handleError)
+      );
+  }
+
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++ END OF NEW METHODS ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
   public downloadFileBlob(accessId: string, isBatch: boolean): Observable<Blob> {
+    // ... (Your existing downloadFileBlob logic remains unchanged here) ...
+    // This logic is complex and seems to handle SSE for downloads.
+    // We assume that when a file is restored, it appears in the `user_files`
+    // collection and can be downloaded via the existing mechanism that
+    // /stream-download/:accessId or /initiate-download-all/:accessId points to.
+    // No direct changes are needed to this method for the archive/restore feature itself,
+    // unless you wanted to allow downloads *directly* from an "archived" state
+    // without restoring first, which would require different backend endpoints.
     if (!accessId) {
       return throwError(() => new Error('Access ID required for download.'));
     }
 
     return new Observable(observer => {
       let initialApiUrl: string;
-      let isTwoStepSse = false; // Flag to determine if we need to hit an initiation URL first
+      let isTwoStepSse = false;
 
       if (isBatch) {
-        // For batch downloads, first hit the initiation endpoint
         initialApiUrl = `${this.apiUrl}/initiate-download-all/${accessId}`;
         isTwoStepSse = true;
       } else {
-        // For single file downloads, the SSE stream URL is directly constructed
         initialApiUrl = `${this.apiUrl}/stream-download/${accessId}`;
       }
       console.log(`[ApiService.downloadFileBlob] Initial API/SSE URL for ${accessId} (isBatch: ${isBatch}): ${initialApiUrl}`);
@@ -150,8 +196,7 @@ export class FileManagerApiService {
           eventSource.close();
         }
         console.log(`[ApiService.downloadFileBlob] Connecting to primary SSE: ${primarySseUrl}`);
-        // Ensure withCredentials is true if your SSE endpoint requires cookies/auth headers via session
-        eventSource = new EventSource(primarySseUrl, { withCredentials: true }); // Adjust withCredentials as needed
+        eventSource = new EventSource(primarySseUrl, { withCredentials: true });
 
         eventSource.onopen = () => {
           console.log(`[ApiService.downloadFileBlob] SSE connection opened to: ${primarySseUrl}`);
@@ -186,11 +231,10 @@ export class FileManagerApiService {
             this.http.get(finalDownloadUrl, { responseType: 'blob', headers: this.getAuthHeaders() })
               .pipe(catchError(blobFetchError => {
                 console.error('[ApiService.downloadFileBlob] Error fetching blob:', blobFetchError);
-                // Use handleError's logic to create a user-friendly error
                 this.handleError(blobFetchError as HttpErrorResponse).subscribe({
                   error: (processedError: Error) => observer.error(processedError)
                 });
-                return EMPTY; // Important to return EMPTY to satisfy catchError's signature
+                return EMPTY;
               }))
               .subscribe(blob => {
                 observer.next(blob);
@@ -202,7 +246,7 @@ export class FileManagerApiService {
           }
         });
 
-        eventSource.addEventListener('error', (event: MessageEvent) => { // Backend explicitly sent an 'error' event
+        eventSource.addEventListener('error', (event: MessageEvent) => {
           console.error('[ApiService.downloadFileBlob] SSE "error" event from backend:', event.data);
           if (eventSource) {
             eventSource.close();
@@ -220,9 +264,9 @@ export class FileManagerApiService {
           observer.error(new Error(msg));
         });
 
-        eventSource.onerror = (err: Event) => { // General EventSource connection error
+        eventSource.onerror = (err: Event) => {
           console.error('[ApiService.downloadFileBlob] EventSource general connection error:', err, 'URL:', primarySseUrl);
-          if (eventSource) { // Only act if this is still the active EventSource
+          if (eventSource) {
             eventSource.close();
             eventSource = null;
             observer.error(new Error('Connection error during file preparation. Check network or server status.'));
@@ -231,11 +275,9 @@ export class FileManagerApiService {
       };
 
       if (isTwoStepSse) {
-        // For batch, first call the initiation endpoint
         this.http.get<DownloadAllInitiationResponse>(initialApiUrl, { headers: this.getAuthHeaders() })
           .pipe(catchError(initError => {
             console.error('[ApiService.downloadFileBlob] Error initiating batch download all:', initError);
-            // Use handleError for consistent error message formatting
             this.handleError(initError as HttpErrorResponse).subscribe({
               error: (processedError: Error) => observer.error(processedError)
             });
@@ -243,7 +285,6 @@ export class FileManagerApiService {
           }))
           .subscribe(response => {
             if (response && response.sse_stream_url) {
-              // The SSE URL from the backend might be relative, so prepend API base URL if needed
               const sseStreamUrl = response.sse_stream_url.startsWith('http') ? response.sse_stream_url : `${this.apiUrl}${response.sse_stream_url}`;
               setupPrimarySseConnection(sseStreamUrl);
             } else {
@@ -253,11 +294,10 @@ export class FileManagerApiService {
             }
           });
       } else {
-        // For single file, initialApiUrl is already the SSE stream URL
         setupPrimarySseConnection(initialApiUrl);
       }
 
-      return () => { // Cleanup function for when the Observable is unsubscribed
+      return () => {
         if (eventSource) {
           console.log('[ApiService.downloadFileBlob] Cleaning up EventSource on unsubscribe.');
           eventSource.close();
@@ -268,24 +308,23 @@ export class FileManagerApiService {
   }
 
   getDownloadUrl(username: string, filename: string): string {
+    // ... (Your existing getDownloadUrl logic remains unchanged) ...
     if (!username || !filename) {
       console.error("Username and filename required to build download URL");
       return '#';
     }
     const encodedFilename = encodeURIComponent(filename);
-    // This method seems to construct a direct download URL, which is different from the SSE flow.
-    // Ensure your backend route /download/<username>/<filename> handles direct downloads if this is intended.
-    // The current SSE flow uses /stream-download/... or /initiate-download-all/...
-    // This might be a legacy method or for a different download mechanism.
     return `${this.apiUrl}/download/${encodeURIComponent(username)}/${encodedFilename}`;
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
+    // ... (Your existing handleError logic remains largely unchanged) ...
+    // You might want to ensure it handles the structure of errors from the new endpoints if they differ.
+    // The current one looks quite robust.
     let userMessage = 'An unexpected error occurred. Check backend connection/logs.';
     console.error(`API Error: Status ${error.status}, Body: `, error.error, `URL: ${error.url}`);
 
     if (error.error) {
-      // Attempt to parse blob error if it's JSON
       if (error.error instanceof Blob && error.error.type && error.error.type.toLowerCase().includes('json')) {
         return new Observable(observer => {
           const reader = new FileReader();
@@ -298,21 +337,19 @@ export class FileManagerApiService {
               userMessage = `Failed to parse error response from server (${error.status}).`;
               console.error(`Error parsing blob error: ${parseError}`);
             }
-            observer.error(new Error(userMessage)); // Pass the Error object
-            // observer.complete(); // Not needed after error
+            observer.error(new Error(userMessage));
           };
           reader.onerror = () => {
             console.error('FileReader failed to read error blob.');
             observer.error(new Error(`Failed to read error response from server (${error.status}).`));
-            // observer.complete(); // Not needed after error
           };
           reader.readAsText(error.error);
         });
-      } else if (typeof error.error.error === 'string') { // Flask often returns { "error": "message" }
+      } else if (typeof error.error.error === 'string') {
         userMessage = error.error.error;
-      } else if (typeof error.error.message === 'string') { // Or { "message": "message" }
+      } else if (typeof error.error.message === 'string') {
         userMessage = error.error.message;
-      } else if (typeof error.error === 'string') { // Fallback for plain string error
+      } else if (typeof error.error === 'string') {
         userMessage = error.error;
       }
     } else if (error.status === 0) {
@@ -327,11 +364,11 @@ export class FileManagerApiService {
       userMessage = `Requested resource not found on the server (${error.status}).`;
     } else if (error.status === 500) {
       userMessage = `Internal server error (${error.status}). Please try again later or contact support.`;
-    } else if (error.message) { // Fallback to generic HttpErrorResponse message
+    } else if (error.message) {
       userMessage = `Error (${error.status}): ${error.message}`;
     }
 
     console.error(`Final user message for error: ${userMessage}`);
-    return throwError(() => new Error(userMessage)); // Always throw an Error object
+    return throwError(() => new Error(userMessage));
   }
 }

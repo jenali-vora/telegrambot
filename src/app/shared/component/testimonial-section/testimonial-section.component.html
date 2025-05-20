@@ -1,24 +1,22 @@
 <section class="testimonial-section-wrapper">
-    <ngb-carousel *ngIf="testimonials && testimonials.length" [showNavigationArrows]="showNavigationArrows"
-        [showNavigationIndicators]="showNavigationIndicators" [interval]="interval" [wrap]="wrap"
-        [pauseOnHover]="pauseOnHover" [keyboard]="keyboard" [animation]="animation"
+    <ngb-carousel *ngIf="chunkedTestimonials && chunkedTestimonials.length"
+        [showNavigationArrows]="showNavigationArrows" [showNavigationIndicators]="showNavigationIndicators"
+        [interval]="interval" [wrap]="wrap" [pauseOnHover]="pauseOnHover" [keyboard]="keyboard" [animation]="animation"
         class="testimonials-carousel-container">
-        <ng-template ngbSlide *ngFor="let testimonial of testimonials">
-            <div class="testimonial-slide-content"> <!-- Wrapper for centering content within the slide -->
-                <div class="testimonial-item">
-                    <img [src]="testimonial.imageUrl" [alt]="testimonial.name + ' profile picture'" class="profile-pic">
-                    <h3 class="name">{{ testimonial.name }}</h3>
-                    <p class="quote-text">{{ testimonial.quote }}</p>
-                    <div class="quotation-marks">”</div>
+        <ng-template ngbSlide *ngFor="let slideItems of chunkedTestimonials; let slideIndex = index"
+            [id]="'testimonial-slide-' + slideIndex">
+            <div class="testimonial-slide-content">
+                <!-- Container for multiple items within a single slide -->
+                <div class="slide-items-container">
+                    <div class="testimonial-item" *ngFor="let testimonial of slideItems">
+                        <img [src]="testimonial.imageUrl" [alt]="testimonial.name + ' profile picture'"
+                            class="profile-pic">
+                        <h3 class="name">{{ testimonial.name }}</h3>
+                        <p class="quote-text">{{ testimonial.quote }}</p>
+                        <div class="quotation-marks">”</div>
+                    </div>
                 </div>
             </div>
-            <!-- You could add a Bootstrap carousel-caption here if desired, but your current structure is fine -->
-            <!--
-      <div class="carousel-caption">
-        <h3>{{testimonial.name}}</h3>
-        <p>{{testimonial.quote}}</p>
-      </div>
-      -->
         </ng-template>
     </ngb-carousel>
 </section>

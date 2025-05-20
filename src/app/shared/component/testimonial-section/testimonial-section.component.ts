@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap'; // Import NgbCarouselModule
+import { Component, OnInit, OnDestroy } from '@angular/core'; // Import OnDestroy
+import { NgbCarouselModule } from '@ng-bootstrap/ng-bootstrap';
+import { BreakpointObserver } from '@angular/cdk/layout'; // Import BreakpointObserver
+import { Subject } from 'rxjs';
+import { takeUntil, distinctUntilChanged } from 'rxjs/operators';
 
 interface Testimonial {
   imageUrl: string;
@@ -13,12 +16,12 @@ interface Testimonial {
   standalone: true,
   imports: [
     CommonModule,
-    NgbCarouselModule // Add NgbCarouselModule here
+    NgbCarouselModule
   ],
   templateUrl: './testimonial-section.component.html',
   styleUrls: ['./testimonial-section.component.css']
 })
-export class TestimonialSectionComponent {
+export class TestimonialSectionComponent implements OnInit, OnDestroy {
   testimonials: Testimonial[] = [
     {
       imageUrl: 'assets/image/woman1.png',
@@ -34,20 +37,70 @@ export class TestimonialSectionComponent {
       imageUrl: 'assets/image/man1.png',
       name: 'Boris V.',
       quote: 'Thanks for providing this service, I don\'t need to send my files one by one to each of my friends anymore.'
+    },
+    {
+      imageUrl: 'assets/image/woman1.png', // Example
+      name: 'Sarah M.',
+      quote: 'A game changer for our team! Collaboration has never been smoother.'
+    },
+    {
+      imageUrl: 'assets/image/man1.png', // Example
+      name: 'John B.',
+      quote: 'Reliable, fast, and exactly what I needed. Highly recommend this service.'
+    },
+    {
+      imageUrl: 'assets/image/woman2.png', // Example
+      name: 'Linda K.',
+      quote: 'The customer support is fantastic and the platform is incredibly easy to use.'
     }
   ];
 
-  // NgbCarousel settings (can be set in the template directly too)
+  chunkedTestimonials: Testimonial[][] = [];
+  itemsPerSlide = 3; // Default for desktop
+
+  // NgbCarousel settings
   showNavigationArrows = true;
   showNavigationIndicators = true;
-  interval = 3000; // Autoplay interval in milliseconds
-  wrap = true;     // Whether the carousel should cycle continuously
+  interval = 4000;
+  wrap = true;
   pauseOnHover = true;
-  keyboard = true; // Navigate with keyboard
-  animation = true; // Use CSS slide transition (available in newer ng-bootstrap versions)
+  keyboard = true;
+  animation = true;
 
+  private destroy$ = new Subject<void>();
 
-  constructor() { }
+  constructor(private breakpointObserver: BreakpointObserver) { }
+
+  ngOnInit(): void {
+    this.breakpointObserver
+      .observe(['(max-width: 992px)']) // This matches your CSS media query for tablet/mobile
+      .pipe(
+        takeUntil(this.destroy$),
+        distinctUntilChanged((prev, curr) => prev.matches === curr.matches) // Only emit if 'matches' changes
+      )
+      .subscribe(result => {
+        if (result.matches) { // Screen is 992px wide or less
+          this.itemsPerSlide = 1;
+        } else { // Screen is wider than 992px
+          this.itemsPerSlide = 3;
+        }
+        this.chunkTestimonials();
+      });
+  }
+
+  chunkTestimonials(): void {
+    this.chunkedTestimonials = [];
+    if (this.testimonials && this.testimonials.length > 0) {
+      for (let i = 0; i < this.testimonials.length; i += this.itemsPerSlide) {
+        this.chunkedTestimonials.push(this.testimonials.slice(i, i + this.itemsPerSlide));
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onFabClick() {
     console.log('FAB clicked!');

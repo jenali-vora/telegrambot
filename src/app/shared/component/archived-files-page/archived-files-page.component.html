@@ -1,0 +1,74 @@
+<!-- src/app/archived-files-page/archived-files-page.component.html -->
+<div class="user-files-page-container"> <!-- Reusing class name for styles -->
+    <div class="page-header">
+        <h1>My Archived Files</h1>
+        <a routerLink="/my-files" class="btn btn-outline-secondary btn-sm">
+            <!-- Adjust routerLink to your main files page -->
+            <i class="fas fa-arrow-left"></i> Back to My Uploaded Files
+        </a>
+    </div>
+
+    <div class="user-file-list-panel card-style"> <!-- Reusing class name -->
+        <div class="file-summary">
+            <span class="count">
+                {{ archivedFiles.length }} item{{ archivedFiles.length !== 1 ? 's' : '' }} archived
+            </span>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-indicator">
+            <i class="fas fa-spinner fa-spin"></i> Loading archived files...
+        </div>
+        <div *ngIf="error" class="error-message">
+            {{ error }}
+        </div>
+
+        <div *ngIf="!isLoading && !error" class="file-list-scroll user-history-list-scroll"> <!-- Reusing class name -->
+            @if (archivedFiles.length > 0) {
+            <ul class="file-list"> <!-- Reusing class name -->
+                @for(file of archivedFiles; track file.access_id || (getDisplayFilename(file) +
+                file.archived_timestamp))
+                {
+                <li class="file-list-item"> <!-- Reusing class name -->
+                    <div class="item-icon"><i [ngClass]="getFileIcon(file)"></i></div>
+                    <div class="item-details">
+                        <span class="item-name" [title]="getDisplayFilename(file)">{{ getDisplayFilename(file) }}</span>
+                        <!-- Display archived_timestamp -->
+                        <span class="item-upload-date-history">Archived: {{ formatArchivedDate(file.archived_timestamp)
+                            }}</span>
+                    </div>
+                    <div class="item-size">{{ getItemSize(file) | byteFormat }}</div>
+                    <div class="item-actions">
+                        <!-- Restore Button -->
+                        <button class="btn icon-btn btn-success" title="Restore Item" (click)="requestFileRestore(file)"
+                            [disabled]="!file.access_id || restoringStates[file.access_id!]">
+                            @if (restoringStates[file.access_id!]) {
+                            <i class="fas fa-spinner fa-spin"></i>
+                            } @else {
+                            <i class="fas fa-undo"></i> <!-- Restore icon -->
+                            }
+                        </button>
+                        <!-- Optional: Download button if desired from archive -->
+                        <!--
+                        <button class="btn icon-btn btn-download-item" title="Download Item"
+                                (click)="requestFileDownload(file)"
+                                [disabled]="!file.access_id">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        -->
+                        <!-- Optional: Permanent Delete button (requires backend endpoint) -->
+                        <!--
+                        <button class="btn icon-btn btn-danger" title="Delete Permanently"
+                                (click)="requestPermanentDelete(file)">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                        -->
+                    </div>
+                </li>
+                }
+            </ul>
+            } @else {
+            <p class="no-files-message">You have no archived items.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -335,6 +335,10 @@
 
 }
 
+.transfer-file-section {
+    background-color: #fbfbfd;
+}
+
 .transfer-content h2 {
     text-align: center;
     font-size: 50px;
@@ -426,32 +430,66 @@
 
 .contact-list ul li {
     list-style: none;
-    padding: 30px 45px 30px 50px;
+    padding: 30px;
     background: var(--white-color);
     display: flex;
     flex-direction: row;
-    align-items: center;
-    border-bottom: 1px solid #edf0f5;
+    /* align-items: center; */
+    /* border-bottom: 1px solid #edf0f5; */
+    box-shadow: 0px 1px 4px 0px rgba(11.000000000000005, 18.999999999999982, 40, 0.07);
+    border-radius: 8px;
+    height: 100%;
+    border: 1px solid #E6E6E6;
 }
 
 .contact-list ul li span {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
 }
 
 .contact-list ul li span img {
     margin-right: 30px;
-    min-width: 50px;
     height: 40px;
+    width: 40px;
+    min-width: 50px;
+    object-fit: contain;
 }
 
-.contact-list ul {
-    padding: 0;
+.contact-list ul li span h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1d2d35;
+    line-height: 1.3;
     margin: 0;
 }
 
+.contact-list ul li span p {
+    font-size: 14px;
+    color: #5a6c7e;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.contact-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    flex-basis: calc((100% - 30px) / 2);
+    flex-grow: 1;
+    min-width: 220px;
+    height: auto;
+}
+
 .contact-list {
-    box-shadow: 0 5px 15px -5px rgba(0, 0, 0, .1);
-    border-radius: 40px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
 }
 
 .integration-content-wrapper {
@@ -483,7 +521,10 @@
     justify-content: center;
     gap: 80px;
     padding: 50px;
-    border-radius: 33px 0 33px 0;
+    box-shadow: 0px 0px 12px 5px rgba(0, 0, 0, 0.03137254901960784);
+    border-radius: 8px;
+    background-color: var(--white-color);
+    border: 1px solid #E4E6EC;
 }
 
 .upcoming-apps ul li {
@@ -676,6 +717,10 @@
     .upload-welcome-wrapper {
         padding-bottom: 0;
     }
+
+    .contact-list ul {
+        flex-basis: calc((100% - 1 * 30px) / 2);
+    }
 }
 
 @media (max-width: 768px) {
@@ -697,6 +742,11 @@
     .transfer-content h2 {
         font-size: 40px;
     }
+
+    .contact-list {
+        gap: 20px;
+    }
+
 }
 
 @media (max-width: 480px) {
@@ -745,6 +795,11 @@
 
     .contact-list ul li {
         padding: 30px 26px 30px 26px;
+    }
+
+    .contact-list ul {
+        flex-basis: 100%;
+        min-width: unset;
     }
 
     .upcoming-icon {

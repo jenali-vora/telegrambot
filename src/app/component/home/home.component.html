@@ -116,20 +116,23 @@
 
     <section class="section-3 integrate-transfer container">
         <div class="row m-0 integration-content-wrapper">
-            <div class="col-12 col-lg-5 p-0 itegration-content">
+            <div class="col-12 col-lg-12 p-0 itegration-content">
                 <div class="transfer-content">
                     <h2 class="transfer-heading">Integrate TransferNow to your website for file reception</h2>
                 </div>
                 <p>Discover our tool for creating customized forms and then by adding a simple line of HTML code on your
                     internet site you can directly receive files.</p>
             </div>
-            <div class="col-12 col-lg-6 p-0">
+            <div class="col-12 col-lg-12 p-0">
                 <div class="contact-list">
                     @for (item of transferList; track $index) {
                     <ul>
                         <li>
                             <span>
                                 <img [src]="item.img" alt="">
+                                <span class="">
+                                    <h2>{{item.title}}</h2>
+                                </span>
                                 <p>{{item.des}}</p>
                             </span>
                         </li>
@@ -170,7 +173,7 @@
     <section class="section-5">
         <app-testimonial-section></app-testimonial-section>
     </section>
-    
+
     <section class="section-7">
         <app-cta-section></app-cta-section>
     </section>
