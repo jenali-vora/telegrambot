@@ -244,7 +244,7 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete the record for "${displayName}"? This cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to archive the record for "${displayName}"? You can restore it later.`)) {
       return;
     }
 

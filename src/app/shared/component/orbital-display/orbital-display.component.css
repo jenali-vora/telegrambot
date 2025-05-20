@@ -1,0 +1,256 @@
+/* src/app/orbital-display/orbital-display.component.css */
+:host {
+    display: block;
+    width: 100%;
+    max-width: 550px;
+    margin: auto;
+    --orbital-base-bg: var(--background, #08011d);
+    /* Uses your theme's --background (navy) */
+}
+
+.orbital-display-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    border-radius: 10px;
+}
+
+.orbital-display-wrapper[style*="background-color"] {
+    --orbital-base-bg: inherit;
+}
+
+.orbital-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.glow-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Adjusted static glows to be more subtle and lighter blue/white on navy */
+.glow-ring.ring-1 {
+    /* Outermost static glow */
+    width: 90%;
+    height: 90%;
+    background: radial-gradient(circle,
+            rgba(180, 200, 255, 0.03) 0%,
+            /* Very pale, transparent blue/white */
+            rgba(170, 190, 240, 0.08) 40%,
+            rgba(170, 190, 240, 0.0) 70%);
+}
+
+.glow-ring.ring-2 {
+    /* Middle static glow */
+    width: 70%;
+    height: 70%;
+    background: radial-gradient(circle,
+            rgba(190, 210, 255, 0.05) 0%,
+            rgba(180, 200, 255, 0.12) 40%,
+            rgba(180, 200, 255, 0.0) 70%);
+}
+
+.glow-ring.ring-3 {
+    /* Innermost static glow, softest */
+    width: 35%;
+    height: 35%;
+    background: radial-gradient(circle,
+            /* Matching the central button's glow color for consistency */
+            rgba(200, 220, 255, 0.15) 0%,
+            /* Slightly more visible pale blue/white */
+            rgba(220, 235, 255, 0.25) 50%,
+            /* Brighter center */
+            rgba(220, 235, 255, 0.0) 75%);
+}
+
+/* --- Animation Styles --- */
+@keyframes expand-opacity {
+    0% {
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0;
+    }
+}
+
+.animate-expand-opacity {
+    animation: expand-opacity 6s linear infinite both;
+}
+
+.animated-pulse-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    pointer-events: none;
+
+    /* --- THIS IS THE KEY CHANGE FOR WHITE ANIMATION --- */
+    /* White, very transparent pulse rings */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    /* Soft white border */
+    background: linear-gradient(-180deg,
+            rgba(255, 255, 255, 0.07) 20%,
+            /* Very subtle white gradient start */
+            rgba(255, 255, 255, 0) 100%);
+    /* Fading to fully transparent */
+}
+
+.animated-pulse-ring.pulse-ring-1 {
+    width: 40%;
+    height: 40%;
+    animation-delay: 0s;
+}
+
+.animated-pulse-ring.pulse-ring-2 {
+    width: 65%;
+    height: 65%;
+    animation-delay: 1.5s;
+}
+
+.animated-pulse-ring.pulse-ring-3 {
+    width: 90%;
+    height: 90%;
+    animation-delay: 3s;
+}
+
+/* Central Button Styles */
+.central-button {
+    position: relative;
+    z-index: 10;
+    width: 16%;
+    height: 16%;
+    min-width: 70px;
+    min-height: 70px;
+    max-width: 90px;
+    max-height: 90px;
+    border-radius: 50%;
+    background-color: var(--button-color, #6f42c1);
+    /* Your theme's button color */
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    /* Adjusted shadow to be a soft, lighter glow, not orange */
+    box-shadow: 0 0 18px 6px rgba(200, 220, 255, 0.25),
+        /* Soft, pale blue/white outer glow */
+        inset 0 0 10px rgba(255, 255, 255, 0.08);
+    /* Very subtle inner white highlight */
+    transition: transform 0.2s ease-out, background-color 0.2s;
+    color: var(--white-color);
+    /* White plus icon */
+}
+
+.central-button:hover {
+    background-color: var(--button-hover, #835bce);
+    /* Your theme's button hover color */
+    transform: scale(1.05);
+    box-shadow: 0 0 22px 8px rgba(220, 230, 255, 0.3),
+        /* Slightly brighter glow on hover */
+        inset 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.central-button i {
+    font-size: 2rem;
+}
+
+/* Orbital Items Styles */
+.orbit-item-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.orbit-item {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: all;
+    box-sizing: border-box;
+    /* Default border for items, subtle light blue/grey */
+    border: 2px solid rgba(170, 190, 220, 0.25);
+}
+
+.orbit-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    border-color: rgba(200, 220, 255, 0.4);
+    /* Slightly more prominent border on hover */
+}
+
+.orbit-item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.orbit-item .item-initials {
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+}
+
+.orbit-item .item-icon {
+    line-height: 1;
+}
+
+.orbit-item-label {
+    position: absolute;
+    font-size: 0.75rem;
+    font-weight: 500;
+    pointer-events: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    /* Slightly stronger shadow for readability on varied backgrounds */
+    z-index: 6;
+    color: var(--border-color, #c0c0d0);
+    /* Light grey/lavender for labels */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    :host {
+        max-width: 90vw;
+    }
+
+    .central-button i {
+        font-size: 1.5rem;
+    }
+
+    .orbit-item-label {
+        font-size: 0.65rem;
+    }
+}

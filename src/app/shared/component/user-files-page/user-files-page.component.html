@@ -1,26 +1,28 @@
+<!-- src/app/component/user-files-page/user-files-page.component.html -->
 <div class="user-files-page-container">
     <div class="page-header">
         <h1>My Uploaded Files</h1>
-        <a routerLink="/home" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left"></i> Back to Home
-        </a>
+        <div> <!-- Wrapper for buttons -->
+            <!-- NEW BUTTON/LINK for Archive Page -->
+            <a routerLink="/archived-files" class="btn btn-outline-info btn-sm me-2"> <!-- Added me-2 for margin -->
+                <i class="fas fa-archive"></i> View Archived Files
+            </a>
+            <a routerLink="/home" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+        </div>
     </div>
 
     <div class="user-file-list-panel card-style">
         <div class="file-summary">
             <span class="count">
                 {{ displayedFiles.length }} item{{ displayedFiles.length !== 1 ? 's' : '' }}
-                <!-- Changed file to item -->
                 ({{ totalUploadedSize | byteFormat }})
             </span>
+            <!-- The red box from the original image was here - we'll place the archive link above the file list -->
         </div>
 
-        <div *ngIf="isLoadingFiles" class="loading-indicator">
-            <i class="fas fa-spinner fa-spin"></i> Loading files...
-        </div>
-        <div *ngIf="fileListError" class="error-message">
-            {{ fileListError }}
-        </div>
+        <!-- ... (rest of the file list, loading indicators, error messages) ... -->
 
         <div *ngIf="!isLoadingFiles && !fileListError" class="file-list-scroll user-history-list-scroll">
             @if (displayedFiles.length > 0) {
@@ -33,7 +35,7 @@
                         <span class="item-name" [title]="getDisplayFilename(file)">{{ getDisplayFilename(file) }}</span>
                         <span class="item-upload-date-history">{{ formatUploadDate(file.upload_timestamp) }}</span>
                     </div>
-                    <div class="item-size">{{ getItemSize(file) | byteFormat }}</div> <!-- USE getItemSize HERE -->
+                    <div class="item-size">{{ getItemSize(file) | byteFormat }}</div>
                     <div class="item-actions">
                         <button class="btn icon-btn btn-download-item" title="Download Item"
                             (click)="requestFileDownload(file)"
@@ -44,16 +46,16 @@
                             <i class="fas fa-download"></i>
                             }
                         </button>
-                        <button class="btn icon-btn btn-remove-item" title="Delete Record"
-                            (click)="requestFileDelete(file)">
-                            <i class="fas fa-trash-alt"></i>
+                        <button class="btn icon-btn btn-remove-item" title="Archive Record"
+                            (click)="requestFileDelete(file)"> <!-- This method now archives -->
+                            <i class="fas fa-trash-alt"></i> <!-- Icon can remain trash, or change to archive -->
                         </button>
                     </div>
                 </li>
                 }
             </ul>
             } @else {
-            <p class="no-files-message">You haven't uploaded any items yet.</p> <!-- Changed file to item -->
+            <p class="no-files-message">You haven't uploaded any items yet.</p>
             }
         </div>
     </div>

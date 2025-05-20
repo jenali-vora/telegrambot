@@ -1,54 +1,62 @@
 /* testimonial-section.component.css */
 
 .testimonial-section-wrapper {
-    background-color: #f8f8f8;
     padding: 60px 0;
-    /* Vertical padding for the section */
     position: relative;
-    /* overflow-x: hidden; NgbCarousel should handle its own overflow */
 }
 
-/* Optional: Container for the NgbCarousel itself for max-width and centering */
 .testimonials-carousel-container {
-    max-width: 900px;
-    /* Adjust as needed, Bootstrap carousel items are full width by default */
+    max-width: 1200px;
+    /* Default for desktop (3 items) */
     margin: 0 auto;
-    /* background-color: #fff; */
-    /* Optional: if you want a different background for the carousel itself */
-    /* box-shadow: 0 2px 10px rgba(0,0,0,0.1); */
-    /* Optional: subtle shadow */
 }
 
-/* Wrapper for content within each slide to center it if needed */
+:host ::ng-deep .testimonials-carousel-container .carousel-inner {
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 30px;
+    background-color: #F6F7F9;
+}
+
 .testimonial-slide-content {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px 60px;
-    /* Padding inside the slide, around your testimonial-item. Adjust based on nav arrow space */
-    min-height: 400px;
-    /* Example: Set a min-height for slides to be consistent, adjust as needed */
+    align-items: flex-start;
+    /* Changed to flex-start for potentially varying heights */
 }
 
-/*
-.testimonials-container {
-    REMOVED or MODIFIED: NgbCarousel now handles this.
+.slide-items-container {
+    display: flex;
+    justify-content: center;
+    /* Center the item(s) in the container */
+    gap: 20px;
+    width: 100%;
+    align-items: stretch;
+    /* Make items in a row (if multiple) same height */
+    flex-wrap: wrap;
+    /* Allow wrapping if somehow items overflow (should not with TS logic) */
 }
-*/
 
 .testimonial-item {
-    background-color: transparent;
+    background-color: var(--white-color);
+    /* Ensure --white-color is defined */
     text-align: center;
     padding: 20px;
-    /* Padding for the item itself */
     box-sizing: border-box;
-    /* flex: 1 1 300px; NgbCarousel shows one item at a time, this is not applicable */
-    max-width: 500px;
-    /* Control the max-width of the content area within the slide */
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: 1px solid #E4E6EC;
+    border-radius: 8px;
+
+    /* Default styling for 3 items per slide (desktop) */
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: calc((100% - 2 * 20px) / 3);
+    /* For 3 items with 2 gaps */
+    max-width: calc((100% - 2 * 20px) / 3);
+    min-width: 270px;
+    /* Minimum width for an item when multiple are shown */
 }
 
 .profile-pic {
@@ -63,7 +71,7 @@
 .name {
     font-size: 1.8em;
     color: var(--background);
-    /* Ensure --background CSS variable is defined globally or in a parent */
+    /* Ensure --background is defined */
     margin-bottom: 15px;
     font-weight: 500;
 }
@@ -74,54 +82,80 @@
     line-height: 1.6;
     margin-bottom: 20px;
     min-height: 100px;
-    /* Good for alignment */
 }
 
 .quotation-marks {
     font-size: 3.5em;
     color: var(--background);
-    /* Ensure --background CSS variable is defined globally or in a parent */
+    /* Ensure --background is defined */
     line-height: 0.5;
 }
 
-/* --- NgbCarousel Customization (Optional) --- */
-/*
-  To style Bootstrap's default carousel elements from within this component's CSS,
-  you'll likely need ::ng-deep because of Angular's view encapsulation.
-*/
+/* Arrow Positioning (Desktop - outside the main content flow) */
+:host ::ng-deep .testimonials-carousel-container .carousel-control-prev {
+    left: -60px;
+    width: 10%;
+}
 
-/* Example: Change color of navigation arrows */
+:host ::ng-deep .testimonials-carousel-container .carousel-control-next {
+    right: -60px;
+    width: 10%;
+}
+
+/* Arrow Icons */
 :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
 :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
-    /* background-color: rgba(0, 0, 0, 0.3); */
     background-color: var(--button-color);
+    /* Ensure --button-color is defined */
     border-radius: 50%;
     width: 2.5rem;
     height: 2.5rem;
     background-size: 60% 60%;
 }
 
-/* Example: Change color of navigation indicators */
+/* Indicators */
 :host ::ng-deep .testimonials-carousel-container .carousel-indicators [data-bs-target] {
     background-color: #ccc;
-    /* Inactive indicators */
 }
 
 :host ::ng-deep .testimonials-carousel-container .carousel-indicators .active {
     background-color: var(--background);
-    /* Active indicator - using your theme color */
 }
 
-/* Responsive adjustments for ITEM CONTENT */
-/* NgbCarousel is typically one item at a time, so responsive changes are for content within the slide */
-@media (max-width: 768px) {
-    .testimonial-slide-content {
-        padding: 20px 40px;
-        /* Reduce padding for smaller screens */
-        min-height: 350px;
-        /* Adjust min-height */
+/* --- Responsive Adjustments --- */
+
+/* Tablet and Mobile (<= 992px) - Where itemsPerSlide in TS becomes 1 */
+@media (max-width: 992px) {
+    .testimonials-carousel-container {
+        max-width: 100%;
+        /* Carousel can span full width */
+        /* padding: 0 15px; /* Add side padding if you want space from screen edges */
     }
 
+    .testimonial-item {
+        /* When itemsPerSlide is 1, this is the only item in slide-items-container */
+        flex-basis: 100%;
+        /* Allow it to take the full width of its parent (slide-items-container) */
+        max-width: 500px;
+        /* But cap its width for better readability on tablets */
+        min-width: unset;
+        /* Remove desktop min-width constraint */
+    }
+
+    /* Adjust arrow positioning to be inside or closer */
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-prev {
+        left: 5px;
+        /* Or 0 if directly on edge */
+    }
+
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-next {
+        right: 5px;
+        /* Or 0 if directly on edge */
+    }
+}
+
+/* Small Mobile Devices (<= 768px) - itemsPerSlide is still 1 */
+@media (max-width: 768px) {
     .profile-pic {
         width: 120px;
         height: 120px;
@@ -132,14 +166,23 @@
     }
 
     .testimonial-item {
-        padding: 10px;
+        padding: 15px;
+        max-width: 450px;
+        /* Adjust max width for smaller tablets/large phones */
+    }
+
+    :host ::ng-deep .testimonials-carousel-container .carousel-inner {
+        padding: 20px;
+        /* Adjust inner padding */
     }
 }
 
+/* Extra Small Mobile Devices (<= 576px) - itemsPerSlide is still 1 */
 @media (max-width: 576px) {
-    .testimonial-slide-content {
-        padding: 15px 20px;
-        /* Further reduce padding */
+    .testimonial-item {
+        max-width: 100%;
+        /* Allow item to fill more of the screen */
+        /* The padding on .carousel-inner will provide spacing from screen edges */
     }
 
     .profile-pic {
@@ -153,12 +196,27 @@
 
     :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
     :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        /* Slightly larger for easier touch on small screens */
+        height: 35px;
     }
 
-    .testimonial-item {
-        padding-right: 30px;
-        padding-left: 30px;
+    :host ::ng-deep .testimonials-carousel-container .carousel-inner {
+        padding: 15px;
+        /* Reduce padding for very small screens */
+    }
+
+    .slide-items-container {
+        gap: 10px;
+        /* Not really applicable with 1 item, but good for consistency */
+    }
+
+    /* Ensure arrows are visible and accessible */
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-prev {
+        left: 0px;
+    }
+
+    :host ::ng-deep .testimonials-carousel-container .carousel-control-next {
+        right: 0px;
     }
 }

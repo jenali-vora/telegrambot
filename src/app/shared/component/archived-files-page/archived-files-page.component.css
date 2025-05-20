@@ -1,0 +1,69 @@
+.loading-indicator {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+    color: #777;
+}
+
+.loading-indicator .fas {
+    margin-right: 8px;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.no-files-message {
+    text-align: center;
+    padding: 30px 15px;
+    color: #6c757d;
+    /* Bootstrap secondary text color */
+    font-style: italic;
+}
+
+/* General container styling from user-files-page that might be good to ensure is here too,
+   though likely inherited if class names are the same. */
+.user-files-page-container {
+    max-width: 1000px;
+    /* Or your preferred max-width */
+    margin: 20px auto;
+    padding: 15px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    /* Adjust as needed */
+}
+
+.user-file-list-panel.card-style {
+    /* Assuming card-style provides base card look */
+    background-color: #fff;
+    border-radius: 8px;
+    /* Example */
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); Example */
+    padding: 20px;
+}
+
+.file-summary {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+    color: #555;
+}

@@ -16,6 +16,7 @@ import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 import { UploadEventService } from '../../shared/services/upload-event.service';
 import { BatchFileBrowserComponent } from '../batch-file-browser/batch-file-browser.component';
 import { TestimonialSectionComponent } from '@app/shared/component/testimonial-section/testimonial-section.component';
+import { OrbitalDisplayComponent } from '@app/shared/component/orbital-display/orbital-display.component';
 
 interface UploadProgressDetails {
   percentage: number;
@@ -36,6 +37,7 @@ interface CompletedUploadLink {
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
     CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
+    , OrbitalDisplayComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -90,9 +92,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     { number: '3', title: ' Transfer files', des: 'Click "Send" to start uploading your files via our secure servers nearby you thanks to our global infrastructure.' },
   ];
   transferList = [
-    { img: "assets/image/download (2).svg", des: "Customize and integrate our widget to receive files from your clients or other contacts directly from your own website." },
-    { img: "assets/image/customized.svg", des: "Build your own file reception forms and add your customized fields (text fields, drop-down lists, checkboxes, and radio buttons)." },
-    { img: "assets/image/clous.svg", des: "The transferred files are stored on our secure cloud and you will receive a notification to inform you that a new transfer was received on your account." }
+    { img: "assets/image/secure.svg", title: "Secure file transfer via email, or shareable links", des: "Send and share large files and other documents quickly and securely with our file transfer solution. Send large files via email or create a simple sharing link from any device (smartphone, tablet, computer) using just a web browser." },
+    { img: "assets/image/sendFile.svg", title: "Send large files up to 250 GB per transfer", des: "Get a TransferNow account to transfer large files and other sizable documents! The files are available up to 365 days before being automatically and permanently erased from our servers." },
+    { img: "assets/image/track.svg", title: "Track your sent files. Manage your transfers.", des: "Use our complete dashboard to follow and track your file downloads over time. You can modify your transfers’ data and parameters, re-transfer files to new recipients without having to systematically re-upload the same documents and erase a transfer before it's initial expiration date." },
+    { img: "assets/image/download (2).svg", title: "Integrate the TransferNow widget on your website and receive files easily.", des: "Discover our form generator to receive files directly on your account and customize the widget’s appearance as well as it's fields (text boxes, drop-down lists, checkboxes, radio buttons). You can get a simple HTML code to integrate into your website allowing you to receive files instantaneously." }
   ];
   apps = [
     { img: "assets/image/windows.svg", title: "Windows" },
@@ -104,12 +107,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent): void {
     if (this.isUploading) {
-      const confirmationMessage = 'An upload is currently in progress. If you leave or refresh this page, the upload will be cancelled. Are you sure you want to proceed?';
-      event.returnValue = confirmationMessage; // Standard for most browsers
-      // For some older browsers, you might also need:
-      // return confirmationMessage;
+      const confirmationMessage = "Leaving will cancel your current upload. Proceed?";
+      event.preventDefault();
+      event.returnValue = confirmationMessage;
     }
   }
+
   ngOnInit(): void {
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.zone.run(() => {
@@ -588,7 +591,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.eventSource.onerror = (errorEvent: Event) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) {
+          if (uploadId === this.currentUploadId && this.isUploading) {
             console.log(`SSE 'onerror' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading}).`);
             if (this.eventSource && this.eventSource.url.includes(uploadId)) {
               this.closeEventSource();

@@ -1,0 +1,35 @@
+<div class="orbital-display-wrapper">
+    <div class="orbital-container">
+        <!-- Concentric Glow Rings (static soft glows) -->
+        <div class="glow-ring ring-1"></div>
+        <div class="glow-ring ring-2"></div>
+        <div class="glow-ring ring-3"></div>
+
+        <!-- Animated Pulse Rings -->
+        <div class="animated-pulse-ring pulse-ring-1 animate-expand-opacity"></div>
+        <div class="animated-pulse-ring pulse-ring-2 animate-expand-opacity"></div>
+        <div class="animated-pulse-ring pulse-ring-3 animate-expand-opacity"></div>
+
+        <!-- Central Button -->
+        <button class="central-button" (click)="centralButtonAction()" title="Add Item">
+            <i [class]="centralButtonIconClass"></i>
+        </button>
+
+        <!-- Orbital Items -->
+        <div class="orbit-item-wrapper" *ngFor="let item of items">
+            <div class="orbit-item" [ngStyle]="getStylesForItem(item)" (click)="onItemClick(item)"
+                [title]="item.altText || item.value">
+
+                <ng-container [ngSwitch]="item.type">
+                    <img *ngSwitchCase="'image'" [src]="item.value" [alt]="item.altText || 'Orbital content'"
+                        [style.object-fit]="item.imageObjectFit || 'cover'">
+                    <span *ngSwitchCase="'initials'" class="item-initials">{{ item.value }}</span>
+                    <i *ngSwitchCase="'icon-class'" class="item-icon" [class]="item.value"></i>
+                </ng-container>
+            </div>
+            <span *ngIf="item.label" class="orbit-item-label" [ngStyle]="getItemLabelStyles(item)">
+                {{ item.label }}
+            </span>
+        </div>
+    </div>
+</div>
