@@ -3,6 +3,8 @@
 
     <section class="section-1 hero-section">
         <div class="hero-content">
+
+
             <h2 class="hero-title">Transfer and have your files travel for free</h2>
             <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
             <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
@@ -16,9 +18,12 @@
             </div>
             <!-- Main Upload Interaction Area -->
             <div class="upload-interaction-area">
-                <div class="upload-main-wrapper"
+                <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
+                    <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
+                </div>
+
+                <!-- <div class="upload-main-wrapper"
                     *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-                    <!-- Removed #dropZoneTarget and its drag event handlers -->
 
                     <div class="upload-welcome-wrapper">
                         <div class="position-relative custo-start">
@@ -42,7 +47,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <app-transfer-panel *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
                     [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                     [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
@@ -83,7 +88,8 @@
             </div>
             <div class="col-12 col-lg-6 col-md-6 p-0">
                 <div class="transfer-content">
-                    <h2 class="text-left">Transfer and share files by email or link with no size limit</h2>
+                    <h2 class="text-left"><span class="text-highlight-gradient">Transfer and share files</span> by email
+                        or link with no size limit</h2>
                     <p>Easily share large files and documents with your colleagues, clients, or partners by email or
                         link with no size limit based on your personalized plan.
                         <br><br>
@@ -100,7 +106,7 @@
     </section>
     <section class="section-2 transfer-file-section container">
         <div class="transfer-content">
-            <h2>How to send and share large files with TransferNow?</h2>
+            <h2>How to send and <span class="text-highlight-gradient">share large files</span> with TransferNow?</h2>
         </div>
         <div class="transfer-step">
             @for (item of stepContent; track $index) {
@@ -118,7 +124,8 @@
         <div class="row m-0 integration-content-wrapper">
             <div class="col-12 col-lg-12 p-0 itegration-content">
                 <div class="transfer-content">
-                    <h2 class="transfer-heading">Integrate TransferNow to your website for file reception</h2>
+                    <h2 class="transfer-heading">Integrate TransferNow to your website for <span
+                            class="text-highlight-gradient">file reception</span></h2>
                 </div>
                 <p>Discover our tool for creating customized forms and then by adding a simple line of HTML code on your
                     internet site you can directly receive files.</p>
@@ -145,7 +152,7 @@
 
     <section class="section-4 upcoming-apps container">
         <div class="transfer-content">
-            <h2>Keep an Eye Out for Our Upcoming Apps</h2>
+            <h2>Keep an Eye Out for Our <span class="text-highlight-gradient">Upcoming Apps</span></h2>
 
         </div>
         <div class="upcoming-icon">
@@ -177,6 +184,7 @@
     <section class="section-7">
         <app-cta-section></app-cta-section>
     </section>
+
 
     <!-- Upload Progress Overlay (remains unchanged) -->
     <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
