@@ -1,6 +1,4 @@
-// src/app/orbital-display/orbital-display.component.ts
-
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface OrbitalItem {
@@ -8,7 +6,7 @@ export interface OrbitalItem {
   type: 'image' | 'initials' | 'icon-class';
   value: string;
   altText?: string;
-  label?: string;
+  label?: string; // For labels next to items
   angle: number;
   radius: number;
   size: number;
@@ -16,7 +14,7 @@ export interface OrbitalItem {
   borderColor?: string;
   textColor?: string;
   isHighlighted?: boolean;
-  imageObjectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'; // Ensure this is here
+  imageObjectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 }
 
 @Component({
@@ -30,58 +28,42 @@ export class OrbitalDisplayComponent implements OnInit {
 
   @Input() items: OrbitalItem[] = [];
   @Input() centralButtonIconClass: string = 'fas fa-plus';
-  @Input() baseBackgroundColor: string = '#08011d'; // Default dark background
-  @Input() centralButtonAction: () => void = () => {
-    console.log('Central button clicked!');
-  };
+  @Input() baseBackgroundColor: string = '#0d47a1'; // Dark Blue from desired theme
+  @Output() requestFileUpload = new EventEmitter<void>();
 
+  // Adjusted radius for items to touch each other
+  // Old radius was 230, new radius is ~130.7
+  // Item size remains 48px, N=17 items.
   defaultItems: OrbitalItem[] = [
-    // --- Outer Orbit (Matches your desired dark screenshot more closely) ---
-    // Radius around 200-220, Size around 48-55
-    { id: 'user1-glasses', type: 'image', value: 'assets/image/avatars/man-glasses.png', altText: 'User with Glasses', angle: 340, radius: 210, size: 50 },
-    { id: 'ga-outer', type: 'initials', value: 'GA', angle: 5, radius: 210, size: 50, backgroundColor: '#251e3e', textColor: '#c0c0e0' },
-    { id: 'user-saitama', type: 'image', value: 'assets/image/avatars/anime-guy-orange-bg.png', altText: 'Anime Guy Orange BG', angle: 30, radius: 210, size: 50 }, // Assuming an image like one in desired shot
-    { id: 'link-outer', type: 'icon-class', value: 'fas fa-link', angle: 55, radius: 210, size: 50, backgroundColor: '#2c3e50', textColor: '#e0e0e0' }, // Slightly different blue
-    { id: 'firefox-logo', type: 'image', value: 'assets/image/icons/firefox-logo-filled.png', altText: 'Firefox', angle: 80, radius: 210, size: 60, isHighlighted: true, borderColor: '#FF9500' },
-    { id: 'm-logo', type: 'image', value: 'assets/image/icons/m-logo-filled.png', altText: 'M Logo', angle: 105, radius: 210, size: 60, isHighlighted: true, borderColor: '#FF9500' },
-    { id: 'jo-outer', type: 'initials', value: 'JO', angle: 130, radius: 210, size: 50, backgroundColor: '#251e3e', textColor: '#c0c0e0' },
-    { id: 'dh-outer', type: 'initials', value: 'DH', angle: 155, radius: 210, size: 50, backgroundColor: '#251e3e', textColor: '#c0c0e0' },
-    { id: 'user-anime-pink', type: 'image', value: 'assets/image/avatars/anime-girl-pink-hair.png', altText: 'Anime Girl Pink Hair', angle: 180, radius: 210, size: 50 }, // Assuming an image
-    { id: 'ukn-logo', type: 'image', value: 'assets/image/icons/ukn-logo-filled.png', altText: 'UKN Logo', angle: 205, radius: 210, size: 60, isHighlighted: true, borderColor: '#FF9500' },
-    { id: 'user-man-smile', type: 'image', value: 'assets/image/avatars/man-smiling-close.png', altText: 'Smiling Man Close', angle: 230, radius: 210, size: 50 }, // Assuming an image
-    { id: 'kr-outer', type: 'initials', value: 'KR', angle: 255, radius: 210, size: 50, backgroundColor: '#251e3e', textColor: '#c0c0e0' },
-    { id: 'user-anime-purple', type: 'image', value: 'assets/image/avatars/anime-girl-purple-hair.png', altText: 'Anime Girl Purple Hair', angle: 280, radius: 210, size: 50 }, // Assuming an image
-    { id: 'user-avatar-prisma', type: 'image', value: 'assets/image/icons/prisma-logo-like.png', altText: 'Prisma-like logo', angle: 305, radius: 210, size: 50 }, // Assuming an image
-
-    // --- Inner Orbit (UNCOMMENTED and adjusted to match desired screenshot) ---
-    // Radius around 130-150, Size around 40-50
-    // {
-    //   id: 'bar-chart-icon', type: 'image', value: 'assets/image/icons/bar-chart-icon.png', // Example: "Trefo" from your 1st screenshot could be like this
-    //   altText: 'Bar Chart Icon', angle: 240, radius: 140, size: 45,
-    //   // imageObjectFit: 'contain' // if the icon has a lot of padding
-    // },
-    // {
-    //   id: 'user-blue-shirt', type: 'image', value: 'assets/image/avatars/man-blue-shirt.png', // "Man"
-    //   altText: 'Man in Blue Shirt', angle: 275, radius: 140, size: 45,
-    //   // imageObjectFit: 'contain' // if avatar is small in its frame
-    // },
-    // {
-    //   id: 'white-rect-logo', type: 'image', value: 'assets/image/icons/white-rect-logo.png', // "Whit" / "L" shape from desired
-    //   altText: 'White Rect Logo', angle: 310, radius: 140, size: 45, isHighlighted: true, borderColor: '#FF9500',
-    //   imageObjectFit: 'contain' // Often good for logos with specific shapes on transparent BG
-    // }
+    { id: 'kr-initials', type: 'image', value: 'assets/image/zip.png', altText: 'zip', angle: 0, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#FFA500', },
+    { id: 'man-img', type: 'image', value: 'assets/image/jpg.png', altText: 'Man', angle: 21.176, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'bar-char-img', type: 'image', value: 'assets/image/foldericon.png', altText: 'folder', angle: 42.353, radius: 130.7, size: 60, isHighlighted: true, borderColor: '#FFA500', },
+    { id: 'smilin-img', type: 'image', value: 'assets/image/file.png', altText: 'file', angle: 63.529, radius: 130.7, size: 60, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'ukn-logo-img', type: 'image', value: 'assets/image/png.png', altText: 'png', angle: 84.706, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#FFA500' },
+    { id: 'anime-bottom', type: 'image', value: 'assets/image/vedio.jpg', altText: 'vedio', angle: 105.882, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'dh-initials', type: 'image', value: 'assets/image/svg.png', angle: 127.059, radius: 130.7, size: 48, backgroundColor: '#fff', isHighlighted: true, borderColor: '#FFA500' },
+    { id: 'jo-initials', type: 'image', value: 'assets/image/gallery.png', altText: 'gallery', angle: 148.235, radius: 130.7, size: 60, backgroundColor: '#fff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'm-logo-img', type: 'image', value: 'assets/image/pdf.jpg', altText: 'pdf', angle: 169.412, radius: 130.7, size: 60, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#FFA500', imageObjectFit: 'contain' },
+    { id: 'firefox-img', type: 'image', value: 'assets/image/mp3.png', altText: 'mp3', angle: 190.588, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'link-icon', type: 'image', value: 'assets/image/js.png', altText: 'js', angle: 211.765, radius: 130.7, size: 48, backgroundColor: '#fff', isHighlighted: true, borderColor: '#FFA500' },
+    { id: 'anime-mid', type: 'image', value: 'assets/image/txt.png', altText: 'txt', angle: 232.941, radius: 130.7, size: 60, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'ga-initials', type: 'image', value: 'assets/image/html.png', altText: 'html', angle: 254.118, radius: 130.7, size: 60, backgroundColor: '#fff', isHighlighted: true, borderColor: '#FFA500' },
+    { id: 'user-img', type: 'image', value: 'assets/image/psd.png', altText: 'psd', angle: 275.294, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'whit-img', type: 'image', value: 'assets/image/css.svg', altText: 'css', angle: 296.471, radius: 130.7, size: 48, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#FFA500' },
+    { id: 'prisma-img', type: 'image', value: 'assets/image/doc.png', altText: 'doc', angle: 317.647, radius: 130.7, size: 60, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#3e57da', },
+    { id: 'anime-top', type: 'image', value: 'assets/image/mp4.jpg', altText: 'mp4', angle: 338.824, radius: 130.7, size: 60, backgroundColor: '#ffffff', isHighlighted: true, borderColor: '#FFA500' },
   ];
 
   constructor() { }
 
   ngOnInit(): void {
     if (this.items.length === 0) {
-      this.items = [...this.defaultItems]; // Use spread to create a new array instance
+      this.items = [...this.defaultItems];
     }
-    // CRITICAL: Ensure your image assets are well-prepared (square, centered content)
-    // For `imageObjectFit: 'cover'` (default) to work best.
-    // Use `imageObjectFit: 'contain'` for images with significant internal padding
-    // or non-square subjects you want fully visible.
+  }
+  onCentralButtonClick(): void {
+    this.requestFileUpload.emit();
+    console.log('Orbital central button clicked, requesting file upload.');
   }
 
   getStylesForItem(item: OrbitalItem): { [key: string]: any } {
@@ -96,32 +78,38 @@ export class OrbitalDisplayComponent implements OnInit {
     }
 
     const itemBackgroundColor = item.backgroundColor || 'transparent';
+    const itemTextColor = item.textColor || '#e0e0e0';
+
+    let borderStyle = `1px solid rgba(255, 255, 255, 0.2)`;
+    if (item.type === 'initials' || item.type === 'icon-class') {
+      borderStyle = `1px solid ${item.backgroundColor || 'rgba(255,255,255,0.2)'}`;
+    }
+    if (item.isHighlighted) {
+      borderStyle = `3px solid ${item.borderColor || '#FFA500'}`;
+    }
 
     return {
       'width': `${item.size}px`,
       'height': `${item.size}px`,
       'background-color': itemBackgroundColor,
-      'border': item.isHighlighted ? `3px solid ${item.borderColor || '#FF9500'}` : `2px solid rgba(150, 150, 220, 0.3)`,
-      'color': item.textColor || '#e0e0e0',
+      'border': borderStyle,
+      'color': itemTextColor,
       'left': `calc(50% + ${xOffset}px - ${item.size / 2}px)`,
       'top': `calc(50% + ${yOffset}px - ${item.size / 2}px)`,
-      'font-size': fontSize
+      'font-size': fontSize,
     };
   }
 
   getItemLabelStyles(item: OrbitalItem): { [key: string]: any } {
-    const labelRadiusOffset = item.size / 2 + 15; // Distance of label from item edge
-    // Calculate label position based on item's angle and radius + offset
-    const xOffset = Math.cos(item.angle * Math.PI / 180) * (item.radius + labelRadiusOffset);
-    const yOffset = Math.sin(item.angle * Math.PI / 180) * (item.radius + labelRadiusOffset);
+    const labelRadius = item.radius + (item.size / 2) + 12;
+    const xOffset = Math.cos(item.angle * Math.PI / 180) * labelRadius;
+    const yOffset = Math.sin(item.angle * Math.PI / 180) * labelRadius;
 
-    // For labels, we want them to be outside the item, so we adjust the radius for positioning
-    // The transform: translate(-50%, -50%) then centers the label text itself at that point.
     return {
       'left': `calc(50% + ${xOffset}px)`,
       'top': `calc(50% + ${yOffset}px)`,
-      'transform': 'translate(-50%, -50%)', // Center the label text block
-      'color': '#b0b0b0',
+      'transform': 'translate(-50%, -50%)',
+      'color': '#d0d0d0',
     };
   }
 

@@ -18,7 +18,6 @@ export interface FaqItem {
 export class FaqAccordionComponent {
 
   // Input to receive FAQ data from parent component
-  @Input() faqTitle: string = "Do you have a question?"; // Default title
   @Input() faqItems: FaqItem[] = [ // Default/Example data (replace with actual data source)
     {
       question: 'Where are TransferNow files hosted?',

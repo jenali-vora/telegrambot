@@ -9,6 +9,7 @@
     padding: 20px;
     box-sizing: border-box;
     /* Simple system font */
+    /* background-image: url('/assets/image/login-img.webp'); */
 }
 
 .login-container-flex {
