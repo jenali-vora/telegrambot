@@ -1,25 +1,19 @@
-<div class="orbital-display-wrapper">
-    <!-- Assuming baseBackgroundColor is applied here -->
+<!-- <div class="orbital-display-wrapper">
     <div class="orbital-container">
-        <!-- Concentric Glow Rings (static soft glows) -->
         <div class="glow-ring ring-1"></div>
         <div class="glow-ring ring-2"></div>
         <div class="glow-ring ring-3"></div>
 
-        <!-- Animated Pulse Rings -->
         <div class="animated-pulse-ring pulse-ring-1 animate-expand-opacity"></div>
         <div class="animated-pulse-ring pulse-ring-2 animate-expand-opacity"></div>
         <div class="animated-pulse-ring pulse-ring-3 animate-expand-opacity"></div>
 
-        <!-- NEW: Dotted Connector Line -->
         <div class="orbital-connector-line"></div>
 
-        <!-- Central Button -->
         <button class="central-button" (click)="onCentralButtonClick()" title="Upload files">
             <i [class]="centralButtonIconClass"></i>
         </button>
 
-        <!-- Orbital Items -->
         <div class="orbit-item-wrapper" *ngFor="let item of items">
             <div class="orbit-item" [ngStyle]="getStylesForItem(item)" (click)="onItemClick(item)"
                 [title]="item.altText || item.value">
@@ -37,4 +31,32 @@
             </span>
         </div>
     </div>
+</div> -->
+
+
+<div class="upload-container">
+    <div class="upload-area">
+        <div class="dashed-circle-outer">
+            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActive">
+                <div class="content-wrapper">
+                    <div class="plus-button" (click)="onCentralButtonClick()">
+                        <i [class]="centralButtonIconClass"></i>
+                    </div>
+                    <p class="drag-drop-text">Drag and Drop file(s) here</p>
+                    <!-- <a href="#" class="select-folder-link">Or select a folder</a> -->
+                    <div class="limit-info">
+                        <span>Up to 4GB free</span>
+                        <a href="#" class="increase-limit-link">
+                            <!-- Using a simple unicode lightning bolt, replace with an SVG or icon font if preferred -->
+                            <!-- <span class="lightning-icon">⚡</span> Increase Limit -->
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="terms-text">
+        By uploading files you agree to the Transfer Terms & Conditions
+        and <a href="#">Privacy Policy</a>.
+    </p>
 </div>

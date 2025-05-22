@@ -104,6 +104,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     { img: "assets/android-ByKVTp40.svg", title: "Android" },
   ];
 
+  icon=[
+    {icon:'fa-solid fa-file-arrow-up' , title:"Fast File Upload"},
+    {icon:'fa-solid fa-shuffle' , title:"Effortless File Transfer"},
+    {icon:'fa-solid fa-file-shield' , title:"Secure & Encrypted Uploads"},
+  ]
+
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent): void {
     if (this.isUploading) {

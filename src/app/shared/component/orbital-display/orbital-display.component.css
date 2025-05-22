@@ -1,280 +1,176 @@
-/* src/app/orbital-display/orbital-display.component.css */
 :host {
-    display: block;
+    --light-green-border: #c8e6c9;
+    --darker-light-green-border: #b0d9b1;
+    --link-color: var(--primary-green);
+    /* Ensure --primary-green is defined */
+    --border-radius-main: 30px;
+    --primary-green-darkened: #17a34a;
+
+    /* Subtler Glow colors */
+    --glow-green-color: rgba(0, 147, 75, 0.3);
+    --glow-blue-color: rgba(0, 0, 128, 0.3);
+
+    /* Subtler Glow parameters */
+    --glow-offset: 6px;
+    --glow-blur: 24px;
+    --glow-spread: -2px;
+
+    /* Base shadow parameters */
+    --base-shadow-offset-y: 8px;
+    --base-shadow-blur: 30px;
+    --base-shadow-spread: 0px;
+    --base-shadow-color: rgba(0, 0, 0, 0.12);
+
+    --box-shadow-main:
+        calc(var(--glow-offset) * -1) calc(var(--glow-offset) * -1) var(--glow-blur) var(--glow-spread) var(--glow-blue-color),
+        var(--glow-offset) var(--glow-offset) var(--glow-blur) var(--glow-spread) var(--glow-green-color),
+        0px var(--base-shadow-offset-y) var(--base-shadow-blur) var(--base-shadow-spread) var(--base-shadow-color);
+}
+
+.upload-container {
+    background-color: var(--white-color);
+    border-radius: var(--border-radius-main);
+    box-shadow: var(--box-shadow-main);
+    padding: 25px;
     width: 100%;
-    max-width: 550px;
-    margin: auto;
-    --orbital-base-bg: var(--background, #08011d);
-    /* Uses your theme's --background (navy) */
+    max-width: 100%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 500px;
+    justify-content: center;
 }
 
-.orbital-display-wrapper {
-    position: relative;
+.upload-area {
     width: 100%;
-    padding-top: 100%;
-    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.orbital-display-wrapper[style*="background-color"] {
-    --orbital-base-bg: inherit;
-}
-
-.orbital-connector-line {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 261.4px;
-    height: 261.4px;
+.dashed-circle-outer {
+    width: 280px;
+    height: 280px;
+    border: 2px dashed var(--darker-light-green-border);
+    /* This border will remain visible */
     border-radius: 50%;
-    border: 2px dashed rgba(255, 255, 255, 0.7);
-    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
     box-sizing: border-box;
 }
 
-.orbital-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.glow-ring {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-/* Adjusted static glows to be more subtle and lighter blue/white on navy */
-.glow-ring.ring-1 {
-    /* Outermost static glow */
-    width: 90%;
-    height: 90%;
-    background: radial-gradient(circle,
-            rgba(180, 200, 255, 0.03) 0%,
-            /* Very pale, transparent blue/white */
-            rgba(170, 190, 240, 0.08) 40%,
-            rgba(170, 190, 240, 0.0) 70%);
-}
-
-.glow-ring.ring-2 {
-    /* Middle static glow */
-    width: 70%;
-    height: 70%;
-    background: radial-gradient(circle,
-            rgba(190, 210, 255, 0.05) 0%,
-            rgba(180, 200, 255, 0.12) 40%,
-            rgba(180, 200, 255, 0.0) 70%);
-}
-
-.glow-ring.ring-3 {
-    /* Innermost static glow, softest */
-    width: 35%;
-    height: 35%;
-    background: radial-gradient(circle,
-            /* Matching the central button's glow color for consistency */
-            rgba(200, 220, 255, 0.15) 0%,
-            /* Slightly more visible pale blue/white */
-            rgba(220, 235, 255, 0.25) 50%,
-            /* Brighter center */
-            rgba(220, 235, 255, 0.0) 75%);
-}
-
-/* --- Animation Styles --- */
-@keyframes expand-opacity {
-    0% {
-        transform: translate(-50%, -50%) scale(0.2);
-        opacity: 0;
-    }
-
-    10% {
-        opacity: 1;
-    }
-
-    90% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translate(-50%, -50%) scale(1.1);
-        opacity: 0;
-    }
-}
-
-.animate-expand-opacity {
-    animation: expand-opacity 6s linear infinite both;
-}
-
-.animated-pulse-ring {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    border-radius: 50%;
-    pointer-events: none;
-
-    /* --- THIS IS THE KEY CHANGE FOR WHITE ANIMATION --- */
-    /* White, very transparent pulse rings */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    /* Soft white border */
-    background: linear-gradient(-180deg,
-            rgba(255, 255, 255, 0.07) 20%,
-            /* Very subtle white gradient start */
-            rgba(255, 255, 255, 0) 100%);
-    /* Fading to fully transparent */
-}
-
-.animated-pulse-ring.pulse-ring-1 {
-    width: 40%;
-    height: 40%;
-    animation-delay: 0s;
-}
-
-.animated-pulse-ring.pulse-ring-2 {
-    width: 65%;
-    height: 65%;
-    animation-delay: 1.5s;
-}
-
-.animated-pulse-ring.pulse-ring-3 {
-    width: 90%;
-    height: 90%;
-    animation-delay: 3s;
-}
-
-/* Central Button Styles */
-.central-button {
-    position: relative;
-    z-index: 10;
-    width: 16%;
-    height: 16%;
-    min-width: 70px;
-    min-height: 70px;
-    max-width: 90px;
-    max-height: 90px;
-    border-radius: 50%;
-    background-color: var(--button-color, #6f42c1);
-    /* Your theme's button color */
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    /* Adjusted shadow to be a soft, lighter glow, not orange */
-    box-shadow: 0 0 18px 6px rgba(200, 220, 255, 0.25),
-        /* Soft, pale blue/white outer glow */
-        inset 0 0 10px rgba(255, 255, 255, 0.08);
-    /* Very subtle inner white highlight */
-    transition: transform 0.2s ease-out, background-color 0.2s;
-    color: var(--white-color);
-    /* White plus icon */
-}
-
-.central-button:hover {
-    background-color: var(--button-hover, #835bce);
-    /* Your theme's button hover color */
-    transform: scale(1.05);
-    box-shadow: 0 0 22px 8px rgba(220, 230, 255, 0.3),
-        /* Slightly brighter glow on hover */
-        inset 0 0 12px rgba(255, 255, 255, 0.1);
-}
-
-.central-button i {
-    font-size: 2rem;
-}
-
-/* Orbital Items Styles */
-.orbit-item-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
+.dashed-circle-inner {
     width: 100%;
     height: 100%;
-    pointer-events: none;
-    z-index: 5;
-}
-
-.orbit-item {
-    position: absolute;
-    /* border-radius: 50%; */
+    border: 2px dashed var(--light-green-border);
+    /* This border will blend with highlight */
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    pointer-events: all;
+    padding: 20px;
     box-sizing: border-box;
-    /* Default border for items, subtle light blue/grey */
-    /* border: 2px solid rgba(170, 190, 220, 0.25); */
+    transition: background-color 0.2s ease-in-out;
+    /* Smooth transition for background */
 }
 
-.orbit-item:hover {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-    /* border-color: rgba(200, 220, 255, 0.4); */
-    /* Slightly more prominent border on hover */
+/* This new class will apply the highlight */
+.dashed-circle-inner.drag-active-highlight {
+    background-color: var(--light-green-border);
+    /* Use #c8e6c9 as the highlight color */
+    /* This makes the inner dashed border blend in, matching screenshot */
 }
 
-.orbit-item .item-content-container {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+.content-wrapper {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    overflow: hidden;
-}
-
-.orbit-item img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.orbit-item .item-initials {
-    font-weight: bold;
     text-align: center;
-    line-height: 1;
-    font-size: 15px;
 }
 
-.orbit-item .item-icon {
-    line-height: 1;
+.plus-button {
+    background-color: var(--button-color);
+    /* Ensure --button-color is defined in :root or style.css */
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.orbit-item-label {
-    position: absolute;
-    font-size: 0.75rem;
-    font-weight: 500;
-    pointer-events: none;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-    /* Slightly stronger shadow for readability on varied backgrounds */
-    z-index: 6;
-    color: var(--border-color, #c0c0d0);
-    /* Light grey/lavender for labels */
+.plus-button:hover {
+    background-color: var(--button-hover);
+    /* Ensure --button-hover is defined */
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    :host {
-        max-width: 90vw;
+.plus-button svg {
+    fill: white;
+}
+
+.drag-drop-text {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--heading-color);
+    /* Ensure --heading-color is defined */
+    margin-bottom: 8px;
+}
+
+.limit-info {
+    font-size: 13px;
+    color: var(--text-color-secondary);
+    /* Ensure --text-color-secondary is defined */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.limit-info .increase-limit-link {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.limit-info .increase-limit-link:hover {
+    text-decoration: underline;
+}
+
+.terms-text {
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 300px;
+}
+
+.terms-text a {
+    color: var(--link-color);
+    text-decoration: underline;
+}
+
+.terms-text a:hover {
+    text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .upload-container {
+        height: auto;
     }
 
-    .central-button i {
-        font-size: 1.5rem;
-    }
-
-    .orbit-item-label {
-        font-size: 0.65rem;
+    .dashed-circle-outer {
+        width: 245px;
+        height: 245px;
     }
 }

@@ -138,7 +138,7 @@
 
 .form-field input:focus {
     outline: none;
-    border-color: var(--background);
+    border-color: var(--button-color);
 }
 
 .password-input-wrapper {
@@ -198,7 +198,7 @@
     height: 15px;
     cursor: pointer;
     flex-shrink: 0;
-    accent-color: var(--background);
+    accent-color: var(--button-color);
 }
 
 .checkbox-group label {
@@ -221,7 +221,7 @@
 
 /* Buttons */
 .signup-btn {
-    background-color: var(--background);
+    background-color: var(--button-color);
     color: var(--white-color);
     border: none;
     padding: 12px 30px;
@@ -234,16 +234,16 @@
     margin-top: 10px;
 
     &:hover {
-        background-color: var(--background-hover);
+        background-color: var(--button-hover);
     }
 }
 
 .signup-btn:hover:not(:disabled) {
-    background-color: var(--background);
+    background-color: var(--button-color);
 }
 
 .signup-btn:disabled {
-    background-color: var(--background);
+    background-color: var(--button-color);
     cursor: not-allowed;
     opacity: .45;
 }

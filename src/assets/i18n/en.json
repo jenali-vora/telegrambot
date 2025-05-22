@@ -1,0 +1,23 @@
+
+{
+    "APP_NAME": "UploadNow", 
+    "HEADER": {
+        "LOGO_TEXT": "Transférer", 
+        "PRICING": "Tarification", 
+        "BLOG": "Blog", 
+        "FAQS": "FAQ", 
+        "CONTACT_US": "Nous Contacter", 
+        "LOGIN": "Connexion", 
+        "SIGN_UP": "S'inscrire", 
+        "LOGOUT": "Déconnexion"
+    },
+    "USER_MENU": {
+        "USERNAME_FALLBACK": "Utilisateur" 
+    },
+    "LANGUAGE_MODAL": {
+        "TITLE": "Langues disponibles",
+        "NOT_AVAILABLE_QUESTION": "Votre langue n'est pas disponible ?",
+        "CONTACT_US_BUTTON": "Nous contacter",
+        "HELP_TRANSLATE_APP": "Aidez-nous à traduire {{appName}}."
+    }
+}

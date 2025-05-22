@@ -56,50 +56,18 @@
 .hero-section {
     /* --- Background Image --- */
     /* Make sure the path is correct relative to the CSS file OR use absolute path from root */
-    background-image: url('/assets/image/upgrade-file-upload.png');
-    background-color: #1e1f21;
+    /* background-image: url('/assets/image/upgrade-file-upload.png'); */
+    /* background-color: #1e1f21; */
     padding: 4rem 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    color: var(--white-color);
-    /* position: fixed; */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    min-height: 100vh;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: 50%;
-    background-attachment: fixed;
-    transition: background-image .3s ease-in .2s, transform .3s cubic-bezier(.79, 0, .178, 1);
-    transform: translateX(0);
-}
-
-/* --- Optional: Dark Overlay --- */
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(0deg, rgba(62, 161, 219, 0) 4%, var(--background));
-    z-index: 1;
-}
-
-/* --- Content Wrapper --- */
-.hero-content {
-    position: relative;
-    z-index: 2;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-    max-width: 48rem;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+.txt-center {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 /* --- Title Styling --- */
@@ -107,9 +75,11 @@
     font-size: 56px;
     font-weight: 600;
     margin: 0 0 1rem 0;
-    color: var(--white-color);
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
+}
+
+.hero-content {
+    justify-content: space-between;
 }
 
 /* --- Description Styling --- */
@@ -117,7 +87,7 @@
     font-size: 18px;
     margin: 0 0 2rem 0;
     font-weight: 300;
-    color: var(--border-color);
+    color: var(--des-color);
     line-height: 1.6;
 }
 
@@ -379,7 +349,7 @@
 .transfer-step .step-heading {
     line-height: 38px;
     text-align: center;
-    background-color: var(--background);
+    background-color: var(--button-color);
     color: var(--white-color);
     width: 38px;
     height: 38px;
@@ -614,14 +584,10 @@
 /* progressbar css end */
 
 .upload-interaction-area {
-    /* If you added this wrapper */
-    width: 100%;
-    max-width: 380px;
-    /* Or width of your transfer panel */
+    max-width: 100%;
+    width: 400px;
     margin-top: 1rem;
-    /* Or as needed */
     margin-bottom: 2rem;
-    /* Space before other sections or file list link */
 }
 
 
@@ -678,6 +644,30 @@
     /* Darker shade */
 }
 
+/* icon-content start */
+.icon-wrapper {
+    display: flex;
+    gap: 40px;
+}
+
+.mask-center i {
+    font-size: 30px;
+    color: var(--background);
+}
+
+.mask-center {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mask-center h6 {
+    font-size: 15px;
+    color: var(--text-color-secondary);
+}
+
+/* icon-content end */
+
 /* --- Responsiveness --- */
 
 @media (max-width: 992px) {
@@ -728,6 +718,8 @@
     .hero-section {
         min-height: 40vh;
         padding: 3rem 1rem;
+        width: 100%;
+        display: block;
     }
 
     .hero-des {
@@ -753,6 +745,7 @@
 @media (max-width: 480px) {
     .hero-title {
         font-size: 38px;
+        text-align: center;
     }
 
     .transfer-content h2 {
@@ -765,6 +758,7 @@
 
     .hero-des {
         font-size: 0.95rem;
+        text-align: center;
     }
 
     .upload-welcome-wrapper {
@@ -836,5 +830,9 @@
         right: 0;
         width: 100%;
         padding: 10px;
+    }
+
+    .upload-interaction-area {
+        width: auto;
     }
 }

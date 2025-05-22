@@ -1,80 +1,94 @@
 <!-- src/app/component/home/home.component.html -->
 <div class="home-content">
 
-    <section class="section-1 hero-section">
-        <div class="hero-content">
+    <section class="section-1 hero-section container">
+        <div class="hero-content row">
+            <div class="col-12 col-lg-5 col-md-6 txt-center">
+                <h2 class="hero-title">Transfer and have your <span class="text-highlight-gradient">files travel for
+                        free</span></h2>
+                <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
 
-
-            <h2 class="hero-title">Transfer and have your files travel for free</h2>
-            <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
-            <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
-                class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
-                (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
-                <div class="drag-overlay-content">
-                    <img src="assets/image/upload.svg" alt="Drop files" class="drag-overlay-icon">
-                    <h2>Drop your files here</h2>
-                    <p>Add your files or folders by drag-and-dropping them on this window 😉</p>
+                <div class="icon-content">
+                    <div class="icon-wrapper">
+                        @for (item of icon; track $index) {
+                        <span class="mask-center">
+                            <span><i [class]="item.icon"></i></span>
+                            <h6>{{item.title}}</h6>
+                        </span>
+                        }
+                    </div>
                 </div>
+
             </div>
-            <!-- Main Upload Interaction Area -->
-            <div class="upload-interaction-area">
-                <!-- <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-                    <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
+            <div class="col-12 col-lg-6 col-md-6">
+                <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
+                    class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
+                    (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
+                    <div class="drag-overlay-content">
+                        <img src="assets/image/upload.svg" alt="Drop files" class="drag-overlay-icon">
+                        <h2>Drop your files here</h2>
+                        <p>Add your files or folders by drag-and-dropping them on this window 😉</p>
+                    </div>
                 </div> -->
-
-                <div class="upload-main-wrapper"
-                    *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-
-                    <div class="upload-welcome-wrapper">
-                        <div class="position-relative custo-start">
-                            <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
-                                <span class="upload-start-label">Uploading</span>
-                                <span class="upload-strat-icon"><img src="assets/image/9974321.png"
-                                        alt="Start Upload"></span>
-                                <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
-                            </button>
-                            <div class="upload-start-tooltip">
-                                <span>Click or drag-and-drop your files here</span>
-                                <hr data-separator="or">
-                                <div class="custo-selector">
-                                    <button type="button" title="Select Files" (click)="triggerFileInput()">
-                                        <img src="assets/image/file-upload.png" alt="Upload Files">
-                                    </button>
-                                    <button type="button" title="Select Folder" (click)="triggerFolderInput()">
-                                        <img src="assets/image/folder.svg" alt="Upload Folder">
-                                    </button>
+                <!-- Main Upload Interaction Area -->
+                <div class="upload-interaction-area">
+                    <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
+                        <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
+                    </div>
+                    <!-- <div class="upload-main-wrapper"
+                        *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
+    
+                        <div class="upload-welcome-wrapper">
+                            <div class="position-relative custo-start">
+                                <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
+                                    <span class="upload-start-label">Uploading</span>
+                                    <span class="upload-strat-icon"><img src="assets/image/9974321.png"
+                                            alt="Start Upload"></span>
+                                    <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
+                                </button>
+                                <div class="upload-start-tooltip">
+                                    <span>Click or drag-and-drop your files here</span>
+                                    <hr data-separator="or">
+                                    <div class="custo-selector">
+                                        <button type="button" title="Select Files" (click)="triggerFileInput()">
+                                            <img src="assets/image/file-upload.png" alt="Upload Files">
+                                        </button>
+                                        <button type="button" title="Select Folder" (click)="triggerFolderInput()">
+                                            <img src="assets/image/folder.svg" alt="Upload Folder">
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
+                    <app-transfer-panel *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
+                        [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
+                        [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
+                        (requestAddFolder)="triggerFolderInput()" (itemRemoved)="handleItemRemovedFromPanel($event)"
+                        (itemDownloadRequested)="handleDownloadRequest($event)"
+                        (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
+                    </app-transfer-panel>
                 </div>
-                <app-transfer-panel *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
-                    [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
-                    [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
-                    (requestAddFolder)="triggerFolderInput()" (itemRemoved)="handleItemRemovedFromPanel($event)"
-                    (itemDownloadRequested)="handleDownloadRequest($event)"
-                    (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
-                </app-transfer-panel>
-            </div>
 
-            <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)" multiple>
-            <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
-                webkitdirectory>
-            <div *ngIf="uploadError" class="upload-error-message global-upload-error">
-                {{ uploadError }}
+                <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)" multiple>
+                <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
+                    webkitdirectory>
+                <div *ngIf="uploadError" class="upload-error-message global-upload-error">
+                    {{ uploadError }}
+                </div>
+                <ng-container *ngIf="currentUser">
+                    <section class="section-my-files-link container">
+                        <div class="my-files-link-panel card-style">
+                            <p *ngIf="isLoadingUserFileCount">
+                                <i class="fas fa-spinner fa-spin"></i> Checking your files...
+                            </p>
+                            <a routerLink="/my-files" class="btn btn-primary view-my-files-btn">
+                                <i class="fas fa-folder-open"></i> View My Files
+                            </a>
+                        </div>
+                    </section>
+                </ng-container>
             </div>
-            <ng-container *ngIf="currentUser">
-                <section class="section-my-files-link container">
-                    <div class="my-files-link-panel card-style">
-                        <p *ngIf="isLoadingUserFileCount">
-                            <i class="fas fa-spinner fa-spin"></i> Checking your files...
-                        </p>
-                        <a routerLink="/my-files" class="btn btn-primary view-my-files-btn">
-                            <i class="fas fa-folder-open"></i> View My Files
-                        </a>
-                    </div>
-                </section>
-            </ng-container>
         </div>
     </section>
     <!-- === END: File List Section === -->
