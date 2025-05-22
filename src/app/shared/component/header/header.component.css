@@ -6,8 +6,7 @@
     padding: 20px;
     align-items: center;
     position: relative;
-    /* transition: transform .5s cubic-bezier(.79, 0, .178, 1); */
-    /* transition: all .3s cubic-bezier(0.65,0.05,0.36,1); */
+    box-shadow: 0 2px 16px 0 #10182814;
 }
 
 .logo-link {
@@ -29,7 +28,7 @@
     top: 0;
     left: 0;
     z-index: 1000;
-    background-color: var(--background);
+    background-color: var(--white-color);
     animation: slideDown 0.9s ease-out;
     /* transition: transform .2s cubic-bezier(.79, 0, .178, 1); */
 }
@@ -50,7 +49,7 @@
 }
 
 .header-left h2 {
-    color: var(--white-color);
+    color: var(--button-color);
     margin-bottom: 0;
 }
 
@@ -61,7 +60,7 @@
 }
 
 .main-nav a {
-    color: var(--white-color);
+    color: var(--text-color-secondary);
     font-size: 15px;
 
     &:hover {
@@ -71,7 +70,7 @@
 
 .header-main {
     display: flex;
-    gap: 50px;
+    gap: 16px;
     align-items: center;
 }
 
@@ -81,27 +80,35 @@
 }
 
 .auth-nav {
-    background-color: var(--white-color);
-    border-radius: 5px;
-    padding: 0 6px;
+    gap: 10px;
+    display: flex;
+    align-items: center;
 }
 
 .btn-login {
     font-size: 15px;
-    border: none;
+    background-color: #f2f4f7;
+    padding: 6px 20px;
+    color: var(--text-color-secondary);
+
+    &:hover {
+        color: var(--heading-color);
+    }
 }
 
 .auth-nav .btn-register {
     background-color: var(--button-color);
     margin: 6px 0;
     color: var(--white-color);
-    padding: 0 13px;
-    line-height: 31px;
+    /* line-height: 31px; */
     border-radius: 5px;
     font-size: 15px;
+    padding: 6px 24px;
+    border: 2px solid var(--button-color);
 
     &:hover {
-        background-color: var(--button-hover);
+        background-color: var(--white-color);
+        color: var(--button-color);
     }
 }
 
@@ -396,7 +403,7 @@
     display: none;
     background-color: transparent;
     border: none;
-    color: var(--white-color);
+    color: var(--button-color);
     font-size: 1.4rem;
     cursor: pointer;
     padding: 5px;
@@ -649,6 +656,55 @@
     color: var(--white-color);
 }
 
+.language-selector-container {
+    position: relative;
+    /* Crucial for absolute positioning of the modal */
+    display: flex;
+    align-items: center;
+}
+
+.btn-language-selector {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    /* Subtle border for dark header */
+    color: var(--heading-color);
+    padding: 5px 10px;
+    /* Adjusted padding to be similar to example */
+    font-size: 0.875rem;
+    /* Approx 14px */
+    font-weight: 500;
+    border-radius: 4px;
+    /* Example has slightly rounded corners */
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    line-height: 1.5;
+    /* Ensure text is vertically centered */
+    min-width: 40px;
+    /* Enough space for "EN" */
+    text-align: center;
+}
+
+.btn-language-selector:focus-visible {
+    outline: 2px solid var(--button-color);
+    /* Or your focus color */
+    outline-offset: 2px;
+}
+
+
+/* Styles for language selector in fixed header state */
+.fixed-header .btn-language-selector {
+    color: var(--text-color, #5f6368);
+    /* Darker text for light background */
+    border-color: #dadce0;
+    /* Standard border color like Google's UI elements */
+}
+
+.fixed-header .btn-language-selector:hover {
+    background-color: #f1f3f4;
+    /* Light grey hover */
+    border-color: #cdd0d4;
+}
+
 /* toggle menu css end */
 /* --- Media Query: Tablet/Smaller Desktops (e.g., below 992px) --- */
 @media (max-width: 992px) {
@@ -695,6 +751,11 @@
         display: inline-flex;
         align-items: center;
         margin-left: 10px;
+    }
+
+    .btn-language-selector {
+        padding: 4px 8px;
+        font-size: 0.8rem;
     }
 }
 

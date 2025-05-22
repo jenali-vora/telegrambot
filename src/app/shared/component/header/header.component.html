@@ -3,20 +3,17 @@
   <div class="container">
     <div class="header-left">
       <a routerLink="/" class="logo-link">
-        <!-- <img src="assets/image/file-upload-logo.png" alt=""> -->
-        <h2 class="logo-text-typewriter">Transfer</h2>
+        <h2>Transfer</h2>
       </a>
-    </div>
-
-    <div class="header-main">
-      <!-- Main Navigation Links - Always visible on desktop -->
       <nav class="main-nav">
         <a routerLink="/pricing" routerLinkActive="active" class="nav-link">Pricing</a>
         <a routerLink="/blog" routerLinkActive="active" class="nav-link">Blog</a>
         <a routerLink="/faq" routerLinkActive="active" class="nav-link">FAQs</a>
         <a routerLink="/contact-us" routerLinkActive="active" class="nav-link">Contact Us</a>
       </nav>
+    </div>
 
+    <div class="header-main">
       <!-- Auth Section: Shows Login/Signup OR User Profile -->
       <div class="auth-section">
         <!-- If NOT Logged In -->
@@ -26,7 +23,6 @@
         </nav>
 
         <!-- If Logged In -->
-        <!-- The 'user-profile-area' will be hidden on mobile via CSS -->
         <div class="user-profile-area" *ngIf="isLoggedIn && currentUser">
           <!-- User Profile Trigger -->
           <div class="user-profile-trigger" (click)="toggleUserMenu($event)">
@@ -36,6 +32,7 @@
           </div>
           <!-- User Dropdown Menu (for desktop) -->
           <div class="user-dropdown-menu" [class.active]="isUserMenuOpen" (click)="$event.stopPropagation()">
+            <!-- ... user dropdown content ... -->
             <div class="dropdown-header-info">
               <div class="user-avatar-lg user-initial-avatar">
                 <span>{{ getUserInitial() }}</span>
@@ -53,6 +50,20 @@
         </div>
       </div>
 
+      <!-- ++ NEW: Language Selector Container ++ -->
+      <div class="language-selector-container">
+        <button class="btn btn-language-selector" #languageSelectorBtn (click)="toggleLanguageModal($event)"
+          aria-label="Select language" [attr.aria-expanded]="isLanguageModalOpen">
+          {{ currentLanguageCode.toUpperCase() }}
+        </button>
+        <!-- The modal component's :host has position: absolute, so it will position relative to this container -->
+        <app-language-selector-modal *ngIf="isLanguageModalOpen" [isOpen]="isLanguageModalOpen"
+          [currentLanguage]="currentLanguageCode" [availableLanguages]="availableLanguages" [appName]="appName"
+          (closeModalRequest)="closeLanguageModal()" (languageSelected)="onLanguageSelected($event)"
+          (contactRequested)="onContactForTranslation()">
+        </app-language-selector-modal>
+      </div>
+
       <!-- Hamburger Button (Shown on mobile by CSS) -->
       <button class="mobile-menu-toggle" id="hamburger-button" (click)="openMenu()" aria-label="Open menu"
         [attr.aria-expanded]="isMenuOpen" aria-controls="mobile-sidebar">
@@ -61,6 +72,7 @@
     </div>
 
     <!-- Mobile Sidebar Menu & Overlay -->
+    <!-- ... (rest of your existing mobile sidebar HTML) ... -->
     <div class="mobile-menu-overlay" id="menu-overlay" [class.is-open]="isMenuOpen"></div>
     <aside class="mobile-menu-sidebar" id="mobile-sidebar" [class.is-open]="isMenuOpen"
       [attr.aria-hidden]="!isMenuOpen">
@@ -69,19 +81,16 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-
-      <!-- NEW: Sidebar User Info (visible when logged in) -->
       <div class="sidebar-user-info-container" *ngIf="isLoggedIn && currentUser">
-        <div class="sidebar-user-avatar user-initial-avatar"> <!-- Re-use avatar style -->
+        <div class="sidebar-user-avatar user-initial-avatar">
           <span>{{ getUserInitial() }}</span>
         </div>
         <div class="sidebar-user-details">
           <span class="sidebar-username">{{ currentUser.username || 'User' }}</span>
           <span class="sidebar-email">{{ currentUser.email }}</span>
         </div>
-        <hr class="sidebar-divider"> <!-- Optional divider -->
+        <hr class="sidebar-divider">
       </div>
-
       <nav class="sidebar-nav">
         <a routerLink="/pricing" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Pricing</a>
         <a routerLink="/blog" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Blog</a>
@@ -89,22 +98,17 @@
         <a routerLink="/contact-us" routerLinkActive="active" class="nav-link" (click)="onSidebarLinkClick()">Contact
           Us</a>
       </nav>
-
-      <!-- Logged IN state: Logout button container -->
       <ng-container *ngIf="isLoggedIn && currentUser">
-        <div class="sidebar-action-buttons"> <!-- Changed container class -->
+        <div class="sidebar-action-buttons">
           <a (click)="logout(); onSidebarLinkClick();" class="sidebar-btn sidebar-btn-logout">Log out</a>
         </div>
       </ng-container>
-
-      <!-- Logged OUT state: Login/Signup buttons container -->
       <ng-container *ngIf="!isLoggedIn">
         <div class="sidebar-auth-buttons-container">
           <a routerLink="/login" class="sidebar-btn sidebar-btn-login" (click)="onSidebarLinkClick()">Log In</a>
           <a routerLink="/register" class="sidebar-btn sidebar-btn-signup" (click)="onSidebarLinkClick()">Sign Up</a>
         </div>
       </ng-container>
-
     </aside>
   </div>
 </header>

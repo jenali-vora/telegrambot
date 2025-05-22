@@ -4,11 +4,14 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AuthService, User } from '../../services/auth.service';
+// ++ Import LanguageSelectorModalComponent and Language interface
+import { LanguageSelectorModalComponent, Language } from '../language-selector-modal/language-selector-modal.component'; // Adjust path if needed
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  // ++ Add LanguageSelectorModalComponent to imports
+  imports: [CommonModule, RouterLink, RouterLinkActive, LanguageSelectorModalComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -18,6 +21,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   currentUser: User | null = null;
 
+  // ++ Properties for language modal
+  isLanguageModalOpen = false;
+  currentLanguageCode: string = 'en'; // Default language
+  availableLanguages: Language[] = [
+    { code: 'en', name: 'English', nativeName: 'English' },
+    { code: 'fr', name: 'Français', nativeName: 'French' }, // Assuming 'French' is nativeName for screenshot
+    { code: 'it', name: 'Italiano', nativeName: 'Italian' },
+    { code: 'de', name: 'Deutsch', nativeName: 'German' },
+    { code: 'pt', name: 'Português', nativeName: 'Portuguese' },
+    { code: 'tr', name: 'Türkçe', nativeName: 'Turkish' },
+    { code: 'nl', name: 'Nederlands', nativeName: 'Dutch' },
+    { code: 'es', name: 'Español', nativeName: 'Spanish' },
+    { code: 'ro', name: 'Română', nativeName: 'Romanian' }
+  ];
+  appName: string = 'UploadNow'; // From screenshot context
+
   private authSubscription: Subscription = new Subscription();
   private renderer = inject(Renderer2);
   private el = inject(ElementRef);
@@ -25,6 +44,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   @ViewChild('header') header!: ElementRef;
+  // ++ ViewChild for the language selector button
+  @ViewChild('languageSelectorBtn', { static: false }) languageSelectorBtnRef: ElementRef | undefined;
+
   private unlistenOverlayClick: (() => void) | null = null;
   private unlistenEscKey: (() => void) | null = null;
 
@@ -49,6 +71,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.isMenuOpen && window.innerWidth > this.mobileBreakpoint) {
       this.closeMenu();
     }
+    // Optional: close language modal on resize if it interferes
+    // if (this.isLanguageModalOpen) {
+    //   this.closeLanguageModal();
+    // }
   }
 
   ngOnInit(): void {
@@ -65,9 +91,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.currentUser = user;
       })
     );
+    // TODO: Initialize currentLanguageCode from a translation service or localStorage if persisted
   }
 
   openMenu(): void {
+    // ... (existing openMenu logic remains the same)
     if (this.isMenuOpen) return;
     const sidebar = this.el.nativeElement.querySelector('#mobile-sidebar');
     const overlay = this.el.nativeElement.querySelector('#menu-overlay');
@@ -83,7 +111,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.addCloseListeners();
 
       const closeButtonInSidebar = sidebar.querySelector('#close-sidebar-button');
-      const focusDelay = 350; // Slightly longer than CSS transition (0.3s = 300ms)
+      const focusDelay = 350;
 
       setTimeout(() => {
         let focused = false;
@@ -104,6 +132,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   closeMenu(): void {
+    // ... (existing closeMenu logic remains the same)
     if (!this.isMenuOpen) return;
 
     const sidebar = this.el.nativeElement.querySelector('#mobile-sidebar');
@@ -112,7 +141,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     let focusReturnedOrBlurred = false;
 
-    // Try to return focus to the hamburger button IF it's visible and focusable
     if (hamburgerButton && window.getComputedStyle(hamburgerButton).display !== 'none') {
       if (typeof hamburgerButton.focus === 'function') {
         hamburgerButton.focus();
@@ -120,41 +148,35 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     }
 
-    // If focus wasn't returned (e.g., hamburger is hidden on desktop resize)
-    // AND an element within the sidebar currently has focus, blur that element.
     if (!focusReturnedOrBlurred && sidebar && document.activeElement && sidebar.contains(document.activeElement)) {
       if (typeof (document.activeElement as HTMLElement).blur === 'function') {
-        (document.activeElement as HTMLElement).blur(); // Moves focus to document.body
+        (document.activeElement as HTMLElement).blur();
         focusReturnedOrBlurred = true;
       }
     }
 
-    // Defer the rest of the closing operations to ensure focus has shifted
     setTimeout(() => {
-      this.isMenuOpen = false; // This triggers [attr.aria-hidden]="!isMenuOpen" to "true"
+      this.isMenuOpen = false;
 
       if (sidebar) {
         this.renderer.removeClass(sidebar, 'is-open');
-        // Angular binding [attr.aria-hidden]="!isMenuOpen" should handle this,
-        // but explicitly setting it via renderer after state change can be a fallback
-        // if needed, though typically not required with the timeout.
-        // this.renderer.setAttribute(sidebar, 'aria-hidden', 'true');
       }
       if (overlay) {
         this.renderer.removeClass(overlay, 'is-open');
       }
       this.renderer.removeClass(document.body, 'mobile-menu-active');
 
-      if (hamburgerButton) { // Only if it exists
+      if (hamburgerButton) {
         this.renderer.setAttribute(hamburgerButton, 'aria-expanded', 'false');
       }
 
       this.removeCloseListeners();
-    }, 0); // Defer to the next JavaScript event loop tick
+    }, 0);
   }
 
 
   private addCloseListeners(): void {
+    // ... (existing addCloseListeners logic remains the same)
     const overlay = this.el.nativeElement.querySelector('#menu-overlay');
     if (overlay && !this.unlistenOverlayClick) {
       this.unlistenOverlayClick = this.renderer.listen(overlay, 'click', () => this.closeMenu());
@@ -162,13 +184,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.unlistenEscKey) {
       this.unlistenEscKey = this.renderer.listen('document', 'keydown', (event: KeyboardEvent) => {
         if (event.key === 'Escape' && this.isMenuOpen) this.closeMenu();
+        // ++ Close language modal on Escape key as well
+        if (event.key === 'Escape' && this.isLanguageModalOpen) this.closeLanguageModal();
       });
     }
   }
 
   private removeCloseListeners(): void {
+    // ... (existing removeCloseListeners logic remains the same)
     this.unlistenOverlayClick?.();
-    this.unlistenEscKey?.();
+    this.unlistenEscKey?.(); // Note: This also removes the Esc listener for language modal. If separate Esc handling is needed for language modal, manage its listener separately.
     this.unlistenOverlayClick = null;
     this.unlistenEscKey = null;
   }
@@ -178,10 +203,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleUserMenu(event: MouseEvent): void {
     event.stopPropagation();
     this.isUserMenuOpen = !this.isUserMenuOpen;
+    if (this.isUserMenuOpen && this.isLanguageModalOpen) { // Close other modal
+      this.closeLanguageModal();
+    }
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
+    // User Dropdown Menu Logic
     const userMenuTrigger = this.el.nativeElement.querySelector('.user-profile-trigger');
     const userMenuDropdown = this.el.nativeElement.querySelector('.user-dropdown-menu');
     if (this.isUserMenuOpen && userMenuTrigger && userMenuDropdown) {
@@ -191,12 +220,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.isUserMenuOpen = false;
       }
     }
+
+    // ++ Language Modal Logic
+    // The language modal itself has stopPropagation for clicks inside it.
+    // So, if a click reaches here and it's not the trigger button, close the modal.
+    if (this.isLanguageModalOpen &&
+      this.languageSelectorBtnRef &&
+      !this.languageSelectorBtnRef.nativeElement.contains(event.target as Node)) {
+      this.closeLanguageModal();
+    }
   }
 
   logout(): void {
     this.authService.logout();
     this.isUserMenuOpen = false;
-    this.closeMenu();
+    this.closeMenu(); // Close mobile menu if open
+    this.closeLanguageModal(); // Close language modal if open
   }
 
   getUserInitial(): string {
@@ -206,6 +245,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return this.currentUser.username.charAt(0).toUpperCase();
     }
     return '?';
+  }
+
+  // ++ Methods for Language Modal
+  toggleLanguageModal(event: MouseEvent): void {
+    event.stopPropagation(); // Prevent document click from closing it immediately
+    this.isLanguageModalOpen = !this.isLanguageModalOpen;
+    if (this.isLanguageModalOpen && this.isUserMenuOpen) { // Close other modal
+      this.isUserMenuOpen = false;
+    }
+  }
+
+  closeLanguageModal(): void {
+    this.isLanguageModalOpen = false;
+  }
+
+  onLanguageSelected(langCode: string): void {
+    this.currentLanguageCode = langCode;
+    console.log(`Language selected: ${langCode}. Implement translation service call here.`);
+    // Example: this.translateService.use(langCode);
+    // localStorage.setItem('preferredLanguage', langCode);
+    this.closeLanguageModal();
+  }
+
+  onContactForTranslation(): void {
+    console.log('Contact for translation requested. Navigate to contact page or show form.');
+    // Example: this.router.navigate(['/contact-us'], { queryParams: { reason: 'translate' } });
+    this.closeLanguageModal();
   }
 
   ngOnDestroy(): void {

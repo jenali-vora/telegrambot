@@ -1,0 +1,36 @@
+<!-- src/app/components/language-selector-modal/language-selector-modal.component.html -->
+<div class="language-modal" id="language-modal-component" [class.is-open]="isOpen">
+    <div class="language-modal-header">
+        <h3>Available languages</h3>
+        <button class="language-modal-close" (click)="requestClose()" aria-label="Close language selection">
+            <i class="fas fa-times"></i> <!-- Ensure FontAwesome is available -->
+        </button>
+    </div>
+    <div class="language-modal-body">
+        <div class="language-columns">
+            <div class="language-column">
+                <div *ngFor="let lang of availableLanguages.slice(0, Math.ceil(availableLanguages.length / 2))"
+                    class="language-item" (click)="selectLanguage(lang.code)"
+                    [class.active]="lang.code === currentLanguage" role="button" tabindex="0"
+                    (keydown.enter)="selectLanguage(lang.code)" (keydown.space)="selectLanguage(lang.code)">
+                    <span class="language-name">{{ lang.name }}</span>
+                    <span class="language-native-name">{{ lang.nativeName }}</span>
+                </div>
+            </div>
+            <div class="language-column">
+                <div *ngFor="let lang of availableLanguages.slice(Math.ceil(availableLanguages.length / 2))"
+                    class="language-item" (click)="selectLanguage(lang.code)"
+                    [class.active]="lang.code === currentLanguage" role="button" tabindex="0"
+                    (keydown.enter)="selectLanguage(lang.code)" (keydown.space)="selectLanguage(lang.code)">
+                    <span class="language-name">{{ lang.name }}</span>
+                    <span class="language-native-name">{{ lang.nativeName }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="language-modal-footer">
+        <p>Is your language not available?</p>
+        <button class="btn btn-contact-translate" (click)="requestContact()">Contact us</button>
+        <span>Help us translate {{ appName }}.</span>
+    </div>
+</div>
