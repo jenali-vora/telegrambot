@@ -18,11 +18,11 @@
             </div>
             <!-- Main Upload Interaction Area -->
             <div class="upload-interaction-area">
-                <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
+                <!-- <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
                     <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
-                </div>
+                </div> -->
 
-                <!-- <div class="upload-main-wrapper"
+                <div class="upload-main-wrapper"
                     *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
 
                     <div class="upload-welcome-wrapper">
@@ -41,13 +41,13 @@
                                         <img src="assets/image/file-upload.png" alt="Upload Files">
                                     </button>
                                     <button type="button" title="Select Folder" (click)="triggerFolderInput()">
-                                        <img src="assets/image/folder.png" alt="Upload Folder">
+                                        <img src="assets/image/folder.svg" alt="Upload Folder">
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
                 <app-transfer-panel *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
                     [items]="selectedItems" [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                     [uploadStatusMessage]="uploadStatusMessage" (requestAddFiles)="triggerFileInput()"
