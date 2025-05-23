@@ -466,7 +466,7 @@
 }
 
 .btn-download-item:hover {
-    color: var(--button-hover);
+    color: var(--button-color);
     /* Blue hover for download */
 }
 

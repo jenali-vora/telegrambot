@@ -6,20 +6,29 @@
     --border-radius-main: 30px;
     --primary-green-darkened: #17a34a;
 
-    /* Subtler Glow colors */
-    --glow-green-color: rgba(0, 147, 75, 0.3);
-    --glow-blue-color: rgba(0, 0, 128, 0.3);
+    /* Subtler Glow colors - MODIFIED for reduced opacity */
+    --glow-green-color: rgba(0, 147, 75, 0.2);
+    /* Was 0.3 */
+    --glow-blue-color: rgba(0, 0, 128, 0.2);
+    /* Was 0.3 */
 
-    /* Subtler Glow parameters */
-    --glow-offset: 6px;
-    --glow-blur: 24px;
+    /* Subtler Glow parameters - MODIFIED for reduced offset and blur */
+    --glow-offset: 4px;
+    /* Was 6px */
+    --glow-blur: 18px;
+    /* Was 24px */
     --glow-spread: -2px;
+    /* Kept original */
 
-    /* Base shadow parameters */
-    --base-shadow-offset-y: 8px;
-    --base-shadow-blur: 30px;
+    /* Base shadow parameters - MODIFIED for reduced offset, blur, and opacity */
+    --base-shadow-offset-y: 5px;
+    /* Was 8px */
+    --base-shadow-blur: 22px;
+    /* Was 30px */
     --base-shadow-spread: 0px;
-    --base-shadow-color: rgba(0, 0, 0, 0.12);
+    /* Kept original */
+    --base-shadow-color: rgba(0, 0, 0, 0.10);
+    /* Was rgba(0, 0, 0, 0.12) */
 
     --box-shadow-main:
         calc(var(--glow-offset) * -1) calc(var(--glow-offset) * -1) var(--glow-blur) var(--glow-spread) var(--glow-blue-color),

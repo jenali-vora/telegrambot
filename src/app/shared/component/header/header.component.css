@@ -63,9 +63,11 @@
 .main-nav a {
     color: var(--text-color-secondary);
     font-size: 15px;
+    font-weight: 600;
 
     &:hover {
-        opacity: .75;
+        /* opacity: .75; */
+        color: var(--button-color);
     }
 }
 
