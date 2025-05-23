@@ -530,6 +530,7 @@
 
 .btn-upload-tg:not(:disabled):hover {
     background-color: var(--button-hover);
+    color: var(--button-color);
 }
 
 .btn-upload-tg i {

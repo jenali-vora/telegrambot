@@ -182,6 +182,7 @@
     animation-timing-function: linear;
     position: relative;
     z-index: 1;
+    border: 2px solid var(--button-color);
 }
 
 @keyframes common_shakeElem__bJOpt {

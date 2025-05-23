@@ -133,13 +133,14 @@
     /* Dark background */
     color: var(--white-color);
     width: fit-content;
+    border: 1px solid var(--button-color);
     /* White text */
 }
 
 .btn-visit:hover {
     background-color: var(--button-hover);
     /* Slightly lighter on hover */
-    color: var(--white-color);
+    color: var(--button-color);
 }
 
 .contact-section {
@@ -302,10 +303,11 @@
 .btn-submit {
     color: var(--white-color);
     background-color: var(--button-color);
+    border: 1px solid var(--button-color);
 }
 
 .btn-submit:hover {
-    color: var(--white-color);
+    color: var(--button-color);
     background-color: var(--button-hover);
 }
 
