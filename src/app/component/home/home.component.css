@@ -642,10 +642,12 @@
     border-radius: 5px;
     text-decoration: none;
     transition: background-color 0.2s ease;
+    border: 1px solid var(--button-color);
 }
 
 .btn.view-my-files-btn:hover {
-    background-color: var(--button-hover);
+    background-color: var(--white-color);
+    color: var(--button-color);
     /* Darker shade */
 }
 
