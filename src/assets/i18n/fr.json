@@ -1,0 +1,27 @@
+{
+    "HEADER": {
+        "TRANSFER": "Transfert",
+        "PRICING": "Tarifs",
+        "BLOG": "Blog",
+        "FAQS": "FAQ",
+        "CONTACT_US": "Contactez-nous",
+        "LOG_IN": "Connexion",
+        "SIGN_UP": "S'inscrire",
+        "LOG_OUT": "Déconnexion",
+        "SELECT_LANGUAGE": "Sélectionner la langue"
+    },
+    "LANGUAGE_MODAL": {
+        "TITLE": "Langues disponibles",
+        "NOT_AVAILABLE_QUESTION": "Votre langue n'est pas disponible ?",
+        "CONTACT_US_BUTTON": "Contactez-nous",
+        "HELP_TRANSLATE_APP": "Aidez-nous à traduire {{appName}}."
+    },
+    "USER_MENU": {
+        "LOG_OUT": "Déconnexion"
+    },
+    "GENERAL": {
+        "USER": "Utilisateur",
+        "OPEN_MENU": "Ouvrir le menu",
+        "CLOSE_MENU": "Fermer le menu"
+    }
+}

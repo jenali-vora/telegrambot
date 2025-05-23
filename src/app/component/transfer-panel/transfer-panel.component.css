@@ -542,3 +542,14 @@
     color: #555;
     margin-top: 5px;
 }
+
+@media (max-width: 480px) {
+    .share-link-input-group {
+        flex-wrap: wrap;
+    }
+
+    .copy-button {
+        padding: 5px;
+        width: 100%;
+    }
+}
