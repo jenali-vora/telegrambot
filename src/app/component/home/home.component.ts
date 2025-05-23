@@ -104,10 +104,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     { img: "assets/android-ByKVTp40.svg", title: "Android" },
   ];
 
-  icon=[
-    {icon:'fa-solid fa-file-arrow-up' , title:"Fast File Upload"},
-    {icon:'fa-solid fa-shuffle' , title:"Effortless File Transfer"},
-    {icon:'fa-solid fa-file-shield' , title:"Secure & Encrypted Uploads"},
+  icon = [
+    { icon: 'fa-solid fa-file-arrow-up', title: "Fast File Upload" },
+    { icon: 'fa-solid fa-shuffle', title: "Effortless File Transfer" },
+    { icon: 'fa-solid fa-file-shield', title: "Secure & Encrypted Uploads" },
   ]
 
   @HostListener('window:beforeunload', ['$event'])
@@ -259,19 +259,23 @@ export class HomeComponent implements OnInit, OnDestroy {
   @HostListener('window:drop', ['$event'])
   onWindowDrop(event: DragEvent): void {
     event.preventDefault();
+    // It's good practice for the top-level handler to stop propagation if it fully handles the event.
     event.stopPropagation();
 
-    const wasDragging = this.isDraggingOverWindow;
+    // Reset global drag state if it was used for a full-screen overlay (which is currently commented out)
     this.isDraggingOverWindow = false;
     this.dragEnterCounter = 0;
-    this.cdRef.detectChanges(); // Hide overlay immediately
+    this.cdRef.detectChanges();
 
-    // Process drop only if overlay was meant to be active and not uploading
-    if (wasDragging && this.selectedItems.length === 0 && !this.shareableLinkForPanel && !this.isUploading) {
+    // Process drop only if appropriate (no files selected, not uploading, etc.)
+    if (this.selectedItems.length === 0 && !this.shareableLinkForPanel && !this.isUploading) {
       const files = event.dataTransfer?.files;
       if (files && files.length > 0) {
-        this.handleFiles(files);
+        this.handleFiles(files); // Existing file handling logic
       }
+    } else {
+      // Optionally provide feedback if the drop is ignored due to application state
+      console.log("Drop ignored: Upload is already in progress or files are selected.");
     }
   }
   // --- End Global Drag and Drop ---

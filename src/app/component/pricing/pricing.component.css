@@ -32,7 +32,7 @@
     display: flex;
     justify-content: center;
     margin-bottom: 40px;
-    border: 1px solid #a1a9cb;
+    border: 1px solid var(--button-color);
     /* Border around the group */
     border-radius: 6px;
     overflow: hidden;
@@ -399,7 +399,7 @@
 /* ============================== */
 .customers-section {
     /* background: linear-gradient(90deg, rgb(43, 58, 145), rgb(26, 38, 108)); */
-    background-color: var(--background);
+    background: linear-gradient(135deg, var(--button-color), var(--button-hover));
     /* Simpler dark blue background */
     padding: 60px 0;
     color: var(--white-color);

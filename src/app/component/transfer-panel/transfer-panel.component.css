@@ -342,8 +342,8 @@
 
 .copy-success-tooltip {
     background-color: #e3e7f9;
-    color: var(--background);
-    border: 1px solid var(--background);
+    color: var(--button-color);
+    border: 1px solid var(--button-color);
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 0.8rem;

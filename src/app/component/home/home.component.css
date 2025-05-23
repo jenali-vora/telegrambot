@@ -389,6 +389,7 @@
     display: inline-block;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;
+    text-align: center;
 }
 
 /* transfer section css end */
@@ -536,8 +537,8 @@
 }
 
 .transfer-main .share-image img {
-    width: 420px;
-    height: 420px;
+    width: 500px;
+    height: 500px;
 }
 
 .transfer-main .discfeatures {
@@ -652,7 +653,7 @@
 
 .mask-center i {
     font-size: 30px;
-    color: var(--background);
+    color: var(--black-color);
 }
 
 .mask-center {
@@ -664,6 +665,12 @@
 .mask-center h6 {
     font-size: 15px;
     color: var(--text-color-secondary);
+}
+
+.drop-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* icon-content end */
@@ -834,5 +841,21 @@
 
     .upload-interaction-area {
         width: auto;
+    }
+
+    .mask-center i {
+        font-size: 25px;
+    }
+
+    .mask-center h6 {
+        font-size: 12px;
+    }
+
+    .txt-center {
+        text-align: center;
+    }
+
+    .icon-wrapper {
+        gap: 10px;
     }
 }

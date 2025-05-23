@@ -78,7 +78,7 @@ hr {
 }
 
 .file-length .share-username {
-    color: var(--background);
+    color: var(--button-color);
     font-size: 12px;
 }
 
@@ -302,9 +302,9 @@ hr {
 }
 
 .progress-bar {
-    background-color: var(--background);
+    background-color: var(--button-color);
     /* Bootstrap primary blue */
-    color: white;
+    color: var(--white-color);
     text-align: center;
     font-weight: 500;
     line-height: 22px;

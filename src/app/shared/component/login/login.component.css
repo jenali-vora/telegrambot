@@ -211,7 +211,7 @@ input[type="checkbox"] {
 }
 
 .info-content {
-    max-width: 300px;
+    /* max-width: 300px; */
 }
 
 .info-image {
