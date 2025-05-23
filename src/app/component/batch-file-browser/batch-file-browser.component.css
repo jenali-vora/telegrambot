@@ -145,8 +145,7 @@ hr {
 .file-actions button:hover,
 .file-actions a:hover {
     background-color: var(--button-hover);
-    border: 1px solid var(--button-hover);
-    color: var(--white-color);
+    color: var(--button-color);
 }
 
 .file-actions button:disabled {
@@ -159,7 +158,8 @@ hr {
 .download-all-btn {
     display: inline-block;
     background-color: var(--button-color);
-    color: white;
+    border: 1px solid var(--button-color);
+    color: var(--white-color);
     padding: 10px 20px;
     border-radius: 5px;
     border: none;
@@ -170,6 +170,7 @@ hr {
 
 .download-all-btn:hover {
     background-color: var(--button-hover);
+    color: var(--button-color);
 }
 
 .download-all-btn:disabled {
