@@ -8,7 +8,7 @@
 }
 
 .cta-container {
-    background: linear-gradient(135deg, var(--button-color), var(--button-hover));
+    background: var(--button-color);
     color: var(--white-color);
     padding: 50px 40px;
     border-radius: 20px;
@@ -87,14 +87,9 @@
 
 /* Primary button ("Register") */
 .cta-buttons .btn-primary {
-    background-color: var(--button-color);
-    /* Slightly lighter blue/purple - Adjust as needed */
-    color: #ffffff;
-}
-
-.cta-buttons .btn-primary:hover {
     background-color: var(--button-hover);
-    /* Darker shade on hover */
+    /* Slightly lighter blue/purple - Adjust as needed */
+    color: var(--button-color);
 }
 
 /* Secondary button ("Compare our offers") */
@@ -109,6 +104,7 @@
     background-color: var(--button-hover);
     /* Subtle background on hover */
     border-color: var(--button-hover);
+    color: var(--button-color);
     /* Make border solid white on hover */
 }
 

@@ -6,7 +6,8 @@
     padding: 20px;
     align-items: center;
     position: relative;
-    box-shadow: 0 2px 16px 0 #10182814;
+    background-color: var(--button-hover);
+    /* box-shadow: 0 2px 16px 0 #10182814; */
 }
 
 .logo-link {
@@ -87,9 +88,10 @@
 
 .btn-login {
     font-size: 15px;
-    background-color: #f2f4f7;
+    background-color: transparent;
     padding: 6px 20px;
     color: var(--text-color-secondary);
+    border: 2px solid var(--button-color);
 
     &:hover {
         color: var(--heading-color);
@@ -107,9 +109,9 @@
     border: 2px solid var(--button-color);
 
     &:hover {
-        background-color: var(--button-hover);
+        background-color: var(--white-color);
         color: var(--button-color);
-        border: 2px solid var(--button-hover);
+        border: 2px solid var(--button-color);
     }
 }
 
