@@ -236,7 +236,7 @@
     align-items: center;
     justify-content: center;
     /* Color from your second screenshot (dark magenta/purple) */
-    background-color: #657ee4;
+    background-color: var(--button-color);
     color: var(--white-color);
     font-weight: 500;
     /* Or bold if you prefer */
