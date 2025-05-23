@@ -49,28 +49,29 @@
                 </div>
             </li>
             <!-- INDIVIDUAL File Progress Bar -->
-            <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename] as currentProgress"
+            <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename]"
                 class="progress-container individual-progress-container">
                 <div class="progress-bar-wrapper">
-                    <div class="progress-bar" [style.width.%]="currentProgress.percentage || 0">
-                        {{ (currentProgress.percentage || 0) | number:'1.0-0' }}%
+                    <div class="progress-bar"
+                        [style.width.%]="individualProgress[file.original_filename]!.percentage || 0">
+                        {{ (individualProgress[file.original_filename]!.percentage || 0) | number:'1.0-0' }}%
                     </div>
                 </div>
-                <div class="progress-details" *ngIf="currentProgress.percentage < 100">
+                <div class="progress-details" *ngIf="individualProgress[file.original_filename]!.percentage < 100">
                     <span
-                        *ngIf="(currentProgress.bytesSent ?? currentProgress.bytesProcessed) !== undefined && currentProgress.totalBytes">
-                        {{ (currentProgress.bytesSent ?? currentProgress.bytesProcessed) | byteFormat }}
-                        / {{ currentProgress.totalBytes | byteFormat }}
+                        *ngIf="(individualProgress[file.original_filename]!.bytesSent ?? individualProgress[file.original_filename]!.bytesProcessed) !== undefined && individualProgress[file.original_filename]!.totalBytes">
+                        {{ (individualProgress[file.original_filename]!.bytesSent ??
+                        individualProgress[file.original_filename]!.bytesProcessed) | byteFormat }}
+                        / {{ individualProgress[file.original_filename]!.totalBytes | byteFormat }}
                     </span>
-                    <span *ngIf="currentProgress.speedMBps !== undefined && currentProgress.speedMBps > 0">
-                        • {{ currentProgress.speedMBps | number:'1.1-1' }} MB/s
+                    <span *ngIf="individualProgress[file.original_filename]!.speedMBps !== undefined">
+                        • {{ individualProgress[file.original_filename]!.speedMBps | number:'1.1-1' }} MB/s
                     </span>
-                    <span
-                        *ngIf="currentProgress.etaFormatted && currentProgress.etaFormatted !== '--:--' && currentProgress.etaFormatted !== '00:00'">
-                        • ETA: {{ currentProgress.etaFormatted }}
+                    <span *ngIf="individualProgress[file.original_filename]!.etaFormatted">
+                        • ETA: {{ individualProgress[file.original_filename]!.etaFormatted }}
                     </span>
                 </div>
-                <div *ngIf="currentProgress.percentage === 100" class="progress-details" class="progress-details">
+                <div *ngIf="individualProgress[file.original_filename]!.percentage === 100" class="progress-details">
                     <span>Processing complete!</span> <!-- Simplified message -->
                 </div>
             </div>
@@ -122,11 +123,10 @@
                     {{ (downloadAllProgress.bytesSent ?? downloadAllProgress.bytesProcessed) | byteFormat }} / {{
                     downloadAllProgress.totalBytes | byteFormat }}
                 </span>
-                <span *ngIf="downloadAllProgress.speedMBps !== undefined && downloadAllProgress.speedMBps > 0">
+                <span *ngIf="downloadAllProgress.speedMBps !== undefined">
                     • {{ downloadAllProgress.speedMBps | number:'1.1-1' }} MB/s
                 </span>
-                <span
-                    *ngIf="downloadAllProgress.etaFormatted && downloadAllProgress.etaFormatted !== '--:--' && downloadAllProgress.etaFormatted !== '00:00'">
+                <span *ngIf="downloadAllProgress.etaFormatted">
                     • ETA: {{ downloadAllProgress.etaFormatted }}
                 </span>
                 <span *ngIf="downloadAllProgressMessage" class="progress-stage-message">

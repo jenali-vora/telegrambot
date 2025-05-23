@@ -64,6 +64,10 @@
     align-items: center;
 }
 
+.bg-color {
+    background-color: var(--button-hover);
+}
+
 .txt-center {
     display: flex;
     justify-content: center;
