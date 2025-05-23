@@ -34,21 +34,20 @@
 </div> -->
 
 
+<!-- src/app/shared/component/orbital-display/orbital-display.component.html -->
 <div class="upload-container">
-    <div class="upload-area">
+    <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
+        (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
         <div class="dashed-circle-outer">
-            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActive">
+            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal">
                 <div class="content-wrapper">
                     <div class="plus-button" (click)="onCentralButtonClick()">
                         <i [class]="centralButtonIconClass"></i>
                     </div>
                     <p class="drag-drop-text">Drag and Drop file(s) here</p>
-                    <!-- <a href="#" class="select-folder-link">Or select a folder</a> -->
                     <div class="limit-info">
                         <span>Up to 4GB free</span>
                         <a href="#" class="increase-limit-link">
-                            <!-- Using a simple unicode lightning bolt, replace with an SVG or icon font if preferred -->
-                            <!-- <span class="lightning-icon">⚡</span> Increase Limit -->
                         </a>
                     </div>
                 </div>

@@ -3,7 +3,7 @@
 
     <section class="section-1 hero-section container">
         <div class="hero-content row">
-            <div class="col-12 col-lg-5 col-md-6 txt-center">
+            <div class="col-12 col-lg-6 col-md-6 txt-center">
                 <h2 class="hero-title">Transfer and have your <span class="text-highlight-gradient">files travel for
                         free</span></h2>
                 <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.</p>
@@ -20,7 +20,7 @@
                 </div>
 
             </div>
-            <div class="col-12 col-lg-6 col-md-6">
+            <div class="col-12 col-lg-6 col-md-6 drop-item">
                 <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
                     class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
                     (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
@@ -33,7 +33,8 @@
                 <!-- Main Upload Interaction Area -->
                 <div class="upload-interaction-area">
                     <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-                        <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
+                        <app-orbital-display 
+                            (requestFileUpload)="triggerFileInput()"></app-orbital-display>
                     </div>
                     <!-- <div class="upload-main-wrapper"
                         *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
@@ -98,7 +99,7 @@
     <section class="section-7 transfer-main container">
         <div class="row discfeatures">
             <div class="col-12 col-md-5 col-lg-5 share-image p-0">
-                <img src="assets/image/transfernow-enterprise-send.webp" alt="">
+                <img src="assets/image/send-file.jpg" alt="">
             </div>
             <div class="col-12 col-lg-6 col-md-6 p-0">
                 <div class="transfer-content">
