@@ -1,4 +1,9 @@
 /* --- Basic Setup & Container --- */
+
+.overflow-content {
+    overflow: hidden;
+}
+
 .pricing-section {
     padding: 60px 20px;
     background-color: #f8f9fa;

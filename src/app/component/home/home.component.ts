@@ -17,6 +17,7 @@ import { UploadEventService } from '../../shared/services/upload-event.service';
 import { BatchFileBrowserComponent } from '../batch-file-browser/batch-file-browser.component';
 import { TestimonialSectionComponent } from '@app/shared/component/testimonial-section/testimonial-section.component';
 import { OrbitalDisplayComponent } from '@app/shared/component/orbital-display/orbital-display.component';
+import { ScrollAnimationDirective } from '@app/shared/directives/scroll-animation.directive';
 
 interface UploadProgressDetails {
   percentage: number;
@@ -37,7 +38,7 @@ interface CompletedUploadLink {
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
     CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
-    , OrbitalDisplayComponent
+    , OrbitalDisplayComponent,ScrollAnimationDirective 
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],

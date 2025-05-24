@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FaqAccordionComponent } from "../faq-accordion/faq-accordion.component";
 import { ComparisonTableComponent } from "../comparison-table/comparison-table.component";
+import { ScrollAnimationDirective } from '@app/shared/directives/scroll-animation.directive';
 interface CustomerLogo {
   imageSrc: string;
   altText: string;
@@ -9,7 +10,7 @@ interface CustomerLogo {
 
 @Component({
   selector: 'app-pricing',
-  imports: [FaqAccordionComponent, ComparisonTableComponent],
+  imports: [FaqAccordionComponent, ComparisonTableComponent, ScrollAnimationDirective],
   templateUrl: './pricing.component.html',
   styleUrl: './pricing.component.css'
 })

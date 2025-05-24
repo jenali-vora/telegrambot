@@ -1,6 +1,7 @@
 /* Ensure you have Font Awesome included in your project for the icons */
 .help-section {
     padding: 50px 20px;
+    overflow: hidden;
 }
 
 .help-header {
@@ -16,7 +17,7 @@
     /* Large font size for the title */
     font-weight: 700;
     /* Bold weight */
-    color: #212529;
+    color: var(--heading-color);
     /* Dark text color */
     margin-bottom: 15px;
     /* Space below the title */
@@ -26,7 +27,7 @@
 .help-subtitle {
     font-size: 1rem;
     /* Standard font size */
-    color: #6c757d;
+    color: var(--text-color-secondary);
     /* Grey text color */
     max-width: 600px;
     /* Limit width for better readability */
@@ -74,13 +75,8 @@
 
 .card-icon {
     font-size: 1.8rem;
-    /* Size of the icon */
-    color: #6c757d;
-    /* Icon color */
     margin-bottom: 20px;
-    /* Space below the icon */
     line-height: 1;
-    /* Prevent extra space around icon */
 }
 
 /* Specific adjustments if needed for icon alignment/size */
@@ -94,31 +90,21 @@
 
 .card-title {
     font-size: 1.25rem;
-    /* Title font size */
     font-weight: 600;
-    /* Semi-bold */
-    color: #343a40;
-    /* Slightly darker text */
+    color: var(--heading-color);
     margin-bottom: 10px;
-    /* Space below card title */
 }
 
 .card-description {
     font-size: 0.95rem;
-    /* Description text size */
-    color: #495057;
-    /* Standard text color */
+    color: var(--text-color-secondary);
     line-height: 1.6;
-    /* Improve readability */
     margin-bottom: 25px;
-    /* Space below description */
     flex-grow: 1;
-    /* Allow description to take up space, pushing button down */
 }
 
 .card-description a {
     color: #0d6efd;
-    /* Standard blue link color */
     text-decoration: underline;
     font-weight: 500;
 }
@@ -130,23 +116,19 @@
 
 .btn-visit {
     background-color: var(--button-color);
-    /* Dark background */
     color: var(--white-color);
     width: fit-content;
     border: 1px solid var(--button-color);
-    /* White text */
 }
 
 .btn-visit:hover {
     background-color: var(--button-hover);
-    /* Slightly lighter on hover */
     color: var(--button-color);
 }
 
 .contact-section {
     padding: 60px 0px;
     background-color: var(--white-color);
-    /* White background */
 }
 
 /* --- Row and Column Layout --- */
@@ -179,7 +161,7 @@
 
 .contact-subtitle {
     font-size: 1rem;
-    color: #6c757d;
+    color: var(--text-color-secondary);
     line-height: 1.6;
 }
 
@@ -203,7 +185,7 @@
     line-height: 1.5;
     color: #495057;
     /* Text color inside input */
-    background-color: #fff;
+    background-color: var(--white-color);
     background-clip: padding-box;
     border: 1px solid #ced4da;
     /* Border color */
@@ -241,11 +223,11 @@
 .contact-form select:focus,
 .contact-form textarea:focus {
     color: #495057;
-    background-color: #fff;
-    border-color: #86b7fe;
+    background-color: var(--white-color);
+    border-color: var(--button-hover);
     /* Light blue border on focus */
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.2rem var(--button-hover);
     /* Subtle blue glow */
 }
 
@@ -313,9 +295,7 @@
 
 .btn-submit:focus {
     color: var(--white-color);
-    background-color: var(--background);
-    box-shadow: 0 0 0 0.2rem rgba(96, 107, 186, 0.5);
-    /* Focus glow */
+    background-color: var(--button-color);
 }
 
 .btn-submit {
@@ -429,6 +409,10 @@
     }
 
     .contact-illustration {
-        max-width: 90%;
+        max-width: 100%;
+    }
+
+    .testimonial-section-wrapper {
+        padding: 30px 0;
     }
 }

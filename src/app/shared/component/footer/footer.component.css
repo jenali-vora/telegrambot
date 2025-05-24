@@ -4,6 +4,10 @@
     background-color: #e8fedf;
 }
 
+.transfer-link {
+    cursor: pointer;
+}
+
 .footer-content {
     justify-content: space-between;
 }
