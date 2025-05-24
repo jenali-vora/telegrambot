@@ -1,8 +1,8 @@
 <section class="help-section">
     <!-- Header -->
-    <div class="help-header">
+    <div class="help-header" appScrollAnimation="slide-in-down" animationDelay="0.1s">
         <h2 class="help-title">We're here to <span class="text-highlight-gradient">help</span></h2>
-        <p class="help-subtitle">
+        <p class="help-subtitle" appScrollAnimation="slide-in-down" animationDelay="0.2s">
             Get support, find contact details, send us an enquiry and see our office locations.
         </p>
     </div>
@@ -12,7 +12,7 @@
         <div class="help-cards-container">
 
             <!-- Card 1: Help Centre -->
-            <div class="help-card">
+            <div class="help-card" appScrollAnimation="slide-in-up" animationDelay="0.3s">
                 <div class="card-icon">
                     <img src="assets/image/thunderbird.svg" alt="">
                 </div>
@@ -20,36 +20,36 @@
                 <p class="card-description">
                     Find answers to common questions and issues in our Help Centre.
                 </p>
-                <a href="#" class="btn btn-visit">Visit Help Centre</a> <!-- Link styled as button -->
+                <a href="#" class="btn btn-visit">Visit Help Centre</a>
             </div>
 
             <!-- Card 2: Log in / Email -->
-            <div class="help-card">
+            <div class="help-card" appScrollAnimation="slide-in-up" animationDelay="0.4s">
                 <div class="card-icon">
                     <img src="assets/image/lifebuoy.svg" alt="">
                 </div>
                 <h3 class="card-title">Log in to get support</h3>
                 <p class="card-description">
-                    If you are unable to log in then email <a
-                        href="mailto:transfer@gmail.com">transfer&#64;gmail.com</a>.
+                    If you are unable to log in then email <a href="mailto:transfer@gmail.com">transfer&#64;gmail.com</a>.
                     To
                     prioritise your enquiry effectively, tell us if you’re a paying user and give us the email
                     associated with your account.
                 </p>
-                <a href="#" class="btn btn-visit">Log in to get support</a> <!-- Link styled as button -->
+                <a href="#" class="btn btn-visit">Log in to get support</a>
             </div>
 
         </div>
         <section class="contact-section">
             <div class="contact-row row">
                 <!-- Left Column: Form -->
-                <div class="contact-form-column col-5">
-                    <div class="contact-header">
+                <div class="contact-form-column col-5" appScrollAnimation="slide-in-left" animationDelay="0.2s">
+                    <div class="contact-header" appScrollAnimation="fade-in" animationDelay="0.3s">
                         <h2 class="contact-title">Contact us</h2>
                         <p class="contact-subtitle">Get the support you need</p>
                     </div>
 
-                    <form action="#" method="post" class="contact-form">
+                    <form action="#" method="post" class="contact-form" appScrollAnimation="fade-in"
+                        animationDelay="0.4s">
                         <!-- Subject Dropdown -->
                         <div class="form-group">
                             <select name="subject_request" id="subject_request" required>
@@ -109,16 +109,15 @@
                 </div>
 
                 <!-- Right Column: Image -->
-                <div class="contact-image-column col-5">
+                <div class="contact-image-column col-5" appScrollAnimation="slide-in-right" animationDelay="0.2s">
                     <img src="assets/image/login-page.jpg" alt="Support illustration with buildings, FAQ, and envelope"
-                        class="contact-illustration">
-                    <!-- Make sure to replace 'path/to/your/support-illustration.png' with the actual path to your image -->
+                        class="contact-illustration" appScrollAnimation="zoom-in" animationDelay="0.4s">
                 </div>
             </div>
         </section>
     </div>
 
-    <div class="testimonial-section">
+    <div class="testimonial-section" appScrollAnimation="fade-in" animationDelay="0.3s">
         <app-testimonial-section></app-testimonial-section>
     </div>
 </section>

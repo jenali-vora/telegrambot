@@ -4,7 +4,8 @@
     <div class="bg-color">
         <section class="section-1 hero-section container">
             <div class="hero-content row">
-                <div class="col-12 col-lg-6 col-md-6 txt-center">
+                <div class="col-12 col-lg-6 col-md-6 txt-center" appScrollAnimation="slide-in-left"
+                    [animationThreshold]="0.01" animationDelay="0.1s">
                     <h2 class="hero-title">Transfer and have your <span class="text-highlight-gradient">files travel for
                             free</span></h2>
                     <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.
@@ -22,7 +23,8 @@
                     </div>
 
                 </div>
-                <div class="col-12 col-lg-6 col-md-6 drop-item">
+                <div class="col-12 col-lg-6 col-md-6 drop-item" appScrollAnimation="slide-in-right"
+                    [animationThreshold]="0.01" animationDelay="0.2s">
                     <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
                         class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
                         (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
@@ -103,10 +105,12 @@
     <!-- Other Sections (keep as is) -->
     <section class="section-7 transfer-main container">
         <div class="row discfeatures">
-            <div class="col-12 col-md-5 col-lg-5 share-image p-0">
-                <img src="assets/image/send-file.jpg" alt="">
+            <div class="col-12 col-md-5 col-lg-5 share-image p-0" appScrollAnimation="slide-in-left"
+                [animationThreshold]="0.5">
+                <img src="assets/image/main.png" alt="">
             </div>
-            <div class="col-12 col-lg-6 col-md-6 p-0">
+            <div class="col-12 col-lg-6 col-md-6 p-0" appScrollAnimation="slide-in-right" [animationThreshold]="0.5"
+                animationDelay="0.5s">
                 <div class="transfer-content">
                     <h2 class="text-left"><span class="text-highlight-gradient">Transfer and share files</span> by email
                         or link with no size limit</h2>
@@ -124,11 +128,13 @@
             </div>
         </div>
     </section>
-    <section class="section-2 transfer-file-section container">
+    <section class="section-2 transfer-file-section container" appScrollAnimation="fade-in-up"
+        [animationThreshold]="0.15">
         <div class="transfer-content">
             <h2>How to send and <span class="text-highlight-gradient">share large files</span> with TransferNow?</h2>
         </div>
-        <div class="transfer-step">
+        <div class="transfer-step stagger-children" appScrollAnimation="fade-in" [animationThreshold]="0.1"
+            animationDelay="0.2s">
             @for (item of stepContent; track $index) {
             <ol>
                 <li>
@@ -141,7 +147,7 @@
     </section>
 
     <section class="section-3 integrate-transfer container">
-        <div class="row m-0 integration-content-wrapper">
+        <div class="row m-0 integration-content-wrapper" appScrollAnimation="fade-in" [animationThreshold]="0.1">
             <div class="col-12 col-lg-12 p-0 itegration-content">
                 <div class="transfer-content">
                     <h2 class="transfer-heading">Integrate TransferNow to your website for <span
@@ -153,7 +159,8 @@
             <div class="col-12 col-lg-12 p-0">
                 <div class="contact-list">
                     @for (item of transferList; track $index) {
-                    <ul>
+                    <ul appScrollAnimation="fade-in-up" [animationThreshold]="0.1"
+                        [animationDelay]="($index * 0.15) + 's'">
                         <li>
                             <span>
                                 <img [src]="item.img" alt="">
@@ -170,7 +177,8 @@
         </div>
     </section>
 
-    <section class="section-4 upcoming-apps container">
+    <section class="section-4 upcoming-apps container" appScrollAnimation="zoom-in" [animationThreshold]="0.25"
+        animationDelay="0.1s">
         <div class="transfer-content">
             <h2>Keep an Eye Out for Our <span class="text-highlight-gradient">Upcoming Apps</span></h2>
 
@@ -193,15 +201,15 @@
         </div>
     </section>
 
-    <section class="section-6">
+    <section class="section-6" appScrollAnimation="fade-in" [animationThreshold]="0.1" animationDelay="0.3s">
         <app-faq-accordion></app-faq-accordion>
     </section>
 
-    <section class="section-5">
+    <section class="section-5" appScrollAnimation="fade-in-up" [animationThreshold]="0.15" animationDelay="0.2s">
         <app-testimonial-section></app-testimonial-section>
     </section>
 
-    <section class="section-7">
+    <section class="section-7" appScrollAnimation="zoom-in" [animationThreshold]="0.2" animationDelay="0.25s">
         <app-cta-section></app-cta-section>
     </section>
 
