@@ -164,6 +164,7 @@ input[type="checkbox"] {
     font-size: 14px;
     transition: background-color 0.2s ease;
     width: auto;
+    border: 1px solid var(--button-color);
 
     &:hover {
         background: var(--button-hover);
@@ -172,6 +173,7 @@ input[type="checkbox"] {
 
 .login-btn:hover:not(:disabled) {
     background-color: var(--button-hover);
+    color: var(--button-color);
 }
 
 .login-btn:disabled {

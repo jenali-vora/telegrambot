@@ -232,6 +232,7 @@
     transition: background-color 0.2s ease;
     width: 100%;
     margin-top: 10px;
+    border: 1px solid var(--button-color);
 
     &:hover {
         background-color: var(--button-hover);
@@ -239,7 +240,8 @@
 }
 
 .signup-btn:hover:not(:disabled) {
-    background-color: var(--button-color);
+    background-color: var(--button-hover);
+    color: var(--button-color);
 }
 
 .signup-btn:disabled {
