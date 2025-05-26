@@ -41,8 +41,16 @@
                     <div class="file-actions">
                         <span class="file-size">{{ file.original_size | byteFormat }}</span>
                         <button class="individual-download-button" (click)="initiateIndividualDownload(file)"
-                            [disabled]="isProcessingDownload" [title]="'Download ' + file.original_filename">
-                            Download
+                            [disabled]="isProcessingDownload"
+                            [title]="(currentDownloadingFile === file.original_filename && isProcessingDownload ? 'Processing... ' : 'Download ') + file.original_filename">
+                            <ng-container
+                                *ngIf="currentDownloadingFile === file.original_filename && isProcessingDownload">
+                                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Processing...
+                            </ng-container>
+                            <ng-container
+                                *ngIf="!(currentDownloadingFile === file.original_filename && isProcessingDownload)">
+                                Download
+                            </ng-container>
                         </button>
                     </div>
 
