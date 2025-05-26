@@ -202,13 +202,28 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.cleanupPreviousDownloadState(); // Clear previous state first
     this.currentDownloadingFile = file.original_filename;
     this.isProcessingDownload = true; // Disables buttons
-    this.individualProgress[file.original_filename] = { percentage: 0 }; // Show progress bar
-    this.setDownloadStatus(`Initiating download for ${file.original_filename}...`, 'info');
-    this.cdRef.detectChanges();
+
+    // Initialize progress with more details from the start
+    const initialProgressPayload: SseProgressPayload = {
+      percentage: 0,
+      bytesSent: 0, // Or bytesProcessed: 0, initialize as 0
+      totalBytes: file.original_size, // Use the known file size from the FileInBatchInfo
+      speedMBps: 0, // Initialize speed to 0
+      etaFormatted: "Estimating...", // Initial placeholder for ETA
+      // etaSeconds can remain undefined or be set to a placeholder if needed
+    };
+    this.individualProgress[file.original_filename] = initialProgressPayload;
+
+    // No need to set a general status message here if the progress bar itself will show info
+    // this.setDownloadStatus(`Initiating download for ${file.original_filename}...`, 'info');
+    this.cdRef.detectChanges(); // Crucial to update the UI with these initial values
 
     const encodedFilename = encodeURIComponent(file.original_filename);
+    // The SSE URL for individual download in your code is for /download-single/ which is fine.
+    // If it were /initiate-download-single/ that returned an SSE URL, that would be similar to downloadAll.
+    // Assuming /download-single/ directly IS the SSE stream URL.
     const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
-    this.setupSseConnection(sseUrl); // Removed isDownloadAll param
+    this.setupSseConnection(sseUrl);
   }
 
   private setupSseConnection(streamUrl: string): void { // Removed isDownloadAll parameter
