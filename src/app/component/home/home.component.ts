@@ -38,7 +38,7 @@ interface CompletedUploadLink {
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
     CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
-    , OrbitalDisplayComponent,ScrollAnimationDirective 
+    , OrbitalDisplayComponent, ScrollAnimationDirective
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -359,11 +359,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (isFinite(MAX_TOTAL_FILES)) {
       if (fileList.length > filesAddedInThisOperation && filesAddedInThisOperation < slotsActuallyAvailable) {
-        this.uploadError = `You can select a maximum of ${MAX_TOTAL_FILES} files in total. ${filesAddedInThisOperation} file(s) were added from your selection.`;
+        this.uploadError = `As you are not logged in, you can select a maximum of ${MAX_TOTAL_FILES} files. ${filesAddedInThisOperation} file(s) were added from your selection. Please log in or sign up to upload more.`;
       } else if (fileList.length > slotsActuallyAvailable && filesAddedInThisOperation === 0 && currentCount < MAX_TOTAL_FILES) {
-        this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. No new files were added.`;
+        this.uploadError = `As you are not logged in, your selection exceeds the maximum of ${MAX_TOTAL_FILES} files. No new files were added. Please log in or sign up to upload more.`;
       } else if (fileList.length > slotsActuallyAvailable) {
-        this.uploadError = `Your selection exceeds the maximum of ${MAX_TOTAL_FILES} total files. Only ${filesAddedInThisOperation} file(s) were added to reach the limit.`;
+        this.uploadError = `As you are not logged in, you can upload a maximum of ${MAX_TOTAL_FILES} files. Your selection exceeded this limit, so only ${filesAddedInThisOperation} file(s) were added. Please log in or sign up to upload more.`;
       }
     }
 

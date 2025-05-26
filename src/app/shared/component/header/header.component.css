@@ -77,11 +77,6 @@
     align-items: center;
 }
 
-.btn-login:hover {
-    /* opacity: .75; */
-    color: var(--button-color);
-}
-
 .auth-nav {
     gap: 10px;
     display: flex;
@@ -96,7 +91,8 @@
     border: 2px solid var(--button-color);
 
     &:hover {
-        color: var(--heading-color);
+        color: var(--button-color);
+        background-color: var(--white-color);
     }
 }
 

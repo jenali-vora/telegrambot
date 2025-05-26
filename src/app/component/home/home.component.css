@@ -14,6 +14,7 @@
 .transfer-step.stagger-children.is-visible>ol {
     opacity: 1;
     transform: translateY(0);
+    padding: 0;
 }
 
 /* Apply individual delays to <ol> children for staggering effect */
@@ -108,6 +109,7 @@
 .bg-color {
     background-color: var(--button-hover);
     overflow: hidden;
+    border-bottom-right-radius: 160px;
 }
 
 .txt-center {
@@ -364,6 +366,7 @@
 
 .transfer-step {
     display: flex;
+    gap: 20px;
 }
 
 .transfer-step ol {
@@ -372,7 +375,7 @@
 }
 
 .transfer-step ol li {
-    margin-right: 50px;
+    /* margin-right: 50px; */
     list-style: none;
     background: var(--white-color);
     border-radius: 33px 0 33px 0;
@@ -812,6 +815,10 @@
         text-align: center;
     }
 
+    .text-left {
+        text-align: center !important;
+    }
+
     .hero-des {
         font-size: 0.95rem;
         text-align: center;
@@ -828,10 +835,6 @@
 
     .transfer-step ol {
         padding: 0;
-    }
-
-    .transfer-step ol li {
-        margin: 0 0 30px;
     }
 
     .contact-list ul li span {
@@ -905,5 +908,8 @@
 
     .icon-wrapper {
         gap: 10px;
+    }
+    .transfer-step.stagger-children.is-visible>ol{
+        margin-bottom: 0;
     }
 }
