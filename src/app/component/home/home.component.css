@@ -1,10 +1,6 @@
 /* Add these styles to home.component.css */
 
 /* src/app/component/home/home.component.css */
-
-/* Stagger children animation for .transfer-step */
-/* The parent .transfer-step gets the directive */
-/* Children <ol> are styled based on parent's .is-visible state */
 .transfer-step.stagger-children>ol {
     opacity: 0;
     transform: translateY(30px);
@@ -31,13 +27,6 @@
 .transfer-step.stagger-children.is-visible>ol:nth-child(3) {
     transition-delay: 0.4s;
     /* Delay for the third <ol> */
-}
-
-/* Add more if stepContent has more items */
-
-/* Add a class for the second section-7 if needed for specific styling */
-.cta-section-wrapper {
-    /* any specific styles for this wrapper if needed, e.g. background */
 }
 
 /* ... rest of your existing styles ... */
@@ -106,6 +95,11 @@
     align-items: center;
 }
 
+.drop-item {
+    display: flex;
+    justify-content: center;
+}
+
 .bg-color {
     background-color: var(--button-hover);
     overflow: hidden;
@@ -116,6 +110,7 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
+    align-items: center;
 }
 
 /* --- Title Styling --- */
@@ -526,60 +521,6 @@
 
 /* section-3 css end */
 
-/* section-4 css start */
-.upcoming-apps {
-    padding: 0px 30px;
-    text-align: center;
-}
-
-.upcoming-apps h2 {
-    font-size: 50px;
-    font-weight: 700;
-}
-
-.upcoming-icon {
-    display: flex;
-    justify-content: center;
-    gap: 80px;
-    padding: 50px;
-    box-shadow: 0px 0px 12px 5px rgba(0, 0, 0, 0.03137254901960784);
-    border-radius: 8px;
-    background-color: var(--white-color);
-    border: 1px solid #E4E6EC;
-}
-
-.upcoming-apps ul li {
-    list-style: none;
-}
-
-.upcoming-apps ul li span {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-}
-
-.upcoming-apps ul li span img {
-    width: 36px;
-    height: 36px;
-}
-
-.coming-btn {
-    border: none;
-    background-color: var(--white-color);
-    font-size: 14px;
-}
-
-.vertical-divider {
-    width: 1px;
-    border: 1px solid #d7d7d7;
-    height: 110px;
-    align-self: center;
-    margin: 0 10px;
-}
-
-/* section-4 css end */
-
 /* section-7 css start */
 .transfer-main {
     padding: 60px 20px;
@@ -636,7 +577,7 @@
 
 .upload-interaction-area {
     max-width: 100%;
-    width: 400px;
+    width: 500px;
     margin-top: 1rem;
     margin-bottom: 2rem;
 }
@@ -697,35 +638,6 @@
     /* Darker shade */
 }
 
-/* icon-content start */
-.icon-wrapper {
-    display: flex;
-    gap: 40px;
-}
-
-.mask-center i {
-    font-size: 30px;
-    color: var(--button-color);
-}
-
-.mask-center {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.mask-center h6 {
-    font-size: 15px;
-    color: var(--text-color-secondary);
-}
-
-.drop-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* icon-content end */
 
 /* --- Responsiveness --- */
 
@@ -856,25 +768,6 @@
         min-width: unset;
     }
 
-    .upcoming-icon {
-        padding: 15px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
-    }
-
-    .upcoming-icon ul {
-        padding: 0;
-    }
-
-    .vertical-divider {
-        display: none;
-    }
-
-    .upcoming-apps h2 {
-        margin-bottom: 30px;
-    }
-
     .transfer-main .discfeatures {
         flex-direction: column;
     }
@@ -894,22 +787,11 @@
         width: auto;
     }
 
-    .mask-center i {
-        font-size: 25px;
-    }
-
-    .mask-center h6 {
-        font-size: 12px;
-    }
-
     .txt-center {
         text-align: center;
     }
 
-    .icon-wrapper {
-        gap: 10px;
-    }
-    .transfer-step.stagger-children.is-visible>ol{
+    .transfer-step.stagger-children.is-visible>ol {
         margin-bottom: 0;
     }
 }

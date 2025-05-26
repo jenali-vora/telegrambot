@@ -14,36 +14,24 @@
 
     /* Subtler Glow parameters - MODIFIED for reduced offset and blur */
     --glow-offset: 4px;
-    /* Was 6px */
     --glow-blur: 18px;
-    /* Was 24px */
     --glow-spread: -2px;
-    /* Kept original */
 
     /* Base shadow parameters - MODIFIED for reduced offset, blur, and opacity */
     --base-shadow-offset-y: 5px;
-    /* Was 8px */
     --base-shadow-blur: 22px;
-    /* Was 30px */
     --base-shadow-spread: 0px;
-    /* Kept original */
     --base-shadow-color: rgba(0, 0, 0, 0.10);
-    /* Was rgba(0, 0, 0, 0.12) */
 
     --box-shadow-main:
         calc(var(--glow-offset) * -1) calc(var(--glow-offset) * -1) var(--glow-blur) var(--glow-spread) var(--glow-blue-color),
         var(--glow-offset) var(--glow-offset) var(--glow-blur) var(--glow-spread) var(--glow-green-color),
         0px var(--base-shadow-offset-y) var(--base-shadow-blur) var(--base-shadow-spread) var(--base-shadow-color);
 
-    /* Assuming --button-color and --button-hover are defined elsewhere, e.g. in :root or style.css */
-    /* For demonstration, let's define them if they are missing */
-    /* Example: A darker shade of green for hover */
     --heading-color: #333;
-    /* Example */
     --text-color-secondary: #666;
-    /* Example */
     --white-color: #fff;
-    /* Example */
+
 }
 
 /* ADDED KEYFRAME ANIMATIONS */
@@ -79,9 +67,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 500px;
-    /* Fixed height as per original */
+    height: 300px;
     justify-content: center;
+    overflow: hidden;
 }
 
 .upload-area {
@@ -90,14 +78,15 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
+    cursor: pointer;
 }
 
 .dashed-circle-outer {
-    width: 280px;
-    height: 280px;
+    width: 100%;
+    height: 100%;
     /* MODIFIED: Original border made transparent to be replaced by pseudo-element */
     border: 2px solid transparent;
-    border-radius: 50%;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -115,11 +104,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 5px;
     border: 2px dashed var(--darker-light-green-border);
     box-sizing: border-box;
     /* Animation: left to right (clockwise) */
-    animation: rotate-clockwise 20s linear infinite;
+    /* animation: rotate-clockwise 20s linear infinite; */
 }
 
 .dashed-circle-inner {
@@ -127,39 +116,18 @@
     height: 100%;
     /* MODIFIED: Original border made transparent to be replaced by pseudo-element */
     border: 2px solid transparent;
-    border-radius: 50%;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
-    transition: background-color 0.2s ease-in-out;
-    /* Smooth transition for background */
-    /* ADDED: For positioning context of ::before */
     position: relative;
 }
 
-/* ADDED: Pseudo-element for the inner animated border */
-.dashed-circle-inner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 2px dashed var(--light-green-border);
-    box-sizing: border-box;
-    /* Animation: right to left (counter-clockwise) */
-    animation: rotate-counter-clockwise 20s linear infinite;
-}
 
-/* This new class will apply the highlight to the main element,
-   the pseudo-element's border will blend in as it's the same color */
 .dashed-circle-inner.drag-active-highlight {
     background-color: var(--light-green-border);
-    /* Use #c8e6c9 as the highlight color */
-    /* This makes the inner dashed border (from ::before) blend in, matching screenshot */
 }
 
 .content-wrapper {
@@ -167,14 +135,13 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    /* ADDED: Ensure content is above the pseudo-elements if needed, though default stacking should be fine */
     position: relative;
     z-index: 1;
 }
 
 .plus-button {
     background-color: var(--button-color);
-    color: white;
+    color: var(--white-color);
     width: 50px;
     height: 50px;
     border-radius: 50%;
