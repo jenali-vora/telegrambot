@@ -49,30 +49,46 @@
                 </div>
             </li>
             <!-- INDIVIDUAL File Progress Bar -->
-            <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename]"
+            <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename] as progressData"
                 class="progress-container individual-progress-container">
                 <div class="progress-bar-wrapper">
-                    <div class="progress-bar"
-                        [style.width.%]="individualProgress[file.original_filename]!.percentage || 0">
-                        {{ (individualProgress[file.original_filename]!.percentage || 0) | number:'1.0-0' }}%
+                    <div class="progress-bar" [style.width.%]="progressData.percentage || 0">
+                        <!-- {{ (individualProgress[file.original_filename]!.percentage || 0) | number:'1.0-0' }}% -->
+                        <span *ngIf="(progressData.percentage || 0) > 5">{{ (progressData.percentage || 0) |
+                            number:'1.0-0' }}%</span>
+                        <!-- Or always show it, and ensure CSS handles tiny bar text visibility -->
+                        <span *ngIf="(progressData.percentage || 0) <= 5">{{ (progressData.percentage || 0) |
+                            number:'1.0-0' }}%</span>
                     </div>
                 </div>
-                <div class="progress-details" *ngIf="individualProgress[file.original_filename]!.percentage < 100">
+                <div class="progress-details">
+                    <!-- Bytes Info: Show if totalBytes is known (it will be from initialization) -->
+                    <span *ngIf="progressData.totalBytes !== undefined">
+                        {{ (progressData.bytesSent ?? progressData.bytesProcessed ?? 0) | byteFormat }} / {{
+                        progressData.totalBytes | byteFormat }}
+                    </span>
+
+                    <!-- Separator, shown only if bytes info exists AND other details follow -->
                     <span
-                        *ngIf="(individualProgress[file.original_filename]!.bytesSent ?? individualProgress[file.original_filename]!.bytesProcessed) !== undefined && individualProgress[file.original_filename]!.totalBytes">
-                        {{ (individualProgress[file.original_filename]!.bytesSent ??
-                        individualProgress[file.original_filename]!.bytesProcessed) | byteFormat }}
-                        / {{ individualProgress[file.original_filename]!.totalBytes | byteFormat }}
+                        *ngIf="progressData.totalBytes !== undefined && progressData.percentage < 100 && (progressData.speedMBps !== undefined || progressData.etaFormatted)">
+                        • </span>
+
+                    <!-- Speed and ETA: Show if not 100% -->
+                    <ng-container *ngIf="progressData.percentage < 100">
+                        <span *ngIf="progressData.speedMBps !== undefined">
+                            {{ progressData.speedMBps | number:'1.1-1' }} MB/s
+                        </span>
+                        <!-- Separator, shown only if speed exists AND ETA follows -->
+                        <span *ngIf="progressData.speedMBps !== undefined && progressData.etaFormatted"> • </span>
+                        <span *ngIf="progressData.etaFormatted">
+                            ETA: {{ progressData.etaFormatted }}
+                        </span>
+                    </ng-container>
+
+                    <!-- Completion Message -->
+                    <span *ngIf="progressData.percentage === 100">
+                        Processing complete!
                     </span>
-                    <span *ngIf="individualProgress[file.original_filename]!.speedMBps !== undefined">
-                        • {{ individualProgress[file.original_filename]!.speedMBps | number:'1.1-1' }} MB/s
-                    </span>
-                    <span *ngIf="individualProgress[file.original_filename]!.etaFormatted">
-                        • ETA: {{ individualProgress[file.original_filename]!.etaFormatted }}
-                    </span>
-                </div>
-                <div *ngIf="individualProgress[file.original_filename]!.percentage === 100" class="progress-details">
-                    <span>Processing complete!</span> <!-- Simplified message -->
                 </div>
             </div>
             <li *ngIf="file.skipped || file.failed" style="background-color: #fefefe; opacity: 0.6;">
