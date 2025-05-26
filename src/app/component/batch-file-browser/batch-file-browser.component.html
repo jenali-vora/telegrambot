@@ -7,29 +7,33 @@
     <ul class="file-list" *ngIf="batchDetails.files && batchDetails.files.length > 0; else noFiles">
         <ng-container *ngFor="let file of batchDetails.files">
             <li *ngIf="!file.skipped && !file.failed" [attr.data-filename]="file.original_filename"
-                [class.processing]="currentDownloadingFile === file.original_filename">
+                [class.processing]="currentDownloadingFile === file.original_filename" class="file-list-item">
 
                 <!-- File Info (Name, sharer, etc.) -->
-                <div class="main-file-name row">
-                    <div class="col-2 file-icon-container"> <!-- Added a container class if needed for styling -->
-                        <span class="file-icon">
-                            <i class="fa" [ngClass]="getFileIconClass(file.original_filename)" aria-hidden="true"></i>
-                        </span>
-                    </div>
-                    <div class="col-10">
-                        <div class="file-info">
-                            <span class="file-name" [title]="file.original_filename">{{ file.original_filename }}</span>
+                <div class="file-item-main-content">
+                    <div class="main-file-name row">
+                        <div class="col-2 file-icon-container"> <!-- Added a container class if needed for styling -->
+                            <span class="file-icon">
+                                <i class="fa" [ngClass]="getFileIconClass(file.original_filename)"
+                                    aria-hidden="true"></i>
+                            </span>
                         </div>
-                        <div class="file-length">
-                            <span>
-                                <span class="file-dot">•</span> <span class="sharedby">Shared by</span> <span
-                                    class="share-username">
-                                    {{ batchDetails.username || 'N/A' }}
+                        <div class="col-10">
+                            <div class="file-info">
+                                <span class="file-name" [title]="file.original_filename">{{ file.original_filename
+                                    }}</span>
+                            </div>
+                            <div class="file-length">
+                                <span>
+                                    <span class="file-dot">•</span> <span class="sharedby">Shared by</span> <span
+                                        class="share-username">
+                                        {{ batchDetails.username || 'N/A' }}
+                                    </span>
                                 </span>
-                            </span>
-                            <span class="file-list-length">
-                                <span class="file-dot">•</span> {{ batchDetails.files?.length || 0 }} File(s)
-                            </span>
+                                <span class="file-list-length">
+                                    <span class="file-dot">•</span> {{ batchDetails.files?.length || 0 }} File(s)
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,22 +79,27 @@
                     <span>Processing complete!</span> <!-- Simplified message -->
                 </div>
             </div>
-            <li *ngIf="file.skipped || file.failed" style="background-color: #fefefe; opacity: 0.6;">
+            <li *ngIf="file.skipped || file.failed" style="background-color: #fefefe; opacity: 0.6;"
+                class="file-list-item">
+
                 <!-- ... existing code for skipped/failed files ... -->
-                <div class="file-info">
-                    <div class="row">
-                        <div class="col-2 icon-warning">
-                            <span class="file-icon" style="color: #dc3545;">⚠️</span>
-                        </div>
-                        <div class="col-10">
-                            <span class="file-name" [title]="file.original_filename + ' (Failed/Skipped)'">{{
-                                file.original_filename }}</span>
+                <div class="file-item-main-content">
+                    <div class="file-info" style="flex-grow: 1;">
+                        <div class="row">
+                            <div class="col-2 icon-warning">
+                                <span class="file-icon" style="color: #dc3545;">⚠️</span>
+                            </div>
+                            <div class="col-10">
+                                <span class="file-name" [title]="file.original_filename + ' (Failed/Skipped)'">{{
+                                    file.original_filename }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <span class="file-size">{{ file.reason || (file.failed ? 'Upload failed' : 'Skipped') }}</span>
-                <div class="file-actions">
-                    <button disabled>Download</button>
+                    <span class="file-size" style="margin-left: 10px; margin-right: 0;">{{ file.reason || (file.failed ?
+                        'Upload failed' : 'Skipped') }}</span>
+                    <div class="file-actions">
+                        <button disabled>Download</button>
+                    </div>
                 </div>
             </li>
         </ng-container>
