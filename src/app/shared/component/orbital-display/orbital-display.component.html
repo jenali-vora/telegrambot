@@ -39,9 +39,9 @@
     <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
         (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
         <div class="dashed-circle-outer">
-            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal">
+            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal" (click)="onCentralButtonClick()">
                 <div class="content-wrapper">
-                    <div class="plus-button" (click)="onCentralButtonClick()">
+                    <div class="plus-button">
                         <i [class]="centralButtonIconClass"></i>
                     </div>
                     <p class="drag-drop-text">Drag and Drop file(s) here</p>

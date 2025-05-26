@@ -4,27 +4,16 @@
     <div class="bg-color">
         <section class="section-1 hero-section container">
             <div class="hero-content row">
-                <div class="col-12 col-lg-6 col-md-6 txt-center" appScrollAnimation="slide-in-left"
-                    [animationThreshold]="0.01" animationDelay="0.1s">
+                <div class="col-12 txt-center" appScrollAnimation="slide-in-left" [animationThreshold]="0.01"
+                    animationDelay="0.1s">
                     <h2 class="hero-title">Transfer and have your <span class="text-highlight-gradient">files travel for
                             free</span></h2>
                     <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.
                     </p>
 
-                    <div class="icon-content">
-                        <div class="icon-wrapper">
-                            @for (item of icon; track $index) {
-                            <span class="mask-center">
-                                <span><i [class]="item.icon"></i></span>
-                                <h6>{{item.title}}</h6>
-                            </span>
-                            }
-                        </div>
-                    </div>
-
                 </div>
-                <div class="col-12 col-lg-6 col-md-6 drop-item" appScrollAnimation="slide-in-right"
-                    [animationThreshold]="0.01" animationDelay="0.2s">
+                <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
+                    animationDelay="0.2s">
                     <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
                         class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
                         (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
@@ -128,7 +117,8 @@
             </div>
         </div>
     </section>
-    <section class="section-2 transfer-file-section container" appScrollAnimation="fade-in-up"
+
+    <!-- <section class="section-2 transfer-file-section container" appScrollAnimation="fade-in-up"
         [animationThreshold]="0.15">
         <div class="transfer-content">
             <h2>How to send and <span class="text-highlight-gradient">share large files</span> with TransferNow?</h2>
@@ -144,7 +134,7 @@
             </ol>
             }
         </div>
-    </section>
+    </section> -->
 
     <section class="section-3 integrate-transfer container">
         <div class="row m-0 integration-content-wrapper" appScrollAnimation="fade-in" [animationThreshold]="0.1">
@@ -177,42 +167,9 @@
         </div>
     </section>
 
-    <section class="section-4 upcoming-apps container" appScrollAnimation="zoom-in" [animationThreshold]="0.25"
-        animationDelay="0.1s">
-        <div class="transfer-content">
-            <h2>Keep an Eye Out for Our <span class="text-highlight-gradient">Upcoming Apps</span></h2>
-
-        </div>
-        <div class="upcoming-icon">
-            @for (item of apps; track $index) {
-            <ul>
-                <li>
-                    <span>
-                        <img [src]="item.img" alt="">
-                        <span>{{item.title}}</span>
-                        <button disabled class="coming-btn">Coming Soon</button>
-                    </span>
-                </li>
-            </ul>
-            @if ($index === 1) {
-            <div class="vertical-divider"></div>
-            }
-            }
-        </div>
-    </section>
-
     <section class="section-6" appScrollAnimation="fade-in" [animationThreshold]="0.1" animationDelay="0.3s">
         <app-faq-accordion></app-faq-accordion>
     </section>
-
-    <section class="section-5" appScrollAnimation="fade-in-up" [animationThreshold]="0.15" animationDelay="0.2s">
-        <app-testimonial-section></app-testimonial-section>
-    </section>
-
-    <section class="section-7" appScrollAnimation="zoom-in" [animationThreshold]="0.2" animationDelay="0.25s">
-        <app-cta-section></app-cta-section>
-    </section>
-
 
     <!-- Upload Progress Overlay (remains unchanged) -->
     <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
