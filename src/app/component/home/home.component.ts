@@ -18,6 +18,7 @@ import { BatchFileBrowserComponent } from '../batch-file-browser/batch-file-brow
 import { TestimonialSectionComponent } from '@app/shared/component/testimonial-section/testimonial-section.component';
 import { OrbitalDisplayComponent } from '@app/shared/component/orbital-display/orbital-display.component';
 import { ScrollAnimationDirective } from '@app/shared/directives/scroll-animation.directive';
+import { GamesComponent } from '@app/shared/component/games/games.component';
 
 interface UploadProgressDetails {
   percentage: number;
@@ -38,7 +39,7 @@ interface CompletedUploadLink {
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
     CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
-    , OrbitalDisplayComponent, ScrollAnimationDirective
+    , OrbitalDisplayComponent, ScrollAnimationDirective,GamesComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -52,6 +53,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private uploadEventService = inject(UploadEventService);
   public completedBatchAccessId: string | null = null;
   public shareableLinkForPanel: string | null = null;
+  public showPlayGamesButton: boolean = false;
+  public isGamePanelVisible: boolean = false;
+  private readonly ONE_GIGABYTE_IN_BYTES = 1 * 1024 * 1024 * 1024;
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
@@ -169,6 +173,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.nextItemId = 0;
     this.batchUploadLinks = [];
     this.isDraggingOverWindow = false; // Reset drag state
+    this.isGamePanelVisible = false; // Ensure panel is closed on reset
+    this.updatePlayGamesButtonVisibility();
     this.dragEnterCounter = 0;
     this.closeEventSource();
 
@@ -179,8 +185,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.folderInputRef.nativeElement.value = '';
     }
     console.log('HomeComponent: Upload state has been reset.');
+    this.updatePlayGamesButtonVisibility();
   }
-
+  private updatePlayGamesButtonVisibility(): void {
+    const totalSelectedSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
+    this.showPlayGamesButton = totalSelectedSize >= this.ONE_GIGABYTE_IN_BYTES;
+    if (!this.showPlayGamesButton) {
+      this.isGamePanelVisible = false; // Also hide panel if condition no longer met
+    }
+    this.cdRef.detectChanges();
+  }
   ngOnDestroy(): void {
     this.authSubscription?.unsubscribe();
     this.closeEventSource();
@@ -373,6 +387,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.uploadError) {
       this.cdRef.detectChanges();
     }
+    this.updatePlayGamesButtonVisibility();
   }
 
   onFileSelected(event: Event): void {
@@ -714,9 +729,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.nextItemId = 0;
       console.log('HomeComponent: All items cleared from panel.');
     }
+    this.updatePlayGamesButtonVisibility();
     this.cdRef.detectChanges();
   }
-
+  toggleGamePanel(): void {
+    this.isGamePanelVisible = !this.isGamePanelVisible;
+  }
+  closeGamePanel(): void {
+    this.isGamePanelVisible = false;
+  }
   handleDownloadRequest(itemToDownload: SelectedItem): void {
     // ... (existing handleDownloadRequest logic remains the same)
     if (this.isUploading) return;

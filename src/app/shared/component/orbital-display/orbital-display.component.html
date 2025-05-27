@@ -35,27 +35,40 @@
 
 
 <!-- src/app/shared/component/orbital-display/orbital-display.component.html -->
-<div class="upload-container">
-    <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
-        (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
-        <div class="dashed-circle-outer">
-            <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal" (click)="onCentralButtonClick()">
-                <div class="content-wrapper">
-                    <div class="plus-button">
-                        <i [class]="centralButtonIconClass"></i>
-                    </div>
-                    <p class="drag-drop-text">Drag and Drop file(s) here</p>
-                    <div class="limit-info">
-                        <span>Up to 4GB free</span>
-                        <a href="#" class="increase-limit-link">
-                        </a>
+<div class="img">
+    <img src="assets/image/uplod-img.png" alt="">
+</div>
+<div class="main-uplod-content">
+    <div class="upload-container">
+        <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
+            (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
+            <div class="dashed-circle-outer">
+                <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal"
+                    (click)="onCentralButtonClick()">
+                    <div class="content-wrapper">
+                        <div class="plus-button">
+                            <i [class]="centralButtonIconClass"></i>
+                        </div>
+                        <p class="drag-drop-text">Drag and Drop file(s) here</p>
+                        <div class="limit-info">
+                            <span>Up to 4GB free</span>
+                            <a href="#" class="increase-limit-link">
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <p class="terms-text">
+            By uploading files you agree to the Transfer Terms & Conditions
+            and <a href="#">Privacy Policy</a>.
+        </p>
+        <app-transfer-panel *ngIf="showTransferPanel" [items]="items" [isUploading]="isUploading"
+            [batchShareableLink]="batchShareableLink" [uploadStatusMessage]="uploadStatusMessage"
+            (requestAddFiles)="onRequestAddFilesPanel()" (requestAddFolder)="onRequestAddFolderPanel()"
+            (itemRemoved)="onItemRemovedPanel($event)" (itemDownloadRequested)="onItemDownloadRequestedPanel($event)"
+            (transferInitiated)="onTransferInitiatedPanel()" class="transfer-panel-container orbital-transfer-panel">
+            <!-- Added a new class for specific styling if needed -->
+        </app-transfer-panel>
     </div>
-    <p class="terms-text">
-        By uploading files you agree to the Transfer Terms & Conditions
-        and <a href="#">Privacy Policy</a>.
-    </p>
 </div>

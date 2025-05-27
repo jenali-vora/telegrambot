@@ -1,6 +1,46 @@
 /* Add these styles to home.component.css */
 
 /* src/app/component/home/home.component.css */
+
+/* games css */
+.play-games-button-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: inline-block;
+    text-align: center;
+}
+
+.play-games-button-container p {
+    font-size: 0.95rem;
+    color: var(--des-color, #ccc);
+    margin-bottom: 10px;
+}
+
+/* You might reuse .view-games-btn styles or define new ones if needed */
+.btn.view-games-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 2.2rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background-color: var(--button-color);
+    /* Or a distinct color */
+    color: var(--white-color);
+    border: 1px solid var(--button-color);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.25s ease-in-out;
+}
+
+.btn.view-games-btn:hover {
+    background-color: var(--white-color);
+    color: var(--button-color);
+}
+
+/* games css end*/
 .transfer-step.stagger-children>ol {
     opacity: 0;
     transform: translateY(30px);
@@ -121,6 +161,7 @@
     font-weight: 600;
     margin: 0 0 1rem 0;
     line-height: 1.2;
+    text-align: center;
 }
 
 .hero-content {
@@ -579,10 +620,10 @@
 
 .upload-interaction-area {
     max-width: 100%;
-    width: 500px;
-    margin-top: 1rem;
+    width: 100%;
+    /* margin-top: 1rem; */
     margin-bottom: 2rem;
-    display: flex;
+    /* display: flex; */
     justify-content: center;
 }
 
@@ -797,5 +838,13 @@
 
     .transfer-step.stagger-children.is-visible>ol {
         margin-bottom: 0;
+    }
+
+    .bg-color {
+        border-bottom-right-radius: 70px;
+    }
+
+    .drop-item {
+        padding: 0;
     }
 }
