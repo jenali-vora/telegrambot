@@ -1,11 +1,13 @@
 // src/app/shared/component/orbital-display/orbital-display.component.ts
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+// Import SelectedItem and TransferPanelComponent
+import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
 
 @Component({
   selector: 'app-orbital-display',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TransferPanelComponent], // TransferPanelComponent is already imported
   templateUrl: './orbital-display.component.html',
   styleUrls: ['./orbital-display.component.css']
 })
@@ -13,7 +15,22 @@ export class OrbitalDisplayComponent implements OnInit {
   public isDragActiveLocal: boolean = false; // Local state for highlight
 
   @Input() centralButtonIconClass: string = 'fas fa-plus';
+
+  // Inputs for app-transfer-panel's data (remain the same)
+  @Input() items: SelectedItem[] = [];
+  @Input() isUploading: boolean = false;
+  @Input() batchShareableLink: string | null = null;
+  @Input() uploadStatusMessage: string = '';
+
+  // Output for the orbital display's own + button click (remains the same)
   @Output() requestFileUpload = new EventEmitter<void>();
+
+  // Outputs to bubble events from app-transfer-panel (remain the same)
+  @Output() requestAddFilesFromPanel = new EventEmitter<void>();
+  @Output() requestAddFolderFromPanel = new EventEmitter<void>();
+  @Output() itemRemovedFromPanel = new EventEmitter<SelectedItem | undefined>();
+  @Output() itemDownloadRequestedFromPanel = new EventEmitter<SelectedItem>();
+  @Output() transferInitiatedFromPanel = new EventEmitter<void>();
 
   private dragEnterCounter = 0;
 
@@ -22,17 +39,26 @@ export class OrbitalDisplayComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onCentralButtonClick(): void {
-    this.requestFileUpload.emit();
+  // Getter to determine if the transfer panel should be shown (remains the same)
+  get showTransferPanel(): boolean {
+    return ((this.items.length > 0 || !!this.batchShareableLink) || this.isUploading);
   }
 
+  // The showOrbitalContent getter is no longer needed.
+
+  onCentralButtonClick(): void {
+    this.requestFileUpload.emit(); // For the + button in orbital display
+  }
+
+  // Drag and drop handlers for the orbital area
   onDragEnterArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this.dragEnterCounter++;
     if (event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+      // isDragActiveLocal will be true if conditions are met,
+      // the template then decides if the class is applied based on !showTransferPanel
       this.isDragActiveLocal = true;
-      // event.dataTransfer is confirmed not null here by the condition above
       event.dataTransfer.dropEffect = 'copy';
     }
   }
@@ -40,23 +66,12 @@ export class OrbitalDisplayComponent implements OnInit {
   onDragOverArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
-
-    if (event.dataTransfer) { // Ensure dataTransfer object exists
-      if (this.isDragActiveLocal) {
+    if (event.dataTransfer) {
+      if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
         event.dataTransfer.dropEffect = 'copy';
       } else {
-        // Even if not isDragActiveLocal (e.g., drag started over a child),
-        // set dropEffect based on current content.
-        // The outer `if (event.dataTransfer)` ensures `event.dataTransfer.items` access is safe.
-        if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
-          event.dataTransfer.dropEffect = 'copy';
-        } else {
-          event.dataTransfer.dropEffect = 'none';
-        }
+        event.dataTransfer.dropEffect = 'none';
       }
-    } else {
-      // If dataTransfer is null, we can't set dropEffect.
-      // This might happen if the drag operation doesn't involve transferable items.
     }
   }
 
@@ -72,10 +87,29 @@ export class OrbitalDisplayComponent implements OnInit {
   onDropArea(event: DragEvent): void {
     event.preventDefault();
     // DO NOT call event.stopPropagation() here.
+    // This allows the global drop handler in HomeComponent to process the files.
     this.isDragActiveLocal = false;
     this.dragEnterCounter = 0;
-    // File processing will be handled by HomeComponent
-    // Accessing event.dataTransfer.files will be done in HomeComponent's drop handler,
-    // which should also include null checks.
+  }
+
+  // Methods to re-emit events from app-transfer-panel (remain the same)
+  onRequestAddFilesPanel(): void {
+    this.requestAddFilesFromPanel.emit();
+  }
+
+  onRequestAddFolderPanel(): void {
+    this.requestAddFolderFromPanel.emit();
+  }
+
+  onItemRemovedPanel(item: SelectedItem | undefined): void {
+    this.itemRemovedFromPanel.emit(item);
+  }
+
+  onItemDownloadRequestedPanel(item: SelectedItem): void {
+    this.itemDownloadRequestedFromPanel.emit(item);
+  }
+
+  onTransferInitiatedPanel(): void {
+    this.transferInitiatedFromPanel.emit();
   }
 }

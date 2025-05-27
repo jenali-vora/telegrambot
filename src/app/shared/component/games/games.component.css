@@ -1,0 +1,189 @@
+:host {
+    display: block;
+    /* Or inline-block, depending on how it's used */
+}
+
+.game-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    z-index: 1000;
+    /* Ensure it's on top */
+    display: flex;
+    justify-content: flex-end;
+    /* Align panel to the right */
+    align-items: flex-start;
+    /* Align to top, adjust as needed */
+}
+
+.game-panel-container {
+    position: relative;
+    /* For absolute positioning of close button if needed */
+    width: 450px;
+    /* Adjust width as desired */
+    max-width: 90vw;
+    height: 80vh;
+    /* Adjust height */
+    max-height: 700px;
+    margin-top: 5vh;
+    /* Example margin from top */
+    margin-right: 2vw;
+    /* Example margin from right */
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent content from spilling out */
+    animation: slideInFromRight 0.4s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.game-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--button-hover, #e9ecef);
+    /* Light header background */
+    border-bottom: 1px solid #dee2e6;
+}
+
+.game-panel-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--heading-color, #333);
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.close-button:hover {
+    color: #343a40;
+}
+
+.game-panel-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    /* Allow scrolling if content is too long */
+    padding: 20px;
+    display: flex;
+    /* Added for iframe container to take full height */
+    flex-direction: column;
+    /* Added */
+}
+
+.game-selection-area h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.game-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.game-list-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.game-list-item:last-child {
+    border-bottom: none;
+}
+
+.game-list-item:hover {
+    background-color: #f8f9fa;
+}
+
+.game-thumbnail {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 12px;
+    border: 1px solid #eee;
+}
+
+.game-list-item span {
+    flex-grow: 1;
+    font-size: 0.95rem;
+}
+
+.play-icon {
+    color: var(--button-color, #007bff);
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
+
+.game-iframe-container {
+    flex-grow: 1;
+    /* Make iframe area take remaining space */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    /* Important for iframe to fill */
+}
+
+.game-iframe-container iframe {
+    width: 100%;
+    flex-grow: 1;
+    /* Iframe takes most of the space */
+    border: 1px solid #ccc;
+    /* Optional border for iframe */
+    border-radius: 5px;
+}
+
+.back-to-games-list {
+    margin-top: 15px;
+    padding: 8px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    align-self: flex-start;
+    /* Align to left */
+}
+
+.back-to-games-list:hover {
+    background-color: #5a6268;
+}
+
+.back-to-games-list i {
+    margin-right: 6px;
+}

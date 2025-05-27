@@ -1,0 +1,30 @@
+<div class="game-panel-overlay" *ngIf="isVisible" (click)="closePanel()">
+    <div class="game-panel-container" *ngIf="isVisible" (click)="$event.stopPropagation()">
+        <div class="game-panel-header">
+            <h3>{{ selectedGameName ? 'Playing: ' + selectedGameName : 'Choose a Game' }}</h3>
+            <button class="close-button" (click)="closePanel()" title="Close Games">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="game-panel-content">
+            <div class="game-selection-area" *ngIf="!selectedGameUrl">
+                <h4>Select a Game to Play:</h4>
+                <ul class="game-list">
+                    <li *ngFor="let game of games" (click)="selectGame(game)" class="game-list-item">
+                        <img [src]="game.thumbnailUrl" [alt]="game.name" class="game-thumbnail">
+                        <span>{{ game.name }}</span>
+                        <i class="fas fa-play-circle play-icon"></i>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="game-iframe-container" *ngIf="selectedGameUrl">
+                <iframe [src]="selectedGameUrl" frameborder="0" allowfullscreen></iframe>
+                <button class="back-to-games-list" (click)="selectedGameUrl = null; selectedGameName = null;">
+                    <i class="fas fa-arrow-left"></i> Back to Game List
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

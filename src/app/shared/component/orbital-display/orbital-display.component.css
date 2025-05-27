@@ -1,28 +1,22 @@
+/* :host and non-relevant keyframes remain the same */
 :host {
     --light-green-border: #c8e6c9;
     --darker-light-green-border: #b0d9b1;
+    /* Used for the animated dashed border */
     --link-color: var(--primary-green);
-    /* Ensure --primary-green is defined */
+    --primary-green: #258c4e;
     --border-radius-main: 30px;
     --primary-green-darkened: #17a34a;
 
-    /* Subtler Glow colors - MODIFIED for reduced opacity */
     --glow-green-color: rgba(0, 147, 75, 0.2);
-    /* Was 0.3 */
     --glow-blue-color: rgba(0, 0, 128, 0.2);
-    /* Was 0.3 */
-
-    /* Subtler Glow parameters - MODIFIED for reduced offset and blur */
     --glow-offset: 4px;
     --glow-blur: 18px;
     --glow-spread: -2px;
-
-    /* Base shadow parameters - MODIFIED for reduced offset, blur, and opacity */
     --base-shadow-offset-y: 5px;
     --base-shadow-blur: 22px;
     --base-shadow-spread: 0px;
     --base-shadow-color: rgba(0, 0, 0, 0.10);
-
     --box-shadow-main:
         calc(var(--glow-offset) * -1) calc(var(--glow-offset) * -1) var(--glow-blur) var(--glow-spread) var(--glow-blue-color),
         var(--glow-offset) var(--glow-offset) var(--glow-blur) var(--glow-spread) var(--glow-green-color),
@@ -32,44 +26,62 @@
     --text-color-secondary: #666;
     --white-color: #fff;
 
+    --animated-border-thickness: 2px;
+    /* Thickness of the dashed border */
+    --animated-dash-length: 10px;
+    /* Length of each dash */
+    --animated-dash-gap: 10px;
+    /* Gap */
+    --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
+    /* ADDED: Full length of one dash + one gap */
 }
 
-/* ADDED KEYFRAME ANIMATIONS */
-@keyframes rotate-clockwise {
-    0% {
-        transform: rotate(0deg);
-    }
 
-    100% {
-        transform: rotate(360deg);
+/* MODIFIED KEYFRAME ANIMATION FOR MARCHING ANTS (Clockwise and seamless) */
+@keyframes march {
+    to {
+        background-position:
+            /* Top border (initial bg-pos: 0 0): To move dashes RIGHT, shift background image LEFT */
+            calc(-1 * var(--animated-cycle-length)) 0,
+
+            /* Bottom border (initial bg-pos: 0 100%): To move dashes LEFT, shift background image RIGHT */
+            var(--animated-cycle-length) 100%,
+
+            /* Left border (initial bg-pos: 0 0): To move dashes UP, shift background image DOWN */
+            0 var(--animated-cycle-length),
+
+            /* Right border (initial bg-pos: 100% 0): To move dashes DOWN, shift background image UP */
+            100% calc(-1 * var(--animated-cycle-length));
     }
 }
 
-@keyframes rotate-counter-clockwise {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(-360deg);
-    }
+.main-uplod-content {
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-main);
 }
 
 .upload-container {
     background-color: var(--white-color);
     border-radius: var(--border-radius-main);
     box-shadow: var(--box-shadow-main);
-    padding: 25px;
+    padding: 30px;
     width: 100%;
-    max-width: 100%;
-    /* Was 400px, but image shows wider, so set to 100% of its parent or a specific wider value if needed */
-    margin: 20px auto;
+    max-width: 500px;
+    /* margin: 20px auto; */
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 300px;
+    /* height: 300px; */
     justify-content: center;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 .upload-area {
@@ -81,48 +93,75 @@
     cursor: pointer;
 }
 
-.dashed-circle-outer {
-    width: 100%;
+.img img {
     height: 100%;
-    /* MODIFIED: Original border made transparent to be replaced by pseudo-element */
-    border: 2px solid transparent;
-    border-radius: 5px;
+    width: 300px;
+}
+
+.img {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 10px;
+    margin-bottom: -49px;
+    animation: cards_levitation__1wkej 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes cards_levitation__1wkej {
+    0% {
+        transform: translate(0);
+    }
+
+    100% {
+        transform: translateY(.3em);
+    }
+}
+
+.dashed-circle-outer {
+    width: 100%;
+    border-radius: 5px;
+    padding: var(--animated-border-thickness);
     box-sizing: border-box;
-    /* ADDED: For positioning context of ::before */
     position: relative;
 }
 
-/* ADDED: Pseudo-element for the outer animated border */
+/* MODIFIED: ::before is now the animated dashed border */
 .dashed-circle-outer::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-    border: 2px dashed var(--darker-light-green-border);
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
     box-sizing: border-box;
-    /* Animation: left to right (clockwise) */
-    /* animation: rotate-clockwise 20s linear infinite; */
+
+    background:
+        /* Top border - initial position 0 0 */
+        linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
+        /* Bottom border - initial position 0 100% */
+        linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 100% / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
+        /* Left border - initial position 0 0 */
+        linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y,
+        /* Right border - initial position 100% 0 */
+        linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 100% 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y;
+
+    animation: march 0.5s linear infinite;
+    /* Fast animation, linear for constant speed, infinite for continuous */
+    z-index: 0;
 }
+
 
 .dashed-circle-inner {
     width: 100%;
     height: 100%;
-    /* MODIFIED: Original border made transparent to be replaced by pseudo-element */
-    border: 2px solid transparent;
-    border-radius: 5px;
+    background-color: var(--white-color);
+    border-radius: inherit;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     box-sizing: border-box;
     position: relative;
+    z-index: 1;
 }
 
 
@@ -151,7 +190,6 @@
     margin-bottom: 15px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
-    /* ADDED ANIMATION PROPERTY: */
     animation-name: common_shakeElem__bJOpt;
     animation-duration: 5s;
     animation-iteration-count: infinite;
@@ -195,8 +233,13 @@
 }
 
 .plus-button svg {
-    fill: white;
+    fill: currentColor;
 }
+
+.plus-button i {
+    font-size: 24px;
+}
+
 
 .drag-drop-text {
     font-size: 16px;
@@ -247,12 +290,10 @@
 @media (max-width: 480px) {
     .upload-container {
         height: auto;
+        padding: 20px;
     }
 
-    .dashed-circle-outer {
-        width: 245px;
-        height: 245px;
+    .main-uplod-content {
+        padding: 10px;
     }
-
-    /* Pseudo-elements will resize automatically with their parent */
 }

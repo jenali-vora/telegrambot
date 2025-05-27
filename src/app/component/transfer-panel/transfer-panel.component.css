@@ -2,7 +2,7 @@
 :host {
     display: block;
     width: 100%;
-    max-width: 380px;
+    max-width: 100%;
     /* Adjust max-width */
     color: var(--heading-color);
     /* Default text color for light theme */

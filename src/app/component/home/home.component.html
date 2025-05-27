@@ -10,7 +10,13 @@
                             free</span></h2>
                     <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.
                     </p>
-
+                    <div *ngIf="showPlayGamesButton" class="play-games-button-container" appScrollAnimation="fade-in"
+                        [animationThreshold]="0.1" animationDelay="0.2s">
+                        <p>You've selected a large batch! How about some games while you wait or after?</p>
+                        <button (click)="toggleGamePanel()" class="btn btn-primary view-games-btn">
+                            <i class="fas fa-gamepad"></i> Play Games
+                        </button>
+                    </div>
                 </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
@@ -25,8 +31,15 @@
                     </div> -->
                     <!-- Main Upload Interaction Area -->
                     <div class="upload-interaction-area">
-                        <div *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-                            <app-orbital-display (requestFileUpload)="triggerFileInput()"></app-orbital-display>
+                        <div>
+                            <app-orbital-display (requestFileUpload)="triggerFileInput()" [items]="selectedItems"
+                                [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
+                                [uploadStatusMessage]="uploadStatusMessage"
+                                (requestAddFilesFromPanel)="triggerFileInput()"
+                                (requestAddFolderFromPanel)="triggerFolderInput()"
+                                (itemRemovedFromPanel)="handleItemRemovedFromPanel($event)"
+                                (itemDownloadRequestedFromPanel)="handleDownloadRequest($event)"
+                                (transferInitiatedFromPanel)="initiateTransferFromPanel()"></app-orbital-display>
                         </div>
                         <!-- <div class="upload-main-wrapper"
                             *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
@@ -54,7 +67,7 @@
                                 </div>
                             </div>
                         </div> -->
-                        <app-transfer-panel
+                        <!-- <app-transfer-panel
                             *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
                             [items]="selectedItems" [isUploading]="isUploading"
                             [batchShareableLink]="shareableLinkForPanel" [uploadStatusMessage]="uploadStatusMessage"
@@ -62,7 +75,7 @@
                             (itemRemoved)="handleItemRemovedFromPanel($event)"
                             (itemDownloadRequested)="handleDownloadRequest($event)"
                             (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
-                        </app-transfer-panel>
+                        </app-transfer-panel> -->
                     </div>
 
                     <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)"
@@ -86,6 +99,8 @@
                     </ng-container>
                 </div>
             </div>
+            <app-game-panel [isVisible]="isGamePanelVisible" (close)="closeGamePanel()">
+            </app-game-panel>
         </section>
     </div>
     <!-- === END: File List Section === -->
@@ -166,6 +181,7 @@
             </div>
         </div>
     </section>
+
 
     <section class="section-6" appScrollAnimation="fade-in" [animationThreshold]="0.1" animationDelay="0.3s">
         <app-faq-accordion></app-faq-accordion>

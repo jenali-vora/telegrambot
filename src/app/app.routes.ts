@@ -15,6 +15,7 @@ import { BatchFileBrowserComponent } from './component/batch-file-browser/batch-
 import { ForgotPasswordComponent } from './shared/component/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './shared/component/reset-password/reset-password.component';
 import { ArchivedFilesPageComponent } from './shared/component/archived-files-page/archived-files-page.component';
+import { GamesComponent } from './shared/component/games/games.component';
 
 export const routes: Routes = [
   // Routes WITHOUT Main Header/Footer
@@ -72,6 +73,10 @@ export const routes: Routes = [
         path: 'archived-files', // The path we linked to
         component: ArchivedFilesPageComponent,
         canActivate: [authGuard] // Protect this route too
+      },
+      {
+        path:'games',
+        component:GamesComponent
       },
       // Removed: { path: '', redirectTo: '/home', pathMatch: 'full' }
       // This is no longer needed as HomeComponent is now the default for the empty path.
