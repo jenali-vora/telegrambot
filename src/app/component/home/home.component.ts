@@ -39,7 +39,7 @@ interface CompletedUploadLink {
   imports: [
     CommonModule, RouterLink, TransferPanelComponent, FaqAccordionComponent,
     CtaSectionComponent, UploadProgressItemComponent, ByteFormatPipe, DatePipe, BatchFileBrowserComponent, TestimonialSectionComponent
-    , OrbitalDisplayComponent, ScrollAnimationDirective,GamesComponent
+    , OrbitalDisplayComponent, ScrollAnimationDirective, GamesComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public completedBatchAccessId: string | null = null;
   public shareableLinkForPanel: string | null = null;
   public showPlayGamesButton: boolean = false;
+  private previousShowPlayGamesButtonState: boolean = false;
   public isGamePanelVisible: boolean = false;
   private readonly ONE_GIGABYTE_IN_BYTES = 1 * 1024 * 1024 * 1024;
 
@@ -114,7 +115,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     { icon: 'fa-solid fa-shuffle', title: "Effortless File Transfer" },
     { icon: 'fa-solid fa-file-shield', title: "Secure & Encrypted Uploads" },
   ]
-
+  redisterdUser = [
+    { icon: 'assets/image/ru-i.png', title: 'Registered users', count: '327,026,694' },
+    { icon: 'assets/image/files-uploadImg.png', title: 'Uploaded files', count: '191,649,393,254' }
+  ]
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent): void {
     if (this.isUploading) {
@@ -189,11 +193,26 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   private updatePlayGamesButtonVisibility(): void {
     const totalSelectedSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-    this.showPlayGamesButton = totalSelectedSize >= this.ONE_GIGABYTE_IN_BYTES;
+    const newShowPlayGamesButtonState = totalSelectedSize >= this.ONE_GIGABYTE_IN_BYTES;
+
+    // Check if the state is changing from false to true
+    if (newShowPlayGamesButtonState && !this.previousShowPlayGamesButtonState) {
+      this.playNotificationSound(); // Play sound when toast is about to be shown
+    }
+
+    this.showPlayGamesButton = newShowPlayGamesButtonState;
+    this.previousShowPlayGamesButtonState = this.showPlayGamesButton; // Update the previous state
+
     if (!this.showPlayGamesButton) {
       this.isGamePanelVisible = false; // Also hide panel if condition no longer met
     }
     this.cdRef.detectChanges();
+  }
+  private playNotificationSound(): void {
+    const audio = new Audio('assets/audio/new-notification-3-323602.mp3');
+    audio.play().catch(error => {
+      console.warn("Notification sound playback failed:", error);
+    });
   }
   ngOnDestroy(): void {
     this.authSubscription?.unsubscribe();
@@ -451,7 +470,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       etaFormatted: '--:--',
     };
     this.uploadProgress = 0;
-    this.uploadStatusMessage = `Initiating batch upload of ${this.selectedItems.length} item(s)...`;
+    this.uploadStatusMessage = 'Initializing upload...'; // Changed this line
     this.currentUploadId = null;
     this.cdRef.detectChanges();
 
@@ -586,7 +605,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             return;
           }
           const data = JSON.parse(event.data);
-          this.uploadStatusMessage = data.message || `Batch upload complete!`;
+          this.uploadStatusMessage = data.message || 'Upload complete!'; // Changed this line
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
@@ -659,7 +678,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         etaFormatted: 'Error',
       };
       this.uploadProgress = this.uploadProgressDetails.percentage;
-      this.uploadStatusMessage = 'Batch Upload Failed';
+      this.uploadStatusMessage = 'Upload Failed'; // Changed this line
       this.closeEventSource();
       this.cdRef.detectChanges();
     });
