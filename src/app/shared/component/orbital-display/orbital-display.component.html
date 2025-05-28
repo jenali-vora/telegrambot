@@ -35,10 +35,28 @@
 
 
 <!-- src/app/shared/component/orbital-display/orbital-display.component.html -->
+
 <div class="img">
     <img src="assets/image/uplod-img.png" alt="">
 </div>
 <div class="main-uplod-content">
+    <!-- START: Added circles background animation -->
+    <div class="area">
+        <ul class="circles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <!-- END: Added circles background animation -->
+
     <div class="upload-container">
         <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
             (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
@@ -68,7 +86,6 @@
             (requestAddFiles)="onRequestAddFilesPanel()" (requestAddFolder)="onRequestAddFolderPanel()"
             (itemRemoved)="onItemRemovedPanel($event)" (itemDownloadRequested)="onItemDownloadRequestedPanel($event)"
             (transferInitiated)="onTransferInitiatedPanel()" class="transfer-panel-container orbital-transfer-panel">
-            <!-- Added a new class for specific styling if needed -->
         </app-transfer-panel>
     </div>
 </div>

@@ -3,41 +3,45 @@
 /* src/app/component/home/home.component.css */
 
 /* games css */
-.play-games-button-container {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    display: inline-block;
-    text-align: center;
+.play-games-notification-toast {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 1010;
+    padding: 14px 20px;
+    background-color: #F9FAFB;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    max-width: 320px;
+    width: auto;
+    text-align: left;
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.3s ease-in-out;
 }
 
-.play-games-button-container p {
-    font-size: 0.95rem;
-    color: var(--des-color, #ccc);
-    margin-bottom: 10px;
+.play-games-notification-toast:hover,
+.play-games-notification-toast:focus {
+    background-color: #F3F4F6;
+    border-color: #D1D5DB;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.07);
+    transform: translateY(-2px);
+    /* Slight lift */
+    outline: none;
 }
 
-/* You might reuse .view-games-btn styles or define new ones if needed */
-.btn.view-games-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.9rem 2.2rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-    background-color: var(--button-color);
-    /* Or a distinct color */
-    color: var(--white-color);
-    border: 1px solid var(--button-color);
-    border-radius: 6px;
-    text-decoration: none;
-    transition: all 0.25s ease-in-out;
+.play-games-notification-toast:active {
+    transform: translateY(0px);
+    background-color: #EFF1F3;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.btn.view-games-btn:hover {
-    background-color: var(--white-color);
-    color: var(--button-color);
+.play-games-notification-toast p {
+    font-size: 0.9rem;
+    color: #1F2937;
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 400;
 }
 
 /* games css end*/
