@@ -65,7 +65,11 @@
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.2);
+    /* This will overlay the animation, giving it a dimmed/blurred look */
     border-radius: var(--border-radius-main);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .upload-container {
@@ -75,13 +79,12 @@
     padding: 30px;
     width: 100%;
     max-width: 500px;
-    /* margin: 20px auto; */
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* height: 300px; */
     justify-content: center;
-    /* overflow: hidden; */
+    position: relative;
+    z-index: 1;
 }
 
 .upload-area {
@@ -103,7 +106,10 @@
     justify-content: center;
     margin-bottom: -49px;
     animation: cards_levitation__1wkej 1.2s ease-in-out infinite alternate;
+    position: relative;
+    z-index: 2;
 }
+
 
 @keyframes cards_levitation__1wkej {
     0% {
@@ -123,7 +129,6 @@
     position: relative;
 }
 
-/* MODIFIED: ::before is now the animated dashed border */
 .dashed-circle-outer::before {
     content: '';
     position: absolute;
@@ -135,17 +140,12 @@
     box-sizing: border-box;
 
     background:
-        /* Top border - initial position 0 0 */
         linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
-        /* Bottom border - initial position 0 100% */
         linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 100% / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
-        /* Left border - initial position 0 0 */
         linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y,
-        /* Right border - initial position 100% 0 */
         linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 100% 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y;
 
     animation: march 0.5s linear infinite;
-    /* Fast animation, linear for constant speed, infinite for continuous */
     z-index: 0;
 }
 
@@ -276,6 +276,8 @@
     text-align: center;
     line-height: 1.5;
     max-width: 300px;
+    position: relative;
+    z-index: 1;
 }
 
 .terms-text a {
@@ -287,6 +289,12 @@
     text-decoration: none;
 }
 
+.main-uplod-content>.transfer-panel-container {
+    position: relative;
+    z-index: 1;
+}
+
+
 @media (max-width: 480px) {
     .upload-container {
         height: auto;
@@ -295,5 +303,132 @@
 
     .main-uplod-content {
         padding: 10px;
+    }
+}
+
+
+/* --- NEW CIRCLES ANIMATION CSS --- */
+.main-uplod-content>.area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    /* Behind other content in main-uplod-content */
+}
+
+.main-uplod-content>.area>.circles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.main-uplod-content>.area>.circles li {
+    position: absolute;
+    display: block;
+    list-style: none;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    /* Light semi-transparent circles */
+    animation: animate-circles 25s linear infinite;
+    /* Renamed keyframe to avoid conflict */
+    bottom: -150px;
+    /* Start below the container */
+}
+
+.main-uplod-content>.area>.circles li:nth-child(1) {
+    left: 25%;
+    width: 80px;
+    height: 80px;
+    animation-delay: 0s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(2) {
+    left: 10%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 2s;
+    animation-duration: 12s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(3) {
+    left: 70%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 4s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(4) {
+    left: 40%;
+    width: 60px;
+    height: 60px;
+    animation-delay: 0s;
+    animation-duration: 18s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(5) {
+    left: 65%;
+    width: 20px;
+    height: 20px;
+    animation-delay: 0s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(6) {
+    left: 75%;
+    width: 110px;
+    height: 110px;
+    animation-delay: 3s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(7) {
+    left: 35%;
+    width: 150px;
+    height: 150px;
+    animation-delay: 7s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(8) {
+    left: 50%;
+    width: 25px;
+    height: 25px;
+    animation-delay: 15s;
+    animation-duration: 45s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(9) {
+    left: 20%;
+    width: 15px;
+    height: 15px;
+    animation-delay: 2s;
+    animation-duration: 35s;
+}
+
+.main-uplod-content>.area>.circles li:nth-child(10) {
+    left: 85%;
+    width: 150px;
+    height: 150px;
+    animation-delay: 0s;
+    animation-duration: 11s;
+}
+
+
+@keyframes animate-circles {
+
+    /* Renamed from 'animate' to 'animate-circles' for clarity */
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+        border-radius: 0;
+    }
+
+    100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+        border-radius: 50%;
     }
 }

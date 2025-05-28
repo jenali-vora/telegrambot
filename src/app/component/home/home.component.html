@@ -10,13 +10,6 @@
                             free</span></h2>
                     <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.
                     </p>
-                    <div *ngIf="showPlayGamesButton" class="play-games-button-container" appScrollAnimation="fade-in"
-                        [animationThreshold]="0.1" animationDelay="0.2s">
-                        <p>You've selected a large batch! How about some games while you wait or after?</p>
-                        <button (click)="toggleGamePanel()" class="btn btn-primary view-games-btn">
-                            <i class="fas fa-gamepad"></i> Play Games
-                        </button>
-                    </div>
                 </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
@@ -194,5 +187,11 @@
             [speedMBps]="uploadProgressDetails.speedMBps" [etaFormatted]="uploadProgressDetails.etaFormatted"
             [itemsInTransfer]="selectedItems.length" (cancelUpload)="handleCancelUpload()">
         </app-upload-progress-item>
+    </div>
+    <div *ngIf="showPlayGamesButton" class="play-games-notification-toast" (click)="toggleGamePanel()" role="button"
+        tabindex="0" (keydown.enter)="toggleGamePanel()" (keydown.space)="toggleGamePanel()"
+        title="Click to play games while you wait or after your transfer" appScrollAnimation="fade-in"
+        [animationThreshold]="0.001" animationDelay="0.3s">
+        <p>You've selected a large batch! How about some games while you wait or after?</p>
     </div>
 </div>

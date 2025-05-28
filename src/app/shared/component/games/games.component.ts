@@ -25,32 +25,16 @@ export class GamesComponent implements OnInit {
   selectedGameUrl: SafeResourceUrl | null = null;
   selectedGameName: string | null = null;
 
+  // Updated games array with only Tic Tac Toe, using a reliable embeddable URL
   games: Game[] = [
     {
       id: 1,
-      name: '2048',
-      description: 'Join the numbers and get to the 2048 tile!',
-      thumbnailUrl: 'assets/image/games/2048_thumbnail.png',
-      gameUrl: 'https://play2048.co/',
-      category: 'Puzzle'
+      name: 'Tic Tac Toe',
+      description: 'Play the classic game of Tic Tac Toe!',
+      thumbnailUrl: 'assets/image/tic-tac-toy.jpg', //  Ensure you have this image or update path
+      gameUrl: 'https://www.mathsisfun.com/games/tic-tac-toe.html',
+      category: 'Strategy'
     },
-    {
-      id: 2,
-      name: 'Pac-Man',
-      description: "Google's 30th Anniversary Pac-Man doodle.",
-      thumbnailUrl: 'assets/image/games/pacman_thumbnail.png',
-      gameUrl: 'https://www.google.com/doodles/30th-anniversary-of-pac-man',
-      category: 'Arcade'
-    },
-    {
-      id: 3,
-      name: 'Quick, Draw!',
-      description: 'Can a neural network learn to recognize your doodles?',
-      thumbnailUrl: 'assets/image/games/quickdraw_thumbnail.png',
-      gameUrl: 'https://quickdraw.withgoogle.com/',
-      category: 'Creative'
-    },
-    // Add more games here
   ];
 
   constructor(private sanitizer: DomSanitizer) { }
@@ -58,18 +42,18 @@ export class GamesComponent implements OnInit {
   ngOnInit(): void { }
 
   selectGame(game: Game): void {
-    // IMPORTANT: Sanitize the URL before binding it to iframe src
+    console.log('Selected game object:', game);
+    console.log('Attempting to load URL:', game.gameUrl);
     this.selectedGameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(game.gameUrl);
     this.selectedGameName = game.name;
   }
 
   closePanel(): void {
-    this.selectedGameUrl = null; // Clear selected game when closing
+    this.selectedGameUrl = null;
     this.selectedGameName = null;
     this.close.emit();
   }
 
-  // Helper to prevent direct URL binding in template which can be unsafe
   getSanitizedUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
