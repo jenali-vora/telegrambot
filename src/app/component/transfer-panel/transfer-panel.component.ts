@@ -3,7 +3,16 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDest
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
-export interface SelectedItem { id: number; file: File; name: string; size: number; isFolder?: boolean; icon: string; }
+export interface SelectedItem {
+  id: number;
+  file: File;
+  name: string;
+  size: number;
+  isFolder?: boolean;
+  icon: string;
+  individualProgress?: number;
+  isCurrentlyProcessing?: boolean;
+}
 
 interface TooltipMessage {
   id: number;
@@ -24,7 +33,7 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
   @Input() uploadStatusMessage: string = '';
-
+  @Output() batchCancelRequested = new EventEmitter<void>();
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
   @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
@@ -48,7 +57,11 @@ export class TransferPanelComponent implements OnDestroy {
       this.itemRemoved.emit(undefined);
     }
   }
-
+  requestBatchCancel(): void {
+    if (this.isUploading) {
+      this.batchCancelRequested.emit();
+    }
+  }
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
     if (!this.isUploading) {

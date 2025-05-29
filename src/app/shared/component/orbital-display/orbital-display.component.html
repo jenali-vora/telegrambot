@@ -61,6 +61,12 @@
         <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
             (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
             <div class="dashed-circle-outer">
+                <div *ngIf="showOverallProgressCircle" class="overall-progress-circle-wrapper">
+                    <div class="s2-progress-circle" [style.--progress-val]="overallProgressPercentage"
+                        [style.--progress-color]="'var(--button-color)'" [style.--track-color]="'#E5E7EB'">
+                        <span class="s2-progress-circle-value">{{ overallProgressPercentage | number:'1.0-0' }}%</span>
+                    </div>
+                </div>
                 <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal"
                     (click)="onCentralButtonClick()">
                     <div class="content-wrapper">

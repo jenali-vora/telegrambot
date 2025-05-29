@@ -127,6 +127,9 @@
     padding: var(--animated-border-thickness);
     box-sizing: border-box;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .dashed-circle-outer::before {
@@ -416,6 +419,52 @@
     animation-duration: 11s;
 }
 
+/* cikrcle css start */
+.overall-progress-circle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 150px;
+    /* Ensure it has some height, adjust as needed */
+    padding: 20px 0;
+    /* Add some padding */
+}
+
+.s2-progress-circle {
+    width: 120px;
+    /* Adjust size as desired */
+    height: 120px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--progress-color, #3B82F6) calc(var(--progress-val, 0) * 1%), var(--track-color, #E5E7EB) 0%);
+    position: relative;
+    transition: background 0.2s ease-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.s2-progress-circle::before {
+    /* Inner circle to make it a ring */
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    width: calc(100% - 20px);
+    /* Ring thickness (10px on each side) */
+    height: calc(100% - 20px);
+    background-color: var(--white-color);
+    /* Match inner background */
+}
+
+.s2-progress-circle-value {
+    z-index: 1;
+    font-size: 22px;
+    /* Adjust font size */
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+/* cikrcle css end */
 
 @keyframes animate-circles {
 
