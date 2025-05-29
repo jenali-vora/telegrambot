@@ -5,6 +5,7 @@ import { Observable, throwError, EMPTY } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators'; // Added map
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
+import { PreviewDetails } from '@app/interfaces/batch.interfaces';
 
 // --- Interfaces ---
 export interface FileInBatch {
@@ -161,6 +162,26 @@ export class FileManagerApiService {
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++ END OF NEW METHODS ++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  getPreviewDetails(accessId: string): Observable<PreviewDetails> {
+    if (!accessId) {
+      return throwError(() => new Error('Access ID is required for fetching preview details.'));
+    }
+    return this.http.get<PreviewDetails>(`${this.apiUrl}/api/preview-details/${accessId}`, { headers: this.getAuthHeaders() })
+      .pipe(
+        tap(details => console.log(`Preview details for ${accessId}:`, details)),
+        catchError(this.handleError) // Using your existing robust handleError
+      );
+  }
+
+  getRawTextContent(contentUrl: string): Observable<string> {
+    // contentUrl will be relative like /api/file-content/<access_id>
+    // Ensure it's correctly joined with apiUrl if needed, or that HttpClient handles relative URLs correctly based on base href
+    const fullUrl = contentUrl.startsWith('http') ? contentUrl : `${this.apiUrl}${contentUrl}`;
+    return this.http.get(fullUrl, { headers: this.getAuthHeaders(), responseType: 'text' })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
 
 
   public downloadFileBlob(accessId: string, isBatch: boolean): Observable<Blob> {
@@ -318,9 +339,6 @@ export class FileManagerApiService {
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-    // ... (Your existing handleError logic remains largely unchanged) ...
-    // You might want to ensure it handles the structure of errors from the new endpoints if they differ.
-    // The current one looks quite robust.
     let userMessage = 'An unexpected error occurred. Check backend connection/logs.';
     console.error(`API Error: Status ${error.status}, Body: `, error.error, `URL: ${error.url}`);
 
@@ -332,6 +350,10 @@ export class FileManagerApiService {
             try {
               const err = JSON.parse(e.target.result);
               userMessage = err.message || err.error || `Server error (${error.status}).`;
+              if (err.status === 410 && err.preview_type === 'expired') { // Specific for expired preview
+                observer.error({ ...err, status: err.status, message: userMessage });
+                return;
+              }
               console.error(`Parsed Blob Error: ${userMessage}`);
             } catch (parseError) {
               userMessage = `Failed to parse error response from server (${error.status}).`;
@@ -345,23 +367,29 @@ export class FileManagerApiService {
           };
           reader.readAsText(error.error);
         });
+      } else if (error.status === 410 && error.error.preview_type === 'expired') { // Handle direct JSON 410 error
+        userMessage = error.error.error || error.error.message || 'File link has expired.';
+        // Propagate the structured error for better handling in component
+        return throwError(() => ({ ...error.error, status: error.status, message: userMessage }));
       } else if (typeof error.error.error === 'string') {
         userMessage = error.error.error;
       } else if (typeof error.error.message === 'string') {
         userMessage = error.error.message;
-      } else if (typeof error.error === 'string') {
+      } else if (typeof error.error === 'string') { // Generic string error from backend
         userMessage = error.error;
       }
     } else if (error.status === 0) {
       userMessage = 'Cannot connect to the backend server. Please check your network connection and ensure the server is running.';
     } else if (error.status === 400) {
-      userMessage = `Bad request (${error.status}). Please check your input.`;
+      userMessage = `Bad request (${error.status}). ${error.error?.error || 'Please check your input.'}`;
     } else if (error.status === 401) {
       userMessage = `Unauthorized (${error.status}). Please log in or check your permissions.`;
     } else if (error.status === 403) {
       userMessage = `Forbidden (${error.status}). You do not have permission to access this resource.`;
     } else if (error.status === 404) {
       userMessage = `Requested resource not found on the server (${error.status}).`;
+    } else if (error.status === 410) { // General 410 without specific preview_type in error body
+      userMessage = 'The requested resource is no longer available (Expired or Removed).';
     } else if (error.status === 500) {
       userMessage = `Internal server error (${error.status}). Please try again later or contact support.`;
     } else if (error.message) {

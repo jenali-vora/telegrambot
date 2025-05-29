@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common'; // Added DecimalPipe
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -56,6 +56,9 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private routeSubscription: Subscription | null = null;
   private readonly API_BASE_URL = environment.apiUrl;
 
+  constructor(private router:Router){
+
+  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchAccessIdInput'] && this.batchAccessIdInput) {
       this.effectiveBatchAccessId = this.batchAccessIdInput;
@@ -102,6 +105,11 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       this.cdRef.detectChanges();
       this.fetchBatchDetails(this.effectiveBatchAccessId);
     }
+  }
+
+  navigateToPreview(batchAccessId: string, filename: string): void {
+    if (!batchAccessId || !filename) return;
+    this.router.navigate(['/browse', batchAccessId]);
   }
 
   fetchBatchDetails(accessId: string): void {
