@@ -1,0 +1,43 @@
+/* file-preview.component.css */
+.file-preview-container {
+    max-width: 1000px;
+    /* Or your preferred max width */
+}
+
+.preview-area {
+    background-color: #f8f9fa;
+}
+
+.code-preview-wrapper pre,
+.text-preview,
+/* Apply directly to text preview div if not using pre */
+.markdown-preview pre,
+.directory-preview pre {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    /* Monospaced font */
+}
+
+.preview-area img,
+.preview-area video {
+    max-width: 100%;
+    height: auto;
+}
+
+.pdf-preview-wrapper iframe {
+    display: block;
+}
+
+.card-title i.fas {
+    /* For icons in header */
+    color: #0d6efd;
+    /* Example primary color */
+}
+
+/* Style for download progress bar if added */
+.progress {
+    height: 10px;
+    /* Or your preferred height */
+}

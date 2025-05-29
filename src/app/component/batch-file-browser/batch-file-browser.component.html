@@ -40,6 +40,8 @@
                 <div class="file-controls-area">
                     <div class="file-actions">
                         <span class="file-size">{{ file.original_size | byteFormat }}</span>
+                        <button (click)="navigateToPreview(batchDetails.access_id, file.original_filename)"
+                            class="btn btn-outline-secondary btn-sm me-1">Preview</button>
                         <button class="individual-download-button" (click)="initiateIndividualDownload(file)"
                             [disabled]="isProcessingDownload"
                             [title]="(currentDownloadingFile === file.original_filename && isProcessingDownload ? 'Processing... ' : 'Download ') + file.original_filename">

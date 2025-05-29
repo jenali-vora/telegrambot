@@ -6,7 +6,17 @@ export interface FileInBatchInfo {
     reason?: string | null;
     skipped?: boolean;
 }
-
+export interface PreviewDetails {
+    access_id: string;
+    filename: string;
+    size: number;
+    mime_type: string;
+    preview_type: 'image' | 'code' | 'text' | 'markdown' | 'video' | 'pdf' | 'directory_listing' | 'audio' | 'unsupported' | 'expired';
+    is_anonymous: boolean;
+    upload_timestamp: string; // ISO date string
+    preview_content_url?: string; // URL to fetch raw content if not embedded
+    preview_data?: string;       // Direct text content (if backend implements this for small files)
+}
 export interface BatchDetails {
     access_id: string; // The access_id of the batch itself
     batch_name: string; // Display name for the batch
@@ -38,6 +48,7 @@ export interface SseProgressPayload {
     speedMBps?: number;
     etaFormatted?: string;
     etaSeconds?: number;
+    displayTotalBytes?: number;
 }
 
 // For SSE 'status' event payload
