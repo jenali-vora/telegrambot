@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -13,9 +13,9 @@ import {
   SseReadyPayload,
   SseProgressPayload,
   SseStatusPayload
-} from '../../interfaces/batch.interfaces'; // Adjust path if necessary
+} from '../../interfaces/batch.interfaces';
 
-import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjust path if necessary
+import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
 @Component({
   selector: 'app-batch-file-browser',
@@ -54,10 +54,15 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private routeSubscription: Subscription | null = null;
   private readonly API_BASE_URL = environment.apiUrl;
 
-  // Properties for single image preview
-  isSingleImagePreview = false;
+  // --- New properties for specific single file previews ---
+  isSingleImageOnlyPreview = false;
   singleImageFile: FileInBatchInfo | null = null;
   singleImagePreviewUrl: string | null = null;
+
+  isSingleCodeFilePreview = false;
+  singleCodeFile: FileInBatchInfo | null = null;
+  singleCodeFileContent: string | null = null;
+  isLoadingFileContent = false;
   // ---
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -68,10 +73,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       this.batchDetails = null;
       this.error = "Batch ID input removed.";
       this.isLoading = false;
-      this.cleanupPreviousDownloadState();
-      this.isSingleImagePreview = false;
-      this.singleImageFile = null;
-      this.singleImagePreviewUrl = null;
+      this.cleanupPreviousDownloadState(); // Also cleans up preview states
       this.cdRef.detectChanges();
     }
   }
@@ -87,7 +89,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           this.error = 'Batch Access ID not found in URL and no input provided.';
           this.isLoading = false;
           this.cleanupPreviousDownloadState();
-          this.isSingleImagePreview = false;
           this.cdRef.detectChanges();
         }
       });
@@ -95,7 +96,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       this.effectiveBatchAccessId = this.batchAccessIdInput;
       this.resetStateAndFetch();
     } else if (this.effectiveBatchAccessId) {
-      if (!this.batchDetails && !this.isLoading) {
+      if (!this.batchDetails && !this.isLoading) { // If component re-initializes with ID already set
         this.resetStateAndFetch();
       }
     }
@@ -106,10 +107,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       this.isLoading = true;
       this.error = null;
       this.batchDetails = null;
-      this.isSingleImagePreview = false;
-      this.singleImageFile = null;
-      this.singleImagePreviewUrl = null;
-      this.cleanupPreviousDownloadState();
+      this.cleanupPreviousDownloadState(); // Resets all download and preview states
       this.cdRef.detectChanges();
       this.fetchBatchDetails(this.effectiveBatchAccessId);
     }
@@ -124,9 +122,14 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.isLoading = true;
     this.error = null;
-    this.isSingleImagePreview = false;
+    // Reset preview states before fetching new details
+    this.isSingleImageOnlyPreview = false;
     this.singleImageFile = null;
     this.singleImagePreviewUrl = null;
+    this.isSingleCodeFilePreview = false;
+    this.singleCodeFile = null;
+    this.singleCodeFileContent = null;
+    this.isLoadingFileContent = false;
 
     const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`;
     this.http.get<BatchDetails>(endpointUrl)
@@ -138,6 +141,8 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           if (err.status === 404) {
             this.error = `Batch with ID ${accessId} not found (404). Please check the ID or link.`;
           }
+          this.isLoading = false;
+          this.cdRef.detectChanges();
           return throwError(() => err);
         })
       )
@@ -148,20 +153,25 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
 
           if (details.files && details.files.length === 1) {
             const file = details.files[0];
-            if (!file.skipped && !file.failed && this.isImageFile(file.original_filename)) {
-              this.isSingleImagePreview = true;
-              this.singleImageFile = file;
-              // CRITICAL: This URL must point to an endpoint that serves the raw image file.
-              // Example: `${this.API_BASE_URL}/api/file-preview/${this.effectiveBatchAccessId}/${encodeURIComponent(file.original_filename)}`
-              // Or if your backend provides direct signed URLs for files, use that.
-              // For testing, you might temporarily use a public image URL if `file.original_filename` is a full URL.
-              this.singleImagePreviewUrl = `${this.API_BASE_URL}/api/file-preview/${this.effectiveBatchAccessId}/${encodeURIComponent(file.original_filename)}`;
+            if (!file.skipped && !file.failed) {
+              if (this.isImageFile(file.original_filename)) {
+                this.isSingleImageOnlyPreview = true;
+                this.singleImageFile = file;
+                // IMPORTANT: This URL must point to an endpoint that serves the raw image file.
+                this.singleImagePreviewUrl = `${this.API_BASE_URL}/api/file-preview/${this.effectiveBatchAccessId}/${encodeURIComponent(file.original_filename)}`;
+              } else if (this.isCodeOrTextFile(file.original_filename)) {
+                this.isSingleCodeFilePreview = true;
+                this.singleCodeFile = file;
+                this.fetchAndDisplayCodeFileContent(file);
+              }
+              // If neither, it will fall through to the standard file list view in the template
             }
           }
           this.cdRef.detectChanges();
         },
-        error: () => {
+        error: (err) => { // Error caught by catchError, but good to have it here too.
           this.isLoading = false;
+          // Error is already set by catchError
           this.cdRef.detectChanges();
         }
       });
@@ -174,37 +184,97 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     return !!extension && imageExtensions.includes(extension);
   }
 
+  isCodeOrTextFile(filename: string | undefined): boolean {
+    if (!filename) return false;
+    const extension = filename.split('.').pop()?.toLowerCase();
+    // Add more extensions as needed
+    const codeExtensions = [
+      'txt', 'md', 'log', // Plain text & markdown
+      'js', 'ts', 'jsx', 'tsx', // JavaScript/TypeScript
+      'html', 'htm', 'xml', 'svg', // Markup
+      'css', 'scss', 'less', // Stylesheets
+      'json', 'yaml', 'yml', // Data formats
+      'py', 'rb', 'php', 'java', 'c', 'cpp', 'h', 'cs', 'go', 'swift', 'kt', // Programming languages
+      'sh', 'bash', 'ps1', // Scripts
+      'sql' // SQL
+    ];
+    return !!extension && codeExtensions.includes(extension);
+  }
+
+  fetchAndDisplayCodeFileContent(file: FileInBatchInfo): void {
+    if (!this.effectiveBatchAccessId || !file.original_filename) return;
+
+    this.isLoadingFileContent = true;
+    this.singleCodeFileContent = null; // Clear previous content
+    this.error = null; // Clear general errors that might be from batch load
+    this.cdRef.detectChanges();
+
+    // IMPORTANT: Use an endpoint that serves raw file content as text.
+    const contentUrl = `${this.API_BASE_URL}/api/file-content/${this.effectiveBatchAccessId}/${encodeURIComponent(file.original_filename)}`;
+    // const contentUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodeURIComponent(file.original_filename)}`; // if this endpoint can serve text
+
+    this.http.get(contentUrl, { responseType: 'text' })
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          console.error(`Error fetching content for ${file.original_filename}:`, err);
+          this.error = `Could not load content for ${file.original_filename}. Server responded with ${err.status}.`;
+          this.isLoadingFileContent = false;
+          this.isSingleCodeFilePreview = false; // Fallback to list view
+          this.cdRef.detectChanges();
+          return throwError(() => err);
+        })
+      )
+      .subscribe({
+        next: (content) => {
+          this.singleCodeFileContent = content;
+          this.isLoadingFileContent = false;
+          this.cdRef.detectChanges();
+        },
+        // Error handled by catchError
+      });
+  }
+
+
   onImagePreviewError(event: Event) {
     console.error('Failed to load preview image:', this.singleImagePreviewUrl, event);
     if (this.singleImageFile) {
-      this.error = `Could not load preview for ${this.singleImageFile.original_filename}. The file might be corrupted or inaccessible.`;
+      // Set a general error that will be displayed by the #loadingOrError template
+      this.error = `Could not load preview for ${this.singleImageFile.original_filename}. The file might be inaccessible or not a valid image.`;
     } else {
       this.error = 'Could not load preview image.';
     }
     this.singleImagePreviewUrl = null;
-    this.isSingleImagePreview = false; // Fallback to list view
+    this.isSingleImageOnlyPreview = false; // Fallback to list view or show error
+    this.isLoading = false; // Ensure loading state is false to show error
     this.cdRef.detectChanges();
   }
 
-  // copyShareLink() method removed
-
-  // ... (all other methods like cleanupPreviousDownloadState, initiateDownloadAll, initiateIndividualDownload, setupSseConnection, etc., remain unchanged from your provided code)
   private cleanupPreviousDownloadState(): void {
+    // Resets download-related states
     this.isProcessingDownload = false;
     this.downloadStatusMessage = null;
     this.downloadStatusType = 'info';
-
     this.individualProgress = {};
     this.currentDownloadingFile = null;
-
     this.downloadAllProgress = null;
     this.downloadAllProgressMessage = null;
     this.isDownloadingAll = false;
-
     this.cleanupSse();
+
+    // Also reset new preview states
+    this.isSingleImageOnlyPreview = false;
+    this.singleImageFile = null;
+    this.singleImagePreviewUrl = null;
+    this.isSingleCodeFilePreview = false;
+    this.singleCodeFile = null;
+    this.singleCodeFileContent = null;
+    this.isLoadingFileContent = false;
+
+    // this.error = null; // Don't clear general error here if it's from batch load itself
     this.cdRef.detectChanges();
   }
 
+  // ... (initiateDownloadAll, initiateIndividualDownload, setupSseConnection, cleanupSse, setDownloadStatus, formatTime, formatUploadDate, getFileIconClass, ngOnDestroy remain UNCHANGED from your original code)
   initiateDownloadAll(): void {
     if (!this.effectiveBatchAccessId || this.isProcessingDownload) return;
 
@@ -290,7 +360,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         if (this.isDownloadingAll && this.downloadAllProgress) {
           this.downloadAllProgressMessage = message;
         } else if (this.currentDownloadingFile) {
-          // this.setDownloadStatus(message, 'info'); // Or integrate into progress display
+          // this.setDownloadStatus(message, 'info');
         } else {
           this.setDownloadStatus(message, 'info');
         }
