@@ -790,7 +790,6 @@
     .contact-list ul {
         flex-basis: calc((100% - 1 * 30px) / 2);
     }
-
     .registerd-user-heading span {
         font-size: 35px;
     }
@@ -798,8 +797,7 @@
     .registerd-user-heading h5 {
         font-size: 22px;
     }
-
-    .right-section {
+    .right-section{
         padding: 20px;
     }
 }
@@ -933,8 +931,7 @@
     .right-section {
         padding: 25px;
     }
-
-    .registerd-wrapper {
+    .registerd-wrapper{
         flex-direction: column;
     }
 }
