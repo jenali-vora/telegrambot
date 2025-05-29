@@ -24,6 +24,7 @@ export class OrbitalDisplayComponent implements OnInit {
   @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
+  @Input() generalUploadStatusMessage: string = '';
 
   @Output() requestFileUpload = new EventEmitter<void>();
   @Output() requestAddFilesFromPanel = new EventEmitter<void>();
@@ -32,6 +33,7 @@ export class OrbitalDisplayComponent implements OnInit {
   @Output() itemDownloadRequestedFromPanel = new EventEmitter<SelectedItem>();
   @Output() transferInitiatedFromPanel = new EventEmitter<void>();
   @Output() cancelUploadFromPanel = new EventEmitter<void>();
+  @Output() newTransferFromPanel = new EventEmitter<void>();
 
   private dragEnterCounter = 0;
 
@@ -53,6 +55,10 @@ export class OrbitalDisplayComponent implements OnInit {
   get strokeDashoffset() {
     const offset = this.circumference - (this.uploadProgressPercentage / 100) * this.circumference;
     return Math.max(0, Math.min(offset, this.circumference)); // Clamp value
+  }
+
+  onNewTransferPanel(): void {
+    this.newTransferFromPanel.emit();
   }
 
   onCentralButtonClick(): void {

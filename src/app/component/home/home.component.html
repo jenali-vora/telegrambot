@@ -32,12 +32,14 @@
                                 [totalBytes]="uploadProgressDetails.totalBytes"
                                 [speedMBps]="uploadProgressDetails.speedMBps"
                                 [etaFormatted]="uploadProgressDetails.etaFormatted"
+                                [generalUploadStatusMessage]="uploadStatusMessage"
                                 (requestAddFilesFromPanel)="triggerFileInput()"
                                 (requestAddFolderFromPanel)="triggerFolderInput()"
                                 (itemRemovedFromPanel)="handleItemRemovedFromPanel($event)"
                                 (itemDownloadRequestedFromPanel)="handleDownloadRequest($event)"
                                 (transferInitiatedFromPanel)="initiateTransferFromPanel()"
-                                (cancelUploadFromPanel)="handleCancelUpload()"> 
+                                (cancelUploadFromPanel)="handleCancelUpload()"
+                                (newTransferFromPanel)="handleNewTransferRequest()">
                             </app-orbital-display>
                         </div>
                         <!-- <div class="upload-main-wrapper"
