@@ -56,7 +56,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private routeSubscription: Subscription | null = null;
   private readonly API_BASE_URL = environment.apiUrl;
 
-  constructor(private router:Router){
+  constructor(private router: Router) {
 
   }
   ngOnChanges(changes: SimpleChanges): void {
@@ -108,9 +108,17 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   navigateToPreview(batchAccessId: string, filename: string): void {
-    if (!batchAccessId || !filename) return;
-    this.router.navigate(['/browse', batchAccessId]);
+    if (!batchAccessId || !filename) {
+      console.error('Batch Access ID and filename are required for preview.');
+      return;
+    }
+    // Navigate to the /browse route with the batch's access_id
+    // AND pass the specific filename as a query parameter
+    this.router.navigate(['/browse', batchAccessId], {
+      queryParams: { filename: filename }
+    });
   }
+
 
   fetchBatchDetails(accessId: string): void {
     // ... (fetchBatchDetails implementation remains the same as your provided code)

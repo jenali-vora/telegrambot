@@ -25,6 +25,7 @@ import { environment } from 'src/environments/environment';
 })
 export class FilePreviewComponent implements OnInit, OnDestroy {
   accessId: string | null = null;
+  filenameQueryParam: string | null = null;
   previewDetails: PreviewDetails | null = null;
   isLoading = true;
   errorMessage: string | null = null;
@@ -52,12 +53,13 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const accessIdFromRoute = this.route.snapshot.paramMap.get('accessId');
-    if (!accessIdFromRoute) {
+    this.filenameQueryParam = this.route.snapshot.queryParamMap.get('filename');
+
+    if (!this.accessId) {
       this.errorMessage = 'No file access ID provided in URL.';
       this.isLoading = false;
       return;
     }
-    this.accessId = accessIdFromRoute;
     this.loadPreviewDetails();
   }
 
@@ -139,12 +141,16 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
     this.isPreparingDownload = true;
     this.downloadStatusMessage = `Initiating download for ${this.previewDetails.filename}...`;
     this.downloadStatusType = 'info';
-    this.downloadProgress = { percentage: 0, totalBytes: this.previewDetails.size }; // Initial progress
+    this.downloadProgress = { percentage: 0, totalBytes: this.previewDetails.size };
 
-    // The SSE stream for a single file (even if it was a "batch of one")
-    // is directly /stream-download/<access_id> from your backend.
-    const sseUrl = `${this.API_BASE_URL}/stream-download/${this.accessId}`;
-    this.setupSseForDownload(sseUrl);
+    let sseUrlForDownload: string;
+    if (this.filenameQueryParam) { // Means it was a file from a multi-item batch
+      const encodedFilename = encodeURIComponent(this.filenameQueryParam);
+      sseUrlForDownload = `${this.API_BASE_URL}/download-single/${this.accessId}/${encodedFilename}`;
+    } else { // It was a direct access to a single file (or batch-of-one) record
+      sseUrlForDownload = `${this.API_BASE_URL}/stream-download/${this.accessId}`;
+    }
+    this.setupSseForDownload(sseUrlForDownload);
   }
 
   private setupSseForDownload(streamUrl: string): void {

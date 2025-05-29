@@ -5,7 +5,7 @@ import { Observable, throwError, EMPTY } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators'; // Added map
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
-import { PreviewDetails } from '@app/interfaces/batch.interfaces';
+import { PreviewDetails } from '../../interfaces/batch.interfaces';
 
 // --- Interfaces ---
 export interface FileInBatch {
@@ -162,17 +162,23 @@ export class FileManagerApiService {
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++ END OF NEW METHODS ++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  getPreviewDetails(accessId: string): Observable<PreviewDetails> {
+  getPreviewDetails(accessId: string, filename?: string | null): Observable<PreviewDetails> {
     if (!accessId) {
-      return throwError(() => new Error('Access ID is required for fetching preview details.'));
+      return throwError(() => new Error('Access ID is required.'));
     }
-    return this.http.get<PreviewDetails>(`${this.apiUrl}/api/preview-details/${accessId}`, { headers: this.getAuthHeaders() })
+    let params = new HttpParams();
+    if (filename) {
+      params = params.set('filename', filename);
+    }
+    return this.http.get<PreviewDetails>(`${this.apiUrl}/api/preview-details/${accessId}`, {
+      headers: this.getAuthHeaders(),
+      params: params // Pass HttpParams here
+    })
       .pipe(
-        tap(details => console.log(`Preview details for ${accessId}:`, details)),
-        catchError(this.handleError) // Using your existing robust handleError
+        tap(details => console.log(`Preview details for ${accessId}${filename ? ' (file: ' + filename + ')' : ''}:`, details)),
+        catchError(this.handleError)
       );
   }
-
   getRawTextContent(contentUrl: string): Observable<string> {
     // contentUrl will be relative like /api/file-content/<access_id>
     // Ensure it's correctly joined with apiUrl if needed, or that HttpClient handles relative URLs correctly based on base href
