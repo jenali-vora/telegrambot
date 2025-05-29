@@ -1,63 +1,76 @@
 // src/app/shared/component/orbital-display/orbital-display.component.ts
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// Import SelectedItem and TransferPanelComponent
-import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
+import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component'; // Correct path
 
 @Component({
   selector: 'app-orbital-display',
   standalone: true,
-  imports: [CommonModule, TransferPanelComponent], // TransferPanelComponent is already imported
+  imports: [CommonModule, TransferPanelComponent],
   templateUrl: './orbital-display.component.html',
   styleUrls: ['./orbital-display.component.css']
 })
 export class OrbitalDisplayComponent implements OnInit {
-  public isDragActiveLocal: boolean = false; // Local state for highlight
+  public isDragActiveLocal: boolean = false;
 
   @Input() centralButtonIconClass: string = 'fas fa-plus';
-
-  // Inputs for app-transfer-panel's data (remain the same)
   @Input() items: SelectedItem[] = [];
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
-  @Input() uploadStatusMessage: string = '';
 
-  // Output for the orbital display's own + button click (remains the same)
+  // Inputs for circular progress and to pass to transfer-panel
+  @Input() uploadProgressPercentage: number = 0;
+  @Input() bytesSent: number = 0;
+  @Input() totalBytes: number = 0;
+  @Input() speedMBps: number = 0;
+  @Input() etaFormatted: string = '--:--';
+
   @Output() requestFileUpload = new EventEmitter<void>();
-
-  // Outputs to bubble events from app-transfer-panel (remain the same)
   @Output() requestAddFilesFromPanel = new EventEmitter<void>();
   @Output() requestAddFolderFromPanel = new EventEmitter<void>();
   @Output() itemRemovedFromPanel = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequestedFromPanel = new EventEmitter<SelectedItem>();
   @Output() transferInitiatedFromPanel = new EventEmitter<void>();
+  @Output() cancelUploadFromPanel = new EventEmitter<void>();
 
   private dragEnterCounter = 0;
 
-  constructor() { }
+  // SVG Circular Progress properties (Restored and adjusted)
+  readonly radius = 52; // Adjusted for a slightly larger appearance if needed
+  readonly strokeWidth = 12; // Adjusted stroke width as per new image
+  readonly viewBoxSize = (this.radius + this.strokeWidth) * 2; // e.g. (52+12)*2 = 128
+  readonly circumference = 2 * Math.PI * this.radius;
 
-  ngOnInit(): void {
+
+  constructor(private cdr: ChangeDetectorRef) { }
+
+  ngOnInit(): void { }
+
+  get showTransferPanelLogic(): boolean {
+    return this.items.length > 0 || !!this.batchShareableLink;
   }
 
-  // Getter to determine if the transfer panel should be shown (remains the same)
-  get showTransferPanel(): boolean {
-    return ((this.items.length > 0 || !!this.batchShareableLink) || this.isUploading);
+  get strokeDashoffset() {
+    const offset = this.circumference - (this.uploadProgressPercentage / 100) * this.circumference;
+    return Math.max(0, Math.min(offset, this.circumference)); // Clamp value
   }
-
-  // The showOrbitalContent getter is no longer needed.
 
   onCentralButtonClick(): void {
-    this.requestFileUpload.emit(); // For the + button in orbital display
+    if (!this.isUploading) {
+      this.requestFileUpload.emit();
+    }
   }
 
-  // Drag and drop handlers for the orbital area
+  // ... (keep all drag and drop handlers and event emitters as they were) ...
   onDragEnterArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isUploading) {
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
+      return;
+    }
     this.dragEnterCounter++;
     if (event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items.length > 0) {
-      // isDragActiveLocal will be true if conditions are met,
-      // the template then decides if the class is applied based on !showTransferPanel
       this.isDragActiveLocal = true;
       event.dataTransfer.dropEffect = 'copy';
     }
@@ -66,6 +79,10 @@ export class OrbitalDisplayComponent implements OnInit {
   onDragOverArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isUploading) {
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
+      return;
+    }
     if (event.dataTransfer) {
       if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
         event.dataTransfer.dropEffect = 'copy';
@@ -78,6 +95,7 @@ export class OrbitalDisplayComponent implements OnInit {
   onDragLeaveArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isUploading) return;
     this.dragEnterCounter--;
     if (this.dragEnterCounter === 0) {
       this.isDragActiveLocal = false;
@@ -86,30 +104,20 @@ export class OrbitalDisplayComponent implements OnInit {
 
   onDropArea(event: DragEvent): void {
     event.preventDefault();
-    // DO NOT call event.stopPropagation() here.
-    // This allows the global drop handler in HomeComponent to process the files.
+    if (this.isUploading) {
+      event.stopPropagation();
+      this.isDragActiveLocal = false;
+      this.dragEnterCounter = 0;
+      return;
+    }
     this.isDragActiveLocal = false;
     this.dragEnterCounter = 0;
   }
 
-  // Methods to re-emit events from app-transfer-panel (remain the same)
-  onRequestAddFilesPanel(): void {
-    this.requestAddFilesFromPanel.emit();
-  }
-
-  onRequestAddFolderPanel(): void {
-    this.requestAddFolderFromPanel.emit();
-  }
-
-  onItemRemovedPanel(item: SelectedItem | undefined): void {
-    this.itemRemovedFromPanel.emit(item);
-  }
-
-  onItemDownloadRequestedPanel(item: SelectedItem): void {
-    this.itemDownloadRequestedFromPanel.emit(item);
-  }
-
-  onTransferInitiatedPanel(): void {
-    this.transferInitiatedFromPanel.emit();
-  }
+  onRequestAddFilesPanel(): void { this.requestAddFilesFromPanel.emit(); }
+  onRequestAddFolderPanel(): void { this.requestAddFolderFromPanel.emit(); }
+  onItemRemovedPanel(item: SelectedItem | undefined): void { this.itemRemovedFromPanel.emit(item); }
+  onItemDownloadRequestedPanel(item: SelectedItem): void { this.itemDownloadRequestedFromPanel.emit(item); }
+  onTransferInitiatedPanel(): void { this.transferInitiatedFromPanel.emit(); }
+  onCancelUploadPanel(): void { this.cancelUploadFromPanel.emit(); }
 }

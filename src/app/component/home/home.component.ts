@@ -30,7 +30,7 @@ interface UploadProgressDetails {
 
 interface CompletedUploadLink {
   name: string;
-  url:string;
+  url: string;
 }
 
 @Component({
@@ -242,10 +242,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isDraggingOverWindow = true;
         this.cdRef.detectChanges();
       }
-       if (event.dataTransfer) { 
-         event.dataTransfer.dropEffect = 'copy';
-       }
-    } else { 
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'copy';
+      }
+    } else {
       if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'none';
       }
@@ -260,7 +260,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'copy';
       }
-      if (!this.isDraggingOverWindow) { 
+      if (!this.isDraggingOverWindow) {
         this.isDraggingOverWindow = true;
         this.cdRef.detectChanges();
       }
@@ -304,7 +304,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       let reason = "";
       if (this.isUploading) reason = "upload is in progress";
       else if (this.shareableLinkForPanel) reason = "a shareable link for a completed transfer is displayed";
-      else reason = "current state does not permit drop"; 
+      else reason = "current state does not permit drop";
       console.log(`Drop ignored: ${reason}.`);
     }
   }
@@ -331,7 +331,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const isLoggedIn = this.authService.isLoggedIn();
 
     if (isLoggedIn) {
-      MAX_TOTAL_FILES = Infinity; 
+      MAX_TOTAL_FILES = Infinity;
     } else {
       MAX_TOTAL_FILES = 5; // Anonymous user limit
     }
@@ -341,7 +341,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
 
     if (!isFinite(MAX_TOTAL_FILES)) { // If logged in
-        slotsActuallyAvailable = Infinity;
+      slotsActuallyAvailable = Infinity;
     }
 
     // Check if anonymous user is already at the limit and trying to add more
@@ -360,21 +360,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     for (let i = 0; i < fileList.length; i++) {
       if (!isLoggedIn && (currentCount + filesAddedInThisOperation >= MAX_TOTAL_FILES)) {
         // Stop adding if limit for anonymous user is reached during this operation
-        break; 
+        break;
       }
 
       const file = fileList[i];
-      
+
       let itemName = file.name;
       if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) {
-          itemName = file.webkitRelativePath;
+        itemName = file.webkitRelativePath;
       }
 
       if (file.size === 0 && !isFolderSelection && !itemName.includes('/')) {
         console.log(`Skipping empty file: ${itemName}`);
         continue;
       }
-      if (file.name.toLowerCase().endsWith('.ds_store')) { 
+      if (file.name.toLowerCase().endsWith('.ds_store')) {
         console.log(`Skipping .DS_Store file: ${itemName} (original: ${file.name})`);
         continue;
       }
@@ -385,8 +385,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         name: itemName,
         size: file.size,
         icon: this.getFileIcon(itemName),
-        isFolder: (isFolderSelection && file.webkitRelativePath && file.webkitRelativePath === file.name && !file.type && file.size === 0) 
-                   || (isFolderSelection && itemName.endsWith('/')) 
+        isFolder: (isFolderSelection && file.webkitRelativePath && file.webkitRelativePath === file.name && !file.type && file.size === 0)
+          || (isFolderSelection && itemName.endsWith('/'))
       });
       filesAddedInThisOperation++;
     }
@@ -395,11 +395,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.selectedItems = [...this.selectedItems, ...newItems];
       console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
     }
-    
+
     // Set error message if not all files from the input could be added due to limits (for anonymous users)
     // This condition applies if the loop was broken because the limit was hit.
     if (!isLoggedIn && filesAddedInThisOperation < fileList.length) {
-        this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
+      this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
     }
 
 
@@ -437,7 +437,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
 
     let batchIcon: string;
-    let batchIsFolder = false; 
+    let batchIsFolder = false;
 
     if (this.selectedItems.length === 1) {
       const singleItem = this.selectedItems[0];
@@ -448,17 +448,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         batchIcon = singleItem.icon;
       }
     } else {
-      batchIcon = 'fas fa-archive'; 
+      batchIcon = 'fas fa-archive';
       batchIsFolder = false;
     }
 
     this.currentItemBeingUploaded = {
-      id: -1, 
+      id: -1,
       name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
       size: totalBatchSize,
-      file: null as any, 
+      file: null,
       icon: batchIcon,
-      isFolder: batchIsFolder 
+      isFolder: batchIsFolder
     };
 
     this.uploadProgressDetails = {
@@ -491,12 +491,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     for (const item of this.selectedItems) {
-      formData.append('files[]', item.file, item.name);
+      if (item.file) {
+        formData.append('files[]', item.file, item.name);
+      } else {
+        console.warn(`Skipping item with null file: ${item.name}`);
+      }
     }
 
     this.apiService.initiateUpload(formData).subscribe({
       next: (res: InitiateUploadResponse) => {
-        if (!this.isUploading) return; 
+        if (!this.isUploading) return;
         if (res.upload_id) {
           this.currentUploadId = res.upload_id;
           this.listenToUploadProgress(res.upload_id, this.currentItemBeingUploaded);
@@ -505,7 +509,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       },
       error: (err: Error) => {
-        if (!this.isUploading) return; 
+        if (!this.isUploading) return;
         this.handleBatchUploadError(`Failed to initiate batch upload: ${err.message}`);
       }
     });
@@ -596,9 +600,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.eventSource.addEventListener('complete', (event: MessageEvent) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) { 
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
             console.log(`SSE 'complete' event for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
-            this.closeEventSource(); 
+            this.closeEventSource();
             return;
           }
           const data = JSON.parse(event.data);
@@ -621,7 +625,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             etaFormatted: '00:00',
           };
           this.uploadProgress = 100;
-          this.isUploading = false; 
+          this.isUploading = false;
           if (this.currentUser && this.username) {
             this.loadUserFileCount();
             this.uploadEventService.notifyUploadComplete();
@@ -634,13 +638,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.eventSource.onerror = (errorEvent: Event) => {
         this.zone.run(() => {
           if (this.eventSource && !this.eventSource.url.includes(uploadId)) {
-             console.log(`SSE 'onerror' for a non-current EventSource (${this.eventSource.url}). Ignoring.`);
-             return;
+            console.log(`SSE 'onerror' for a non-current EventSource (${this.eventSource.url}). Ignoring.`);
+            return;
           }
           if (uploadId !== this.currentUploadId || !this.isUploading) {
             console.log(`SSE 'onerror' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading}).`);
             if (this.eventSource && this.eventSource.url.includes(uploadId)) {
-                this.closeEventSource();
+              this.closeEventSource();
             }
             return;
           }
@@ -673,7 +677,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.isUploading = false;
       this.uploadProgressDetails = {
         ...this.uploadProgressDetails,
-        percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0, 
+        percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0,
         speedMBps: 0,
         etaFormatted: 'Error',
       };
@@ -692,7 +696,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel || 'ID not yet established');
 
     this.isUploading = false;
-    this.closeEventSource(); 
+    this.closeEventSource();
 
     /*
     if (uploadIdToCancel) {
@@ -704,26 +708,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     */
     if (uploadIdToCancel) {
-        console.log(`HomeComponent: Skipping backend notification for cancellation of ${uploadIdToCancel} (FileManagerApiService.cancelUpload not called / not implemented).`);
+      console.log(`HomeComponent: Skipping backend notification for cancellation of ${uploadIdToCancel} (FileManagerApiService.cancelUpload not called / not implemented).`);
     }
 
 
     this.uploadStatusMessage = `Upload cancelled.`;
-    this.uploadError = null; 
+    this.uploadError = null;
 
     const totalSizeBeforeCancel = this.uploadProgressDetails.totalBytes || this.currentItemBeingUploaded?.size || 0;
     this.uploadProgressDetails = {
       totalBytes: totalSizeBeforeCancel,
-      percentage: 0, 
-      bytesSent: this.uploadProgressDetails.bytesSent > 0 ? this.uploadProgressDetails.bytesSent : 0, 
+      percentage: 0,
+      bytesSent: this.uploadProgressDetails.bytesSent > 0 ? this.uploadProgressDetails.bytesSent : 0,
       speedMBps: 0,
       etaFormatted: '--:--',
     };
-    this.uploadProgress = 0; 
-    
+    this.uploadProgress = 0;
+
     this.currentUploadId = null;
     this.cdRef.detectChanges();
-}
+  }
 
 
   private closeEventSource(): void {
@@ -747,11 +751,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.shareableLinkForPanel = null;
         this.uploadError = null;
         this.uploadStatusMessage = '';
-        this.batchUploadLinks = []; 
-        this.currentItemBeingUploaded = null; 
-        this.nextItemId = 0; 
+        this.batchUploadLinks = [];
+        this.currentItemBeingUploaded = null;
+        this.nextItemId = 0;
       }
-    } else { 
+    } else {
       this.selectedItems = [];
       this.shareableLinkForPanel = null;
       this.uploadError = null;
@@ -795,18 +799,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  startTransfer(): void { 
+  startTransfer(): void {
     this.triggerFileInput();
   }
 
   getFileIcon(filename: string | undefined): string {
     if (!filename) return 'fas fa-question-circle';
-    
+
     const isPath = filename.includes('/');
     const baseNameForIcon = isPath ? filename.substring(filename.lastIndexOf('/') + 1) : filename;
 
     if (isPath && (baseNameForIcon === '' || !baseNameForIcon.includes('.'))) {
-        return 'fas fa-folder';
+      return 'fas fa-folder';
     }
     if (!baseNameForIcon.includes('.')) {
       return 'fas fa-file';

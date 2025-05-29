@@ -1,11 +1,11 @@
 // src/app/component/transfer-panel/transfer-panel.component.ts
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core'; // Import ChangeDetectorRef
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
 export interface SelectedItem {
   id: number;
-  file: File;
+  file: File | null; // Can be null if it's a batch representation or after upload
   name: string;
   size: number;
   isFolder?: boolean;
@@ -15,7 +15,7 @@ export interface SelectedItem {
 interface TooltipMessage {
   id: number;
   message: string;
-  timeoutId?: any; // To store the timeout ID for potential cleanup
+  timeoutId?: any;
 }
 
 @Component({
@@ -24,28 +24,44 @@ interface TooltipMessage {
   imports: [CommonModule, ByteFormatPipe],
   templateUrl: './transfer-panel.component.html',
   styleUrls: ['./transfer-panel.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush // Keep OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransferPanelComponent implements OnDestroy {
   @Input() items: SelectedItem[] = [];
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
-  @Input() uploadStatusMessage: string = '';
+  // @Input() uploadStatusMessage: string = ''; // Removed as progress details are more specific
+
+  // Inputs for detailed batch progress
+  @Input() uploadPercentage: number = 0;
+  @Input() bytesSent: number = 0;
+  @Input() totalBytes: number = 0;
+  @Input() speedMBps: number = 0;
+  @Input() etaFormatted: string = '--:--';
+
 
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
-  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // undefined for clear all
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
+  @Output() cancelUpload = new EventEmitter<void>(); // For cancelling the upload
 
   tooltips: TooltipMessage[] = [];
   private nextTooltipId: number = 0;
 
-  // 1. Inject ChangeDetectorRef
   constructor(private cdr: ChangeDetectorRef) { }
 
-  get totalSize(): number { return this.items.reduce((acc, item) => acc + item.size, 0); }
+  get totalSize(): number { return this.items.reduce((acc, item) => acc + (item.size || 0), 0); }
   get totalCount(): number { return this.items.length; }
+
+  get currentUploadProgressSizeDisplay(): string {
+    if (this.totalBytes > 0) {
+      const pipe = new ByteFormatPipe();
+      return `${pipe.transform(this.bytesSent)} / ${pipe.transform(this.totalBytes)}`;
+    }
+    return new ByteFormatPipe().transform(this.bytesSent);
+  }
 
   addMoreFiles(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFiles.emit(); }
   addFolder(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFolder.emit(); }
@@ -65,14 +81,20 @@ export class TransferPanelComponent implements OnDestroy {
 
   requestItemDownload(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
-    if (!this.isUploading) {
+    if (!this.isUploading && item.file) { // Only allow download if not uploading and file exists
       this.itemDownloadRequested.emit(item);
     }
   }
 
   startTransfer(): void {
-    if (this.items.length > 0 && !this.isUploading) {
+    if (this.items.length > 0 && !this.isUploading && !this.batchShareableLink) {
       this.transferInitiated.emit();
+    }
+  }
+
+  handleCancelUpload(): void { // This method was missing in the previous incorrect version
+    if (this.isUploading) {
+      this.cancelUpload.emit();
     }
   }
 
@@ -86,48 +108,31 @@ export class TransferPanelComponent implements OnDestroy {
     navigator.clipboard.writeText(link).then(() => {
       const tooltipId = this.nextTooltipId++;
       const message = 'Download link copied to clipboard';
-
-      const newTooltip: TooltipMessage = {
-        id: tooltipId,
-        message: message,
-      };
-
+      const newTooltip: TooltipMessage = { id: tooltipId, message: message };
       newTooltip.timeoutId = setTimeout(() => {
         this.removeTooltip(tooltipId);
-        // 2. Call detectChanges when tooltip is removed (already good)
         this.cdr.detectChanges();
       }, 3000);
-
-      // 3. Use immutable update for the tooltips array
       this.tooltips = [...this.tooltips, newTooltip];
-
-      // 2. Call detectChanges after adding the tooltip
       this.cdr.detectChanges();
-
     }).catch(err => {
       console.error('Failed to copy link: ', err);
       alert('Failed to copy link.');
-      // Optionally trigger change detection here too if an error state needs to be reflected in the UI
       this.cdr.detectChanges();
     });
   }
 
   private removeTooltip(tooltipId: number): void {
-    // 3. Use immutable update for removing from the tooltips array
     this.tooltips = this.tooltips.filter(t => t.id !== tooltipId);
-    // Change detection will be called by the setTimeout callback that invokes this.
   }
 
   ngOnDestroy(): void {
     this.tooltips.forEach(tooltip => {
-      if (tooltip.timeoutId) {
-        clearTimeout(tooltip.timeoutId);
-      }
+      if (tooltip.timeoutId) clearTimeout(tooltip.timeoutId);
     });
     this.tooltips = [];
   }
 
-  trackTooltipById(index: number, tooltip: TooltipMessage): number {
-    return tooltip.id;
-  }
+  trackTooltipById(index: number, tooltip: TooltipMessage): number { return tooltip.id; }
+  trackItemById(index: number, item: SelectedItem): number { return item.id; } // For @for trackBy
 }
