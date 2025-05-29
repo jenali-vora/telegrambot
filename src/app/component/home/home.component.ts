@@ -164,6 +164,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadError = null;
     this.selectedItems = [];
     this.shareableLinkForPanel = null;
+     this.completedBatchAccessId = null;
     this.currentItemBeingUploaded = null;
     this.currentUploadId = null;
     this.uploadStatusMessage = '';
@@ -513,6 +514,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.handleBatchUploadError(`Failed to initiate batch upload: ${err.message}`);
       }
     });
+  }
+  handleNewTransferRequest(): void {
+    console.log('HomeComponent: New transfer requested. Resetting state.');
+    this.resetUploadState();
+    this.cdRef.detectChanges(); // Ensure UI updates after state reset
   }
 
   private listenToUploadProgress(uploadId: string, batchItemRepresentation: SelectedItem | null): void {

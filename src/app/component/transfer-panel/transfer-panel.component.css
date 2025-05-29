@@ -84,6 +84,72 @@
     opacity: 0.7;
 }
 
+.file-list-item.is-completed-item .item-size,
+.file-list-item.is-completed-item .item-actions {
+    display: none;
+}
+
+.file-list-item.is-completed-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    align-items: center;
+}
+
+.file-list-item.is-completed-item .item-name {
+    margin-bottom: 0;
+}
+
+.completed-transfer-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-new-transfer {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background-color: var(--button-color);
+    /* Or a different color for "new action" */
+    border: 1px solid var(--button-color) !important;
+    color: var(--white-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-new-transfer:hover {
+    background-color: var(--button-hover);
+    color: var(--button-color);
+}
+
+.btn-new-transfer i {
+    line-height: 1;
+}
+
+.completed-transfer-actions .copy-success-tooltips-container {
+    position: relative;
+    left: auto;
+    transform: none;
+    margin-top: 5px;
+}
+
+.upload-status-message-general {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 8px;
+    text-align: center;
+    width: 100%;
+}
+
 /* progress css end */
 
 

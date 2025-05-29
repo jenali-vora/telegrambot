@@ -5,7 +5,7 @@ import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
 export interface SelectedItem {
   id: number;
-  file: File | null; // Can be null if it's a batch representation or after upload
+  file: File | null;
   name: string;
   size: number;
   isFolder?: boolean;
@@ -30,22 +30,21 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() items: SelectedItem[] = [];
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
-  // @Input() uploadStatusMessage: string = ''; // Removed as progress details are more specific
 
-  // Inputs for detailed batch progress
   @Input() uploadPercentage: number = 0;
   @Input() bytesSent: number = 0;
   @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
 
-
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
-  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // undefined for clear all
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
-  @Output() cancelUpload = new EventEmitter<void>(); // For cancelling the upload
+  @Output() cancelUpload = new EventEmitter<void>();
+  @Output() newTransferRequested = new EventEmitter<void>(); 
+   @Input() generalUploadStatusMessage: string = ''; 
 
   tooltips: TooltipMessage[] = [];
   private nextTooltipId: number = 0;
@@ -81,7 +80,7 @@ export class TransferPanelComponent implements OnDestroy {
 
   requestItemDownload(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
-    if (!this.isUploading && item.file) { // Only allow download if not uploading and file exists
+    if (!this.isUploading && item.file) {
       this.itemDownloadRequested.emit(item);
     }
   }
@@ -92,13 +91,19 @@ export class TransferPanelComponent implements OnDestroy {
     }
   }
 
-  handleCancelUpload(): void { // This method was missing in the previous incorrect version
+  handleCancelUpload(): void {
     if (this.isUploading) {
       this.cancelUpload.emit();
     }
   }
 
+  // **** NEW METHOD ****
+  initiateNewTransfer(): void {
+    this.newTransferRequested.emit();
+  }
+
   copyLink(link: string | null | undefined, event: MouseEvent): void {
+    // ... (copyLink method remains the same)
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -134,5 +139,5 @@ export class TransferPanelComponent implements OnDestroy {
   }
 
   trackTooltipById(index: number, tooltip: TooltipMessage): number { return tooltip.id; }
-  trackItemById(index: number, item: SelectedItem): number { return item.id; } // For @for trackBy
+  trackItemById(index: number, item: SelectedItem): number { return item.id; }
 }
