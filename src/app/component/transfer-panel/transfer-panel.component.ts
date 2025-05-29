@@ -10,8 +10,6 @@ export interface SelectedItem {
   size: number;
   isFolder?: boolean;
   icon: string;
-  individualProgress?: number;
-  isCurrentlyProcessing?: boolean;
 }
 
 interface TooltipMessage {
@@ -33,7 +31,7 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
   @Input() uploadStatusMessage: string = '';
-  @Output() batchCancelRequested = new EventEmitter<void>();
+
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
   @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
@@ -57,11 +55,7 @@ export class TransferPanelComponent implements OnDestroy {
       this.itemRemoved.emit(undefined);
     }
   }
-  requestBatchCancel(): void {
-    if (this.isUploading) {
-      this.batchCancelRequested.emit();
-    }
-  }
+
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
     if (!this.isUploading) {

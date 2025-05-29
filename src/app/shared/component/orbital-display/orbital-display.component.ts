@@ -21,7 +21,7 @@ export class OrbitalDisplayComponent implements OnInit {
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
   @Input() uploadStatusMessage: string = '';
-  @Input() overallProgressPercentage: number = 0;
+
   // Output for the orbital display's own + button click (remains the same)
   @Output() requestFileUpload = new EventEmitter<void>();
 
@@ -43,9 +43,7 @@ export class OrbitalDisplayComponent implements OnInit {
   get showTransferPanel(): boolean {
     return ((this.items.length > 0 || !!this.batchShareableLink) || this.isUploading);
   }
-  get showOverallProgressCircle(): boolean {
-    return this.isUploading && this.items.length > 0;
-  }
+
   // The showOrbitalContent getter is no longer needed.
 
   onCentralButtonClick(): void {

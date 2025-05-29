@@ -219,9 +219,6 @@
     flex-grow: 1;
     overflow: hidden;
     font-size: 0.85rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 .item-name {
@@ -231,47 +228,7 @@
     text-overflow: ellipsis;
     color: var(--heading-color);
     font-weight: 500;
-    margin-bottom: 2px;
-    line-height: 1.3;
-}
-
-.individual-file-progress-container {
-    height: 6px;
-    width: 100%;
-    margin-top: 4px;
-    border-radius: 3px;
-    background-color: #e9ecef;
-    overflow: hidden;
-}
-
-.individual-progress-bar {
-    height: 100%;
-}
-
-.individual-progress-bar-fill {
-    height: 100%;
-    background-color: var(--button-color);
-    border-radius: 3px;
-    transition: width 0.2s ease-out;
-}
-
-.global-batch-status {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    color: var(--text-color-secondary);
-}
-
-.btn-cancel-batch {
-    width: 100%;
-    background-color: var(--delete-color) !important;
-    border-color: var(--delete-color) !important;
-    color: var(--white-color) !important;
-}
-
-.btn-cancel-batch:hover {
-    background-color: #c82333 !important;
-    border-color: #bd2130 !important;
+    margin-bottom: 0;
 }
 
 /* Remove item size from details column */
