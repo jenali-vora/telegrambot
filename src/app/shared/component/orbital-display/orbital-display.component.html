@@ -58,8 +58,9 @@
     <!-- END: Added circles background animation -->
 
     <div class="upload-container">
-        <div class="upload-area" (dragenter)="onDragEnterArea($event)" (dragover)="onDragOverArea($event)"
-            (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
+        <!-- Initial Drag and Drop UI (no items, not uploading) -->
+        <div *ngIf="items.length === 0 && !isUploading" class="upload-area" (dragenter)="onDragEnterArea($event)"
+            (dragover)="onDragOverArea($event)" (dragleave)="onDragLeaveArea($event)" (drop)="onDropArea($event)">
             <div class="dashed-circle-outer">
                 <div class="dashed-circle-inner" [class.drag-active-highlight]="isDragActiveLocal"
                     (click)="onCentralButtonClick()">
@@ -70,22 +71,35 @@
                         <p class="drag-drop-text">Drag and Drop file(s) here</p>
                         <div class="limit-info">
                             <span>Up to 4GB free</span>
-                            <a href="#" class="increase-limit-link">
-                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <p class="terms-text">
+
+        <!-- New Circular SVG Progress UI (shown when items exist AND uploading AND no link yet) -->
+        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new">
+            <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
+                <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
+                    [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
+                <circle class="circular-progress-value-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
+                    [attr.r]="radius" [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="circumference"
+                    [style.strokeDashoffset]="strokeDashoffset" />
+            </svg>
+            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
+        </div>
+        <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
             By uploading files you agree to the Transfer Terms & Conditions
             and <a href="#">Privacy Policy</a>.
         </p>
-        <app-transfer-panel *ngIf="showTransferPanel" [items]="items" [isUploading]="isUploading"
-            [batchShareableLink]="batchShareableLink" [uploadStatusMessage]="uploadStatusMessage"
+
+        <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
+            [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage"
+            [bytesSent]="bytesSent" [totalBytes]="totalBytes" [speedMBps]="speedMBps" [etaFormatted]="etaFormatted"
             (requestAddFiles)="onRequestAddFilesPanel()" (requestAddFolder)="onRequestAddFolderPanel()"
             (itemRemoved)="onItemRemovedPanel($event)" (itemDownloadRequested)="onItemDownloadRequestedPanel($event)"
-            (transferInitiated)="onTransferInitiatedPanel()" class="transfer-panel-container orbital-transfer-panel">
+            (transferInitiated)="onTransferInitiatedPanel()" (cancelUpload)="onCancelUploadPanel()"
+            class="transfer-panel-container orbital-transfer-panel">
         </app-transfer-panel>
     </div>
 </div>
