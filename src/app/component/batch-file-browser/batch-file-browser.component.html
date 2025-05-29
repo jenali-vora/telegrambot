@@ -1,95 +1,41 @@
-<!-- Main container for the component's content -->
+<!-- Main container controlled by loading/batchDetails state -->
 <div *ngIf="!isLoading && batchDetails; else loadingOrError">
 
-    <!-- SINGLE IMAGE PREVIEW MODE -->
-    <ng-container *ngIf="isSingleImagePreview && singleImageFile && singleImagePreviewUrl; else fileListMode">
-        <div class="single-file-preview-container">
-            <div class="preview-header">
-                <div class="preview-file-details">
-                    <h1 class="preview-filename" [title]="singleImageFile.original_filename">{{
-                        singleImageFile.original_filename }}</h1>
-                    <p class="preview-meta">
-                        Shared by <span class="share-username">{{ batchDetails.username || 'You' }}</span>
-                        <span class="file-dot">•</span>
-                        1 File
-                        <span class="file-dot">•</span>
-                        {{ singleImageFile.original_size | byteFormat }}
-                    </p>
-                </div>
-                <div class="preview-actions">
-                    <button class="action-button download-btn" (click)="initiateIndividualDownload(singleImageFile)"
-                        [disabled]="isProcessingDownload">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-download" viewBox="0 0 16 16"
-                            style="vertical-align: text-bottom; margin-right: 5px;">
-                            <path
-                                d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-                            <path
-                                d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-                        </svg>
-                        Download
-                    </button>
-                    <!-- "Copy Link" button and its associated SVG are removed -->
-                </div>
-            </div>
-
-            <div class="image-preview-area" [class.no-image]="!singleImagePreviewUrl">
-                <img *ngIf="singleImagePreviewUrl" [src]="singleImagePreviewUrl"
-                    [alt]="singleImageFile.original_filename" (error)="onImagePreviewError($event)" />
-                <p *ngIf="!singleImagePreviewUrl && singleImageFile">Preview not available for
-                    {{singleImageFile.original_filename}}.</p>
-            </div>
-
-            <!-- Progress bar for single image download -->
-            <div *ngIf="currentDownloadingFile === singleImageFile.original_filename && individualProgress[singleImageFile.original_filename] as progressData"
-                class="progress-container individual-progress-container single-file-progress">
-                <div class="progress-bar-wrapper">
-                    <div class="progress-bar" [style.width.%]="progressData.percentage || 0">
-                        <span *ngIf="(progressData.percentage || 0) > 5">{{ (progressData.percentage || 0) |
-                            number:'1.0-0' }}%</span>
-                        <span *ngIf="(progressData.percentage || 0) <= 5">{{ (progressData.percentage || 0) |
-                            number:'1.0-0' }}%</span>
-                    </div>
-                </div>
-                <div class="progress-details">
-                    <span *ngIf="progressData.totalBytes !== undefined">
-                        {{ (progressData.bytesSent ?? progressData.bytesProcessed ?? 0) | byteFormat }} / {{
-                        progressData.totalBytes | byteFormat }}
-                    </span>
-                    <span
-                        *ngIf="progressData.totalBytes !== undefined && progressData.percentage < 100 && (progressData.speedMBps !== undefined || progressData.etaFormatted)">•
-                    </span>
-                    <ng-container *ngIf="progressData.percentage < 100">
-                        <span *ngIf="progressData.speedMBps !== undefined">{{ progressData.speedMBps | number:'1.1-1' }}
-                            MB/s</span>
-                        <span *ngIf="progressData.speedMBps !== undefined && progressData.etaFormatted"> • </span>
-                        <span *ngIf="progressData.etaFormatted">ETA: {{ progressData.etaFormatted }}</span>
-                    </ng-container>
-                    <span *ngIf="progressData.percentage === 100">Processing complete!</span>
-                </div>
-            </div>
-
-            <!-- General Status Message for single image view -->
-            <div *ngIf="downloadStatusMessage && !(currentDownloadingFile === singleImageFile.original_filename && individualProgress[singleImageFile.original_filename])"
-                class="status-message single-file-status" [ngClass]="{
-                    'info': downloadStatusType === 'info',
-                    'error': downloadStatusType === 'error',
-                    'success': downloadStatusType === 'success'
-                }">
-                {{ downloadStatusMessage }}
-            </div>
+    <!-- 1. SINGLE IMAGE ONLY PREVIEW -->
+    <ng-container *ngIf="isSingleImageOnlyPreview && singleImageFile && singleImagePreviewUrl; else singleCodeFileMode">
+        <div class="image-only-display-container">
+            <img [src]="singleImagePreviewUrl" [alt]="singleImageFile.original_filename"
+                (error)="onImagePreviewError($event)" />
         </div>
     </ng-container>
 
-    <!-- FILE LIST MODE (Original Content - remains unchanged) -->
+    <!-- 2. SINGLE CODE FILE PREVIEW -->
+    <ng-template #singleCodeFileMode>
+        <ng-container *ngIf="isSingleCodeFilePreview && singleCodeFile; else fileListMode">
+            <div class="code-file-display-container">
+                <div *ngIf="isLoadingFileContent" class="container text-center">
+                    Loading content for {{ singleCodeFile.original_filename }}...
+                </div>
+                <pre *ngIf="!isLoadingFileContent && singleCodeFileContent">{{ singleCodeFileContent }}</pre>
+                <!-- Error specific to code content loading will be in the general 'error' variable now -->
+            </div>
+        </ng-container>
+    </ng-template>
+
+    <!-- 3. DEFAULT FILE LIST MODE (Your existing file list structure) -->
     <ng-template #fileListMode>
         <div class="all-file-list-wrapper">
+            <!-- Batch Info (Uncomment if needed) -->
+            <!-- <div class="batch-info"> ... </div> -->
+
             <h2>All File List</h2>
             <ul class="file-list"
                 *ngIf="batchDetails && batchDetails.files && batchDetails.files.length > 0; else noFiles">
                 <ng-container *ngFor="let file of batchDetails.files">
                     <li *ngIf="!file.skipped && !file.failed" [attr.data-filename]="file.original_filename"
                         [class.processing]="currentDownloadingFile === file.original_filename">
+
+                        <!-- File Info (Name, sharer, etc.) -->
                         <div class="main-file-name row">
                             <div class="col-2 file-icon-container">
                                 <span class="file-icon">
@@ -115,6 +61,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="file-controls-area">
                             <div class="file-actions">
                                 <span class="file-size">{{ file.original_size | byteFormat }}</span>
@@ -133,6 +80,7 @@
                             </div>
                         </div>
                     </li>
+                    <!-- INDIVIDUAL File Progress Bar -->
                     <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename] as progressData"
                         class="progress-container individual-progress-container">
                         <div class="progress-bar-wrapper">
@@ -181,6 +129,7 @@
                 </ng-container>
             </ul>
 
+            <!-- General Status Message Area (remains for list mode) -->
             <div *ngIf="downloadStatusMessage && !(isDownloadingAll && downloadAllProgress) && !currentDownloadingFile"
                 class="status-message" [ngClass]="{
                     'info': downloadStatusType === 'info',
@@ -190,6 +139,7 @@
                 {{ downloadStatusMessage }}
             </div>
 
+            <!-- "Download All" button section (remains for list mode) -->
             <div class="download-all-section"
                 *ngIf="batchDetails && batchDetails.files && batchDetails.files.length > 1">
                 <div *ngIf="isDownloadingAll && downloadAllProgress"
@@ -238,10 +188,9 @@
     </ng-template>
 </div>
 
-<!-- Loading/Error Template (remains unchanged) -->
+<!-- Loading/Error Template (this will now catch errors from image loading or code content fetching too) -->
 <ng-template #loadingOrError>
-    <div *ngIf="isLoading" class="container text-center">Loading batch details...</div>
-    <div *ngIf="error && !isLoading && (!isSingleImagePreview || !singleImageFile)" class="container error-message">{{
-        error }}</div>
+    <div *ngIf="isLoading && !error" class="container text-center">Loading batch details...</div>
+    <div *ngIf="error && !isLoading" class="container error-message">{{ error }}</div>
     <div *ngIf="!effectiveBatchAccessId && !isLoading && !error" class="container error-message">Batch ID missing.</div>
 </ng-template>
