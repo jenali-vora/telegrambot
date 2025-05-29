@@ -28,14 +28,11 @@
                             <app-orbital-display (requestFileUpload)="triggerFileInput()" [items]="selectedItems"
                                 [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                                 [uploadStatusMessage]="uploadStatusMessage"
-                                [overallProgressPercentage]="uploadProgressDetails.percentage"
                                 (requestAddFilesFromPanel)="triggerFileInput()"
                                 (requestAddFolderFromPanel)="triggerFolderInput()"
                                 (itemRemovedFromPanel)="handleItemRemovedFromPanel($event)"
                                 (itemDownloadRequestedFromPanel)="handleDownloadRequest($event)"
-                                (transferInitiatedFromPanel)="initiateTransferFromPanel()"
-                                (batchCancelRequested)="handleCancelUpload()">
-                            </app-orbital-display>
+                                (transferInitiatedFromPanel)="initiateTransferFromPanel()"></app-orbital-display>
                         </div>
                         <!-- <div class="upload-main-wrapper"
                             *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
@@ -196,8 +193,8 @@
                     </a>
                 </div>
             </div>
-            <div class="col-12 col-lg-6 col-md-6 right-section" appScrollAnimation="slide-in-right"
-                [animationThreshold]="0.5" animationDelay="0.5s">
+            <div class="col-12 col-lg-6 col-md-6 right-section" appScrollAnimation="slide-in-right" [animationThreshold]="0.5"
+                animationDelay="0.5s">
                 @for (item of redisterdUser; track $index) {
                 <div class="registerd-wrapper">
                     <div class="img-box">
@@ -214,13 +211,13 @@
     </div>
 
     <!-- Upload Progress Overlay (remains unchanged) -->
-    <!-- <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
+    <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
         <app-upload-progress-item [item]="currentItemBeingUploaded" [percentage]="uploadProgressDetails.percentage"
             [bytesSent]="uploadProgressDetails.bytesSent" [totalBytes]="uploadProgressDetails.totalBytes"
             [speedMBps]="uploadProgressDetails.speedMBps" [etaFormatted]="uploadProgressDetails.etaFormatted"
             [itemsInTransfer]="selectedItems.length" (cancelUpload)="handleCancelUpload()">
         </app-upload-progress-item>
-    </div> -->
+    </div>
     <div *ngIf="showPlayGamesButton" class="play-games-notification-toast" (click)="toggleGamePanel()" role="button"
         tabindex="0" (keydown.enter)="toggleGamePanel()" (keydown.space)="toggleGamePanel()"
         title="Click to play games while you wait or after your transfer" appScrollAnimation="fade-in"

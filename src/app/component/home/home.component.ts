@@ -26,12 +26,11 @@ interface UploadProgressDetails {
   totalBytes: number;
   speedMBps: number;
   etaFormatted: string;
-  uploadedFilesCount: number; // <<<< ADDED THIS PROPERTY
 }
 
 interface CompletedUploadLink {
   name: string;
-  url: string;
+  url:string;
 }
 
 @Component({
@@ -68,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isUploading: boolean = false;
   uploadError: string | null = null;
   selectedItems: SelectedItem[] = [];
-  currentItemBeingUploaded: SelectedItem | null = null; // This still represents the batch item
+  currentItemBeingUploaded: SelectedItem | null = null;
   currentUploadId: string | null = null;
 
   userFileCount: number = 0;
@@ -76,8 +75,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private eventSource: EventSource | null = null;
   uploadStatusMessage: string = '';
-  uploadProgressDetails: UploadProgressDetails = { // Initialize with the new property
-    percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--', uploadedFilesCount: 0,
+  uploadProgressDetails: UploadProgressDetails = {
+    percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--',
   };
   uploadProgress: number = 0;
 
@@ -90,7 +89,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   public isDraggingOverWindow: boolean = false;
   private dragEnterCounter = 0;
 
-  // ... (stepContent, transferList, apps, icon, redisterdUser remain the same) ...
   stepContent = [
     { number: '1', title: ' Select your file(s)', des: 'Select the file(s) and/or folder(s) you want to send from your computer or smartphone.' },
     { number: '2', title: ' Fill out the form', des: 'Fill out the transfer form - enter your email address as well as the recipient(s) email address(es). Send large files by email or generate a share link.' },
@@ -118,7 +116,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { icon: 'assets/image/ru-i.png', title: 'Registered users', count: '327,026,694' },
     { icon: 'assets/image/files-uploadImg.png', title: 'Uploaded files', count: '191,649,393,254' }
   ]
-
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent): void {
     if (this.isUploading) {
@@ -165,29 +162,22 @@ export class HomeComponent implements OnInit, OnDestroy {
   private resetUploadState(): void {
     this.isUploading = false;
     this.uploadError = null;
-    // this.selectedItems = []; // Keep selected items if needed for post-cancel display or re-initiation
+    this.selectedItems = [];
     this.shareableLinkForPanel = null;
     this.currentItemBeingUploaded = null;
     this.currentUploadId = null;
     this.uploadStatusMessage = '';
-    this.uploadProgressDetails = { // Reset with the new property
-      percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--', uploadedFilesCount: 0,
+    this.uploadProgressDetails = {
+      percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--',
     };
     this.uploadProgress = 0;
-    // this.nextItemId = 0; // Only reset if selectedItems is also reset
+    this.nextItemId = 0;
     this.batchUploadLinks = [];
     this.isDraggingOverWindow = false;
     this.isGamePanelVisible = false;
     this.updatePlayGamesButtonVisibility();
     this.dragEnterCounter = 0;
     this.closeEventSource();
-
-    // Reset progress for any existing items if they are not cleared
-    this.selectedItems = this.selectedItems.map(item => ({
-      ...item,
-      individualProgress: 0,
-      isCurrentlyProcessing: false
-    }));
 
     if (this.fileInputRef?.nativeElement) {
       this.fileInputRef.nativeElement.value = '';
@@ -252,10 +242,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isDraggingOverWindow = true;
         this.cdRef.detectChanges();
       }
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'copy';
-      }
-    } else {
+       if (event.dataTransfer) { 
+         event.dataTransfer.dropEffect = 'copy';
+       }
+    } else { 
       if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'none';
       }
@@ -270,7 +260,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'copy';
       }
-      if (!this.isDraggingOverWindow) {
+      if (!this.isDraggingOverWindow) { 
         this.isDraggingOverWindow = true;
         this.cdRef.detectChanges();
       }
@@ -314,7 +304,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       let reason = "";
       if (this.isUploading) reason = "upload is in progress";
       else if (this.shareableLinkForPanel) reason = "a shareable link for a completed transfer is displayed";
-      else reason = "current state does not permit drop";
+      else reason = "current state does not permit drop"; 
       console.log(`Drop ignored: ${reason}.`);
     }
   }
@@ -341,7 +331,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const isLoggedIn = this.authService.isLoggedIn();
 
     if (isLoggedIn) {
-      MAX_TOTAL_FILES = Infinity;
+      MAX_TOTAL_FILES = Infinity; 
     } else {
       MAX_TOTAL_FILES = 5; // Anonymous user limit
     }
@@ -351,7 +341,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
 
     if (!isFinite(MAX_TOTAL_FILES)) { // If logged in
-      slotsActuallyAvailable = Infinity;
+        slotsActuallyAvailable = Infinity;
     }
 
     // Check if anonymous user is already at the limit and trying to add more
@@ -370,21 +360,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     for (let i = 0; i < fileList.length; i++) {
       if (!isLoggedIn && (currentCount + filesAddedInThisOperation >= MAX_TOTAL_FILES)) {
         // Stop adding if limit for anonymous user is reached during this operation
-        break;
+        break; 
       }
 
       const file = fileList[i];
-
+      
       let itemName = file.name;
       if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) {
-        itemName = file.webkitRelativePath;
+          itemName = file.webkitRelativePath;
       }
 
       if (file.size === 0 && !isFolderSelection && !itemName.includes('/')) {
         console.log(`Skipping empty file: ${itemName}`);
         continue;
       }
-      if (file.name.toLowerCase().endsWith('.ds_store')) {
+      if (file.name.toLowerCase().endsWith('.ds_store')) { 
         console.log(`Skipping .DS_Store file: ${itemName} (original: ${file.name})`);
         continue;
       }
@@ -395,10 +385,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         name: itemName,
         size: file.size,
         icon: this.getFileIcon(itemName),
-        isFolder: (isFolderSelection && file.webkitRelativePath && file.webkitRelativePath === file.name && !file.type && file.size === 0)
-          || (isFolderSelection && itemName.endsWith('/')),
-        individualProgress: 0,
-        isCurrentlyProcessing: false
+        isFolder: (isFolderSelection && file.webkitRelativePath && file.webkitRelativePath === file.name && !file.type && file.size === 0) 
+                   || (isFolderSelection && itemName.endsWith('/')) 
       });
       filesAddedInThisOperation++;
     }
@@ -407,9 +395,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.selectedItems = [...this.selectedItems, ...newItems];
       console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
     }
-
+    
+    // Set error message if not all files from the input could be added due to limits (for anonymous users)
+    // This condition applies if the loop was broken because the limit was hit.
     if (!isLoggedIn && filesAddedInThisOperation < fileList.length) {
-      this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
+        this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
     }
 
 
@@ -437,11 +427,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   initiateTransferFromPanel(): void {
     if (this.isUploading || this.selectedItems.length === 0) return;
-    this.selectedItems = this.selectedItems.map(item => ({
-      ...item,
-      individualProgress: 0,
-      isCurrentlyProcessing: false
-    }));
 
     this.isUploading = true;
     this.uploadError = null;
@@ -452,7 +437,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
 
     let batchIcon: string;
-    let batchIsFolder = false;
+    let batchIsFolder = false; 
 
     if (this.selectedItems.length === 1) {
       const singleItem = this.selectedItems[0];
@@ -463,17 +448,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         batchIcon = singleItem.icon;
       }
     } else {
-      batchIcon = 'fas fa-archive';
+      batchIcon = 'fas fa-archive'; 
       batchIsFolder = false;
     }
 
     this.currentItemBeingUploaded = {
-      id: -1,
+      id: -1, 
       name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
       size: totalBatchSize,
-      file: null as any,
+      file: null as any, 
       icon: batchIcon,
-      isFolder: batchIsFolder
+      isFolder: batchIsFolder 
     };
 
     this.uploadProgressDetails = {
@@ -482,7 +467,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       totalBytes: totalBatchSize,
       speedMBps: 0,
       etaFormatted: '--:--',
-      uploadedFilesCount: 0, // Initialize here as well
     };
     this.uploadProgress = 0;
     this.uploadStatusMessage = 'Initializing upload...';
@@ -512,7 +496,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.apiService.initiateUpload(formData).subscribe({
       next: (res: InitiateUploadResponse) => {
-        if (!this.isUploading) return;
+        if (!this.isUploading) return; 
         if (res.upload_id) {
           this.currentUploadId = res.upload_id;
           this.listenToUploadProgress(res.upload_id, this.currentItemBeingUploaded);
@@ -521,7 +505,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       },
       error: (err: Error) => {
-        if (!this.isUploading) return;
+        if (!this.isUploading) return; 
         this.handleBatchUploadError(`Failed to initiate batch upload: ${err.message}`);
       }
     });
@@ -537,8 +521,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.eventSource.onopen = () => {
         this.zone.run(() => {
           if (uploadId !== this.currentUploadId || !this.isUploading) {
-            this.closeEventSource(); return;
+            console.log(`SSE 'onopen' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
+            this.closeEventSource();
+            return;
           }
+          console.log(`SSE connection opened for upload ID: ${uploadId}`);
           this.uploadStatusMessage = 'Upload connection established. Starting...';
           this.cdRef.detectChanges();
         });
@@ -546,7 +533,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.eventSource.addEventListener('start', (event: MessageEvent) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) return;
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'start' event for ${uploadId} ignored.`);
+            return;
+          }
           const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || 'Upload started.';
           if (data.totalBytes && data.totalBytes !== this.uploadProgressDetails.totalBytes) {
@@ -555,29 +545,34 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
             }
           }
+          console.log('SSE "start" event data:', data);
           this.cdRef.detectChanges();
         });
       });
 
       this.eventSource.addEventListener('status', (event: MessageEvent) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) return;
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'status' event for ${uploadId} ignored.`);
+            return;
+          }
           const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || 'Processing...';
           if (typeof data.percentage === 'number') {
             this.uploadProgressDetails.percentage = Math.min(parseFloat(data.percentage), 100);
             this.uploadProgress = this.uploadProgressDetails.percentage;
           }
-          if (data.message && typeof data.message === 'string') {
-            this.updateIndividualFileProgressFromMessage(data.message, this.uploadProgressDetails.percentage);
-          }
+          console.log('SSE "status" event data:', data);
           this.cdRef.detectChanges();
         });
       });
 
       this.eventSource.addEventListener('progress', (event: MessageEvent) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) return;
+          if (uploadId !== this.currentUploadId || !this.isUploading) {
+            console.log(`SSE 'progress' event for ${uploadId} ignored.`);
+            return;
+          }
           try {
             const data = JSON.parse(event.data);
             this.uploadProgressDetails = {
@@ -586,27 +581,12 @@ export class HomeComponent implements OnInit, OnDestroy {
               totalBytes: data.totalBytes !== undefined ? parseInt(data.totalBytes, 10) : this.uploadProgressDetails.totalBytes,
               speedMBps: data.speedMBps !== undefined ? parseFloat(data.speedMBps) : this.uploadProgressDetails.speedMBps,
               etaFormatted: data.etaFormatted !== undefined ? data.etaFormatted : this.uploadProgressDetails.etaFormatted,
-              uploadedFilesCount: this.uploadProgressDetails.uploadedFilesCount // Preserve existing, will be updated by updateIndividualFileProgressFromMessage
             };
             if (this.currentItemBeingUploaded && data.totalBytes !== undefined && this.currentItemBeingUploaded.size !== this.uploadProgressDetails.totalBytes) {
               this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
             }
             this.uploadProgress = this.uploadProgressDetails.percentage;
-
-            if (data.message && typeof data.message === 'string') {
-              this.uploadStatusMessage = data.message;
-              this.updateIndividualFileProgressFromMessage(data.message, this.uploadProgressDetails.percentage);
-            } else {
-              this.uploadStatusMessage = `Uploading: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
-              const firstNonCompleteIndex = this.selectedItems.findIndex(it => (it.individualProgress || 0) < 100);
-              if (firstNonCompleteIndex !== -1) {
-                this.selectedItems = this.selectedItems.map((item, index) => ({
-                  ...item,
-                  isCurrentlyProcessing: index === firstNonCompleteIndex,
-                  individualProgress: index === firstNonCompleteIndex ? this.uploadProgressDetails.percentage : item.individualProgress
-                }));
-              }
-            }
+            this.uploadStatusMessage = data.message || `Uploading: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
             this.cdRef.detectChanges();
           } catch (e) {
             console.error("Error parsing SSE 'progress' event data:", event.data, e);
@@ -616,14 +596,20 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.eventSource.addEventListener('complete', (event: MessageEvent) => {
         this.zone.run(() => {
-          if (uploadId !== this.currentUploadId || !this.isUploading) { this.closeEventSource(); return; }
+          if (uploadId !== this.currentUploadId || !this.isUploading) { 
+            console.log(`SSE 'complete' event for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading})`);
+            this.closeEventSource(); 
+            return;
+          }
           const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || 'Upload complete!';
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
             this.shareableLinkForPanel = `${frontendBaseUrl}/browse/${data.batch_access_id}`;
+            console.log(`HomeComponent: Generated shareable link: ${this.shareableLinkForPanel}`);
           } else {
+            console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id'.");
             this.uploadError = "Upload complete, but could not generate a shareable batch link.";
             this.shareableLinkForPanel = null;
           }
@@ -633,15 +619,9 @@ export class HomeComponent implements OnInit, OnDestroy {
             totalBytes: data.totalBytes !== undefined ? parseInt(data.totalBytes, 10) : this.uploadProgressDetails.totalBytes,
             speedMBps: 0,
             etaFormatted: '00:00',
-            uploadedFilesCount: this.selectedItems.length // All files complete
           };
-          this.uploadProgress = 100; // Ensure overall progress is 100
-          this.selectedItems = this.selectedItems.map(item => ({
-            ...item,
-            individualProgress: 100,
-            isCurrentlyProcessing: false
-          }));
-          this.isUploading = false; // Set after items are marked complete
+          this.uploadProgress = 100;
+          this.isUploading = false; 
           if (this.currentUser && this.username) {
             this.loadUserFileCount();
             this.uploadEventService.notifyUploadComplete();
@@ -653,79 +633,35 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.eventSource.onerror = (errorEvent: Event) => {
         this.zone.run(() => {
-          if (this.eventSource && !this.eventSource.url.includes(uploadId)) return;
+          if (this.eventSource && !this.eventSource.url.includes(uploadId)) {
+             console.log(`SSE 'onerror' for a non-current EventSource (${this.eventSource.url}). Ignoring.`);
+             return;
+          }
           if (uploadId !== this.currentUploadId || !this.isUploading) {
-            if (this.eventSource && this.eventSource.url.includes(uploadId)) this.closeEventSource();
+            console.log(`SSE 'onerror' for ${uploadId} ignored (current: ${this.currentUploadId}, uploading: ${this.isUploading}).`);
+            if (this.eventSource && this.eventSource.url.includes(uploadId)) {
+                this.closeEventSource();
+            }
             return;
           }
+
+          console.error("SSE Error Event for active upload: ", errorEvent);
           let errorMessage = 'SSE connection error during upload. The upload may have failed.';
           if (errorEvent instanceof MessageEvent && (errorEvent as MessageEvent).data) {
             try {
               const parsedError = JSON.parse((errorEvent as MessageEvent).data);
               errorMessage = parsedError.message || parsedError.error || `SSE error: ${(errorEvent as MessageEvent).data}`;
-            } catch (e) { errorMessage = `SSE error (unparseable): ${(errorEvent as MessageEvent).data}`; }
+            } catch (e) {
+              errorMessage = `SSE error (unparseable): ${(errorEvent as MessageEvent).data}`;
+            }
           }
           this.handleBatchUploadError(errorMessage, errorEvent);
         });
       };
     } catch (error) {
+      console.error("Failed to create EventSource:", error);
       this.handleBatchUploadError(`Client-side error setting up upload progress: ${(error as Error).message}`);
     }
-  }
-  private updateIndividualFileProgressFromMessage(message: string, overallPercentage: number): void {
-    const fileProgressMatch = message.match(/Uploading:?\s*([^\(]+)\s*\((\d+)\/(\d+)\)/i) || message.match(/Processing:?\s*([^\(]+)/i);
-
-    let currentFileNameFromMessage: string | null = null;
-    let currentFileNumber: number | null = null;
-    // let totalFilesMessage: number | null = null; // Not directly used in assignment logic
-
-    if (message.match(/Uploading:?\s*([^\(]+)\s*\((\d+)\/(\d+)\)/i)) {
-      const match = message.match(/Uploading:?\s*([^\(]+)\s*\((\d+)\/(\d+)\)/i);
-      if (match) {
-        currentFileNameFromMessage = match[1].trim();
-        currentFileNumber = parseInt(match[2], 10);
-        // totalFilesMessage = parseInt(match[3], 10);
-      }
-    } else if (message.match(/Processing:?\s*([^\(]+)/i)) {
-      const match = message.match(/Processing:?\s*([^\(]+)/i);
-      if (match) {
-        currentFileNameFromMessage = match[1].trim();
-        const idx = this.selectedItems.findIndex(f => f.name === currentFileNameFromMessage && (f.individualProgress || 0) < 100);
-        if (idx !== -1) {
-          currentFileNumber = idx + 1;
-        }
-      }
-    }
-
-    this.selectedItems = this.selectedItems.map((item, index) => {
-      let newIndividualProgress = item.individualProgress || 0;
-      let newIsCurrentlyProcessing = false;
-
-      if (currentFileNumber && (index + 1) === currentFileNumber) { // Prioritize file number if available
-        newIsCurrentlyProcessing = true;
-        newIndividualProgress = overallPercentage;
-      } else if (currentFileNameFromMessage && item.name === currentFileNameFromMessage && !currentFileNumber) { // Fallback to name if no number
-        newIsCurrentlyProcessing = true;
-        newIndividualProgress = overallPercentage;
-      } else if (currentFileNumber && (index + 1) < currentFileNumber) {
-        newIndividualProgress = 100;
-        newIsCurrentlyProcessing = false;
-      } else {
-        newIsCurrentlyProcessing = false;
-        newIndividualProgress = newIndividualProgress === 100 ? 100 : (item.isCurrentlyProcessing ? 0 : newIndividualProgress);
-      }
-
-      if (overallPercentage === 100) newIndividualProgress = 100;
-
-      return {
-        ...item,
-        individualProgress: newIndividualProgress,
-        isCurrentlyProcessing: newIsCurrentlyProcessing,
-      };
-    });
-
-    const completedCount = this.selectedItems.filter(it => it.individualProgress === 100).length;
-    this.uploadProgressDetails.uploadedFilesCount = completedCount;
   }
 
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
@@ -736,11 +672,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.uploadError = errorMessage;
       this.isUploading = false;
       this.uploadProgressDetails = {
-        ...this.uploadProgressDetails, // Spread existing details
-        percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0,
+        ...this.uploadProgressDetails,
+        percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0, 
         speedMBps: 0,
         etaFormatted: 'Error',
-        // uploadedFilesCount remains as is or could be set to 0 if error is catastrophic
       };
       this.uploadStatusMessage = 'Upload Failed';
       this.closeEventSource();
@@ -750,45 +685,45 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   handleCancelUpload(): void {
     if (!this.isUploading && !this.currentUploadId) {
+      console.log('HomeComponent: No active upload to cancel or already cancelled.');
       return;
     }
     const uploadIdToCancel = this.currentUploadId;
+    console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel || 'ID not yet established');
 
-    this.isUploading = false; // Set immediately
-    this.closeEventSource(); // Close SSE connection
+    this.isUploading = false;
+    this.closeEventSource(); 
 
-    // Backend notification (optional, if you have an endpoint)
+    /*
     if (uploadIdToCancel) {
-      console.log(`HomeComponent: Skipping backend notification for cancellation of ${uploadIdToCancel}.`);
-      // this.apiService.cancelUpload(uploadIdToCancel).subscribe(...);
+        // Ensure this.apiService has a 'cancelUpload' method before uncommenting.
+        // this.apiService.cancelUpload(uploadIdToCancel).subscribe({
+        //     next: () => console.log(`HomeComponent: Backend notified of cancellation for ${uploadIdToCancel}.`),
+        //     error: (err) => console.error(`HomeComponent: Error notifying backend of cancellation for ${uploadIdToCancel}:`, err)
+        // });
+    }
+    */
+    if (uploadIdToCancel) {
+        console.log(`HomeComponent: Skipping backend notification for cancellation of ${uploadIdToCancel} (FileManagerApiService.cancelUpload not called / not implemented).`);
     }
 
+
     this.uploadStatusMessage = `Upload cancelled.`;
-    this.uploadError = null; // Clear any previous upload error
+    this.uploadError = null; 
 
     const totalSizeBeforeCancel = this.uploadProgressDetails.totalBytes || this.currentItemBeingUploaded?.size || 0;
     this.uploadProgressDetails = {
       totalBytes: totalSizeBeforeCancel,
-      percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0, // Keep partially completed overall %
-      bytesSent: this.uploadProgressDetails.bytesSent,
+      percentage: 0, 
+      bytesSent: this.uploadProgressDetails.bytesSent > 0 ? this.uploadProgressDetails.bytesSent : 0, 
       speedMBps: 0,
       etaFormatted: '--:--',
-      uploadedFilesCount: this.uploadProgressDetails.uploadedFilesCount, // Keep count of already fully uploaded files
     };
-    // this.uploadProgress = this.uploadProgressDetails.percentage; // Reflect current overall %
-
-    // Update individual items: mark currently processing as stopped, keep others' progress
-    this.selectedItems = this.selectedItems.map(item => ({
-      ...item,
-      // individualProgress: item.isCurrentlyProcessing ? (item.individualProgress || 0) : item.individualProgress, // Stop progress for current, keep for others
-      isCurrentlyProcessing: false // No item is currently processing
-    }));
-
-    this.currentItemBeingUploaded = null; // Clear the batch representation
-    this.currentUploadId = null; // Important to reset this
-
+    this.uploadProgress = 0; 
+    
+    this.currentUploadId = null;
     this.cdRef.detectChanges();
-  }
+}
 
 
   private closeEventSource(): void {
@@ -807,15 +742,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (itemOrUndefined) {
       this.selectedItems = this.selectedItems.filter(i => i.id !== itemOrUndefined.id);
+      console.log('HomeComponent: Removed item:', itemOrUndefined.name);
       if (this.selectedItems.length === 0) {
         this.shareableLinkForPanel = null;
         this.uploadError = null;
         this.uploadStatusMessage = '';
-        this.batchUploadLinks = [];
-        this.currentItemBeingUploaded = null;
-        this.nextItemId = 0;
+        this.batchUploadLinks = []; 
+        this.currentItemBeingUploaded = null; 
+        this.nextItemId = 0; 
       }
-    } else { // Clear all
+    } else { 
       this.selectedItems = [];
       this.shareableLinkForPanel = null;
       this.uploadError = null;
@@ -823,6 +759,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.batchUploadLinks = [];
       this.currentItemBeingUploaded = null;
       this.nextItemId = 0;
+      console.log('HomeComponent: All items cleared from panel.');
     }
     this.updatePlayGamesButtonVisibility();
     this.cdRef.detectChanges();
@@ -834,14 +771,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isGamePanelVisible = false;
   }
   handleDownloadRequest(itemToDownload: SelectedItem): void {
-    if (this.isUploading && itemToDownload.isCurrentlyProcessing) {
-      alert("Cannot download an item that is currently being uploaded. Please wait or cancel.");
-      return;
-    }
+    if (this.isUploading) return;
     try {
       if (!(itemToDownload.file instanceof File)) {
         if (itemToDownload.id === -1 && this.shareableLinkForPanel) {
-          alert("This represents the completed batch. To download, use the generated shareable link.");
+          alert("This represents the completed batch. To download, use the generated shareable link. Individual file download from this panel is for pre-upload items.");
           return;
         }
         alert("Cannot download this item locally. It might be a folder representation or an item from a completed transfer without a local file reference.");
@@ -861,16 +795,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  startTransfer(): void {
+  startTransfer(): void { 
     this.triggerFileInput();
   }
 
   getFileIcon(filename: string | undefined): string {
     if (!filename) return 'fas fa-question-circle';
+    
     const isPath = filename.includes('/');
     const baseNameForIcon = isPath ? filename.substring(filename.lastIndexOf('/') + 1) : filename;
-    if (isPath && (baseNameForIcon === '' || !baseNameForIcon.includes('.'))) return 'fas fa-folder';
-    if (!baseNameForIcon.includes('.')) return 'fas fa-file';
+
+    if (isPath && (baseNameForIcon === '' || !baseNameForIcon.includes('.'))) {
+        return 'fas fa-folder';
+    }
+    if (!baseNameForIcon.includes('.')) {
+      return 'fas fa-file';
+    }
+
     const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
     switch (extension) {
       case 'pdf': return 'fas fa-file-pdf text-danger';
