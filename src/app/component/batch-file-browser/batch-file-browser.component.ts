@@ -114,7 +114,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
     // Navigate to the /browse route with the batch's access_id
     // AND pass the specific filename as a query parameter
-    this.router.navigate(['/browse', batchAccessId], {
+    this.router.navigate(['/preview', batchAccessId], {
       queryParams: { filename: filename }
     });
   }
