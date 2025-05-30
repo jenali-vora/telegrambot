@@ -11,6 +11,9 @@
                     <p class="hero-des">TransferNow is a simple and free way to securely share your files and folders.
                     </p>
                 </div>
+                <div *ngIf="uploadError" class="upload-error-toast global-upload-error">
+                    {{ uploadError }}
+                </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
                     <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
@@ -83,9 +86,7 @@
                         multiple>
                     <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
                         webkitdirectory>
-                    <div *ngIf="uploadError" class="upload-error-message global-upload-error">
-                        {{ uploadError }}
-                    </div>
+
                     <ng-container *ngIf="currentUser">
                         <section class="section-my-files-link container">
                             <div class="my-files-link-panel card-style">
