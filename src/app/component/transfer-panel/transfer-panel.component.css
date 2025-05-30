@@ -16,15 +16,17 @@
     display: flex;
     /* Allow vertical stacking of name, progress text, bar */
     flex-direction: column;
-    gap: 4px;
 }
 
 /* Styles for progress text under item name */
 .item-progress-text {
     font-size: 0.75rem;
     color: #555;
+    /* Dark grey, similar to screenshot */
     margin-top: 0px;
+    /* Adjusted from 3px, as .item-name has margin-bottom */
     margin-bottom: 6px;
+    /* Space before the progress bar */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -33,13 +35,16 @@
 /* Wrapper for the linear progress bar within an item */
 .item-linear-progress-bar-wrapper {
     width: 100%;
+    /* Takes full width of .item-details */
 }
 
 /* Styles for the custom linear progress bar */
 .progress-bar-custom {
     width: 100%;
     height: 6px;
+    /* Slim progress bar as per screenshot */
     background-color: #e9ecef;
+    /* Light grey background */
     border-radius: 3px;
     overflow: hidden;
 }
@@ -47,37 +52,12 @@
 .progress-bar-custom-fill {
     height: 100%;
     background-color: var(--button-color);
+    /* Green fill */
     border-radius: 3px;
     transition: width 0.2s ease-in-out;
     width: 0%;
 }
 
-.item-status-text {
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.item-status-completed {
-    color: var(--button-color);
-}
-
-.item-status-pending {
-    color: #6c757d;
-}
-
-.item-status-cancelled {
-    color: var(--delete-color);
-    font-style: italic;
-}
-
-.item-size-static {
-    font-size: 0.8rem;
-    color: #777;
-    flex-shrink: 0;
-    white-space: nowrap;
-    margin-left: auto;
-    padding-left: 10px;
-}
 
 /* Ensure item-size (original size) is hidden during upload if progress text is shown */
 .file-list-item.is-uploading-item .item-size {
@@ -97,9 +77,6 @@
     border: none;
     cursor: pointer;
     font-size: 1rem;
-    gap: 5px;
-    display: inline-flex;
-    align-items: center;
     /* Or 0.9rem to match other icons */
 }
 
@@ -129,15 +106,6 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-}
-
-.file-list-item.status-uploading .item-actions .btn-download-item,
-.file-list-item.status-uploading .item-actions .btn-remove-item,
-.file-list-item.status-pending .item-actions .btn-download-item,
-.file-list-item.status-pending .item-actions .btn-remove-item,
-.file-list-item.status-completed .item-actions .btn-download-item,
-.file-list-item.status-completed .item-actions .btn-remove-item {
-    display: none;
 }
 
 .btn-new-transfer {
@@ -375,20 +343,6 @@
     margin-bottom: 0;
 }
 
-.item-error-text {
-    font-size: 0.75rem;
-    color: var(--delete-color);
-    /* Red for errors */
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.item-error-text i {
-    font-size: 0.8em;
-}
-
 /* Remove item size from details column */
 .item-details .item-size {
     display: none;
@@ -547,8 +501,6 @@
     border: 1px solid var(--border-color);
     margin-top: 10px;
     border-radius: 6px;
-    gap: 0.75rem;
-    /* Slightly reduced gap */
 }
 
 .item-icon {
@@ -584,47 +536,12 @@
 .item-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
+    /* Space between download/delete */
     flex-shrink: 0;
+    /* Prevent shrinking */
     margin-left: auto;
-}
-
-.btn-cancel-item {
-    background: none;
-    border: none;
-    padding: 2px 6px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    color: #6c757d;
-    font-weight: 500;
-    border-radius: 3px;
-    transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.btn-cancel-item:hover {
-    color: var(--delete-color);
-    background-color: #f8d7da;
-}
-
-.file-list-item.status-completed .item-icon {
-    color: var(--button-color);
-}
-
-.file-list-item.status-failed .item-icon {
-    color: var(--delete-color);
-}
-
-.file-list-item .item-details>.item-size {
-    display: none;
-}
-
-.file-list-item.status-failed .progress-bar-custom-fill {
-    background-color: var(--delete-color);
-}
-
-.file-list-item.status-uploading .item-name,
-.file-list-item.status-pending .item-name {
-    font-weight: 600;
+    /* Push action buttons to the right */
 }
 
 .btn-remove-item,

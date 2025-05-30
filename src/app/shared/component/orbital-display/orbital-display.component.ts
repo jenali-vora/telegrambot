@@ -101,7 +101,7 @@ export class OrbitalDisplayComponent implements OnInit {
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
       this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0;
+      this.dragEnterCounter = 0; 
       return;
     }
 
