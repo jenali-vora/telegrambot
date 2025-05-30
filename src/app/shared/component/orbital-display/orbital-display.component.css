@@ -454,9 +454,12 @@
 }
 
 @keyframes spin-dot {
-    to {
-        stroke-dashoffset: calc(-1 * var(--component-circumference-val));
-    }
+     from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -326; /* Use a value close to your circumference */
+  }
 }
 
 .progress-percentage-text-new {
