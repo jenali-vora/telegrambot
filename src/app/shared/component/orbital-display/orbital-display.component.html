@@ -1,3 +1,39 @@
+<!-- <div class="orbital-display-wrapper">
+    <div class="orbital-container">
+        <div class="glow-ring ring-1"></div>
+        <div class="glow-ring ring-2"></div>
+        <div class="glow-ring ring-3"></div>
+
+        <div class="animated-pulse-ring pulse-ring-1 animate-expand-opacity"></div>
+        <div class="animated-pulse-ring pulse-ring-2 animate-expand-opacity"></div>
+        <div class="animated-pulse-ring pulse-ring-3 animate-expand-opacity"></div>
+
+        <div class="orbital-connector-line"></div>
+
+        <button class="central-button" (click)="onCentralButtonClick()" title="Upload files">
+            <i [class]="centralButtonIconClass"></i>
+        </button>
+
+        <div class="orbit-item-wrapper" *ngFor="let item of items">
+            <div class="orbit-item" [ngStyle]="getStylesForItem(item)" (click)="onItemClick(item)"
+                [title]="item.altText || item.value">
+                <div class="item-content-container" [ngStyle]="getContentContainerStyles(item)">
+                    <ng-container [ngSwitch]="item.type">
+                        <img *ngSwitchCase="'image'" [src]="item.value" [alt]="item.altText || 'Orbital content'"
+                            [ngStyle]="getImageContentStyles(item)">
+                        <span *ngSwitchCase="'initials'" class="item-initials">{{ item.value }}</span>
+                        <i *ngSwitchCase="'icon-class'" class="item-icon" [class]="item.value"></i>
+                    </ng-container>
+                </div>
+            </div>
+            <span *ngIf="item.label" class="orbit-item-label" [ngStyle]="getItemLabelStyles(item)">
+                {{ item.label }}
+            </span>
+        </div>
+    </div>
+</div> -->
+
+
 <!-- src/app/shared/component/orbital-display/orbital-display.component.html -->
 
 <div class="img">
@@ -42,17 +78,16 @@
         </div>
 
         <!-- New Circular SVG Progress UI (shown when items exist AND uploading AND no link yet) -->
-        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new"
-            [style.--water-fill-top]="waterFillTopStyle"><svg
-                class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
+        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new">
+            <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
                 <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
                 <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
-                </svg>
-                <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
+            </svg>
+            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
         </div>
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
             By uploading files you agree to the Transfer Terms & Conditions

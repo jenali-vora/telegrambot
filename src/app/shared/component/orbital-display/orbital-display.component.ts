@@ -46,9 +46,7 @@ export class OrbitalDisplayComponent implements OnInit {
     return this.circumference;
   }
 
-  constructor(private cdr: ChangeDetectorRef) {
-    this.uploadProgressPercentage = 0;
-  }
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void { }
 
@@ -59,29 +57,7 @@ export class OrbitalDisplayComponent implements OnInit {
   get showTransferPanelLogic(): boolean {
     return this.items.length > 0 || !!this.batchShareableLink;
   }
-  get waterFillTopStyle(): string {
-    const wrapperHeight = 180; // The height of .circular-progress-wrapper-new in CSS
-    const safetyBuffer = 30;   // Extra pixels to push water down at 0% to compensate for rotation
 
-    // If the circular progress UI itself shouldn't be shown
-    if (!this.showCircularProgressUI) {
-      return `${wrapperHeight + safetyBuffer}px`; // Water is hidden far below
-    }
-
-    // If the UI is shown, but progress is exactly 0%
-    if (this.uploadProgressPercentage === 0) {
-      return `${wrapperHeight + safetyBuffer}px`; // Water is hidden far below due to buffer
-    }
-
-    // If UI is shown and progress is > 0%
-    // Calculate how much of the height should be "empty" from the top
-    const fillRatio = this.uploadProgressPercentage / 100;
-    const topPosition = wrapperHeight * (1 - fillRatio);
-
-    // Clamp the value between 0 (fully filled) and wrapperHeight (empty)
-    return `${Math.max(0, Math.min(wrapperHeight, topPosition))}px`;
-  }
-  
   private get _normalProgressStrokeDashoffset(): number {
     const offset = this.circumference - (this.uploadProgressPercentage / 100) * this.circumference;
     return Math.max(0, Math.min(offset, this.circumference));
@@ -125,7 +101,7 @@ export class OrbitalDisplayComponent implements OnInit {
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
       this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0;
+      this.dragEnterCounter = 0; 
       return;
     }
 
