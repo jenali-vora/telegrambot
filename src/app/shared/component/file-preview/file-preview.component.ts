@@ -72,48 +72,49 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
     this.rawTextContent = null;
     this.sanitizedContentUrl = null;
 
-    const previewSub = this.fileApiManagerService.getPreviewDetails(this.accessId).subscribe({
-      next: (data) => {
-        this.previewDetails = data;
-        this.isLoading = false; // Set loading to false after details are fetched
+    const previewSub = this.fileApiManagerService.getPreviewDetails(this.accessId, this.filenameQueryParam)
+      .subscribe({
+        next: (data) => {
+          this.previewDetails = data;
+          this.isLoading = false; // Set loading to false after details are fetched
 
-        if (data.preview_type === 'expired') {
-          this.errorMessage = 'This file link has expired.';
-          return; // Stop further processing for expired files
-        }
-
-        if (data.preview_content_url) {
-          const fullContentUrl = data.preview_content_url.startsWith('http')
-            ? data.preview_content_url
-            : `${this.API_BASE_URL}${data.preview_content_url}`;
-
-          if (data.preview_type === 'code' || data.preview_type === 'text' ||
-            data.preview_type === 'markdown' || data.preview_type === 'directory_listing') {
-            this.fetchRawText(fullContentUrl); // fetchRawText will set isLoading = false
-          } else if (data.preview_type === 'image' || data.preview_type === 'video' ||
-            data.preview_type === 'pdf' || data.preview_type === 'audio') {
-            this.sanitizedContentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullContentUrl);
-            // isLoading should be false here
-          } else {
-            // For 'unsupported' or other types, isLoading is already false.
+          if (data.preview_type === 'expired') {
+            this.errorMessage = 'This file link has expired.';
+            return; // Stop further processing for expired files
           }
-        } else if (data.preview_data) {
-          this.rawTextContent = data.preview_data;
-          // isLoading is already false
+
+          if (data.preview_content_url) {
+            const fullContentUrl = data.preview_content_url.startsWith('http')
+              ? data.preview_content_url
+              : `${this.API_BASE_URL}${data.preview_content_url}`;
+
+            if (data.preview_type === 'code' || data.preview_type === 'text' ||
+              data.preview_type === 'markdown' || data.preview_type === 'directory_listing') {
+              this.fetchRawText(fullContentUrl); // fetchRawText will set isLoading = false
+            } else if (data.preview_type === 'image' || data.preview_type === 'video' ||
+              data.preview_type === 'pdf' || data.preview_type === 'audio') {
+              this.sanitizedContentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullContentUrl);
+              // isLoading should be false here
+            } else {
+              // For 'unsupported' or other types, isLoading is already false.
+            }
+          } else if (data.preview_data) {
+            this.rawTextContent = data.preview_data;
+            // isLoading is already false
+          }
+          // No specific else for isLoading here, it's handled by initial true and set to false in branches
+        },
+        error: (err) => {
+          this.isLoading = false;
+          if (err.status === 410 || (err.message && err.message.toLowerCase().includes('expired'))) {
+            this.previewDetails = { preview_type: 'expired' } as PreviewDetails;
+            this.errorMessage = err.message || 'This file link has expired.';
+          } else {
+            this.errorMessage = err.message || err.error?.error || 'Failed to load file details.';
+          }
+          console.error('Error fetching preview details:', err);
         }
-        // No specific else for isLoading here, it's handled by initial true and set to false in branches
-      },
-      error: (err) => {
-        this.isLoading = false;
-        if (err.status === 410 || (err.message && err.message.toLowerCase().includes('expired'))) {
-          this.previewDetails = { preview_type: 'expired' } as PreviewDetails;
-          this.errorMessage = err.message || 'This file link has expired.';
-        } else {
-          this.errorMessage = err.message || err.error?.error || 'Failed to load file details.';
-        }
-        console.error('Error fetching preview details:', err);
-      }
-    });
+      });
     this.subscriptions.add(previewSub);
   }
 

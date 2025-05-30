@@ -101,8 +101,8 @@
 
 .completed-transfer-actions {
     margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    /* padding-top: 1rem; */
+    /* border-top: 1px solid var(--border-color); */
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -135,12 +135,6 @@
     line-height: 1;
 }
 
-.completed-transfer-actions .copy-success-tooltips-container {
-    position: relative;
-    left: auto;
-    transform: none;
-    margin-top: 5px;
-}
 
 .upload-status-message-general {
     font-size: 0.8rem;
@@ -382,8 +376,8 @@
 /* --- Shareable Link Display --- */
 .share-link-display {
     margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    /* padding-top: 1rem; */
+    /* border-top: 1px solid var(--border-color); */
 }
 
 .share-link-display label {
@@ -508,10 +502,6 @@
     margin-top: 10px;
     border-radius: 6px;
     /* Slightly reduced gap */
-}
-
-.file-list-item:last-child {
-    border-bottom: none;
 }
 
 .item-icon {

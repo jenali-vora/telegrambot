@@ -82,9 +82,10 @@
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
                 <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
-                <circle class="circular-progress-value-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
-                    [attr.r]="radius" [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="circumference"
-                    [style.strokeDashoffset]="strokeDashoffset" />
+                <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
+                    [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
+                    [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
+                    [style.strokeDashoffset]="dynamicStrokeDashoffset" />
             </svg>
             <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
         </div>
