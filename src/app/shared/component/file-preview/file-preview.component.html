@@ -73,7 +73,7 @@
 
 
             <div class="card-body preview-area p-0" [ngSwitch]="previewDetails.preview_type">
-                <div *ngSwitchCase="'image'" class="text-center p-2 bg-dark-subtle">
+                <div *ngSwitchCase="'image'" class="text-center bg-dark-subtle">
                     <img [src]="sanitizedContentUrl" [alt]="previewDetails.filename" class="img-fluid rounded shadow-sm"
                         style="max-height: 80vh; object-fit: contain;">
                 </div>
