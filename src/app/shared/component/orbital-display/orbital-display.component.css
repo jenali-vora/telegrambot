@@ -25,15 +25,11 @@
     --heading-color: #333;
     --text-color-secondary: #666;
     --white-color: #fff;
-
     --animated-border-thickness: 2px;
-    /* Thickness of the dashed border */
     --animated-dash-length: 10px;
-    /* Length of each dash */
     --animated-dash-gap: 10px;
-    /* Gap */
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
-    /* ADDED: Full length of one dash + one gap */
+    --component-circumference-val: 326.725;
 }
 
 
@@ -446,7 +442,21 @@
 .circular-progress-value-new {
     stroke: var(--button-color);
     stroke-linecap: round;
-    transition: stroke-dashoffset 0.2s ease-out;
+    /* transition: stroke-dashoffset 0.2s ease-out; */
+}
+
+.circular-progress-value-new:not(.spinning-dot) {
+    transition: stroke-dashoffset 0.2s ease-out, stroke-dasharray 0.2s ease-out;
+}
+
+.circular-progress-value-new.spinning-dot {
+    animation: spin-dot 1.5s linear infinite;
+}
+
+@keyframes spin-dot {
+    to {
+        stroke-dashoffset: calc(-1 * var(--component-circumference-val));
+    }
 }
 
 .progress-percentage-text-new {
