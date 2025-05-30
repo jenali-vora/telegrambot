@@ -281,7 +281,7 @@
 
 .file-list-scroll {
     flex-grow: 1;
-    max-height: 135px;
+    max-height: 200px;
     overflow-y: auto;
     margin-bottom: 1rem;
     padding-right: 5px;
@@ -497,7 +497,7 @@
 .file-list-item {
     display: flex;
     align-items: center;
-    padding: 10px 5px;
+    padding: 20px 6px;
     border: 1px solid var(--border-color);
     margin-top: 10px;
     border-radius: 6px;

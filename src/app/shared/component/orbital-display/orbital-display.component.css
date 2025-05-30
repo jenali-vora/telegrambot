@@ -442,7 +442,6 @@
 .circular-progress-value-new {
     stroke: var(--button-color);
     stroke-linecap: round;
-    /* transition: stroke-dashoffset 0.2s ease-out; */
 }
 
 .circular-progress-value-new:not(.spinning-dot) {
@@ -454,12 +453,14 @@
 }
 
 @keyframes spin-dot {
-     from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -326; /* Use a value close to your circumference */
-  }
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -326;
+        /* Use a value close to your circumference */
+    }
 }
 
 .progress-percentage-text-new {
