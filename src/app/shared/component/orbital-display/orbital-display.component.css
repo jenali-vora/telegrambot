@@ -428,6 +428,8 @@
     height: 100%;
     transform: rotate(-90deg);
     overflow: visible;
+    position: relative;
+    z-index: 3;
 }
 
 .circular-progress-background-new,
@@ -465,12 +467,64 @@
 
 .progress-percentage-text-new {
     position: absolute;
-    font-size: 36px;
-    font-weight: bold;
-    color: var(--button-color);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 92px;
+    height: 92px;
+
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--button-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: transparent;
+    z-index: 2;
+}
+
+.progress-percentage-text-new::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Height controlled by --current-progress-percent of parent's height (e.g., 92px) */
+    height: calc(var(--current-progress-percent, 0) * 1%);
+    background-color: #5f9ea0;
+    /* Water color (e.g., Cadet Blue from your first screenshot) */
+    /* You can choose any color, e.g., #3498db (a nice blue) */
+    z-index: -1;
+    /* Positioned behind the text content of .progress-percentage-text-new */
+    transition: height 0.4s ease-out;
+    /* Smooth fill animation */
+
+    /* Wave effect using mask. Adjust SVG path and mask-size for desired wave.
+       The SVG path creates a wave shape at its top.
+       d="M0,5 Q15,0 30,5 T60,5 L60,10 L0,10 Z"
+       - M0,5: Start at left edge, halfway down the SVG's height (5 out of 10)
+       - Q15,0 30,5: Quadratic Bezier curve - control point at (15,0 top), end at (30,5 middle)
+       - T60,5: Smooth quadratic Bezier curve continuation to (60,5 middle)
+       - L60,10 L0,10 Z: Line to bottom-right, then bottom-left, then close path (forms solid bottom)
+    */
+    mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="10" preserveAspectRatio="none"><path d="M0,5 Q15,0 30,5 T60,5 L60,10 L0,10 Z" fill="white"/></svg>');
+    mask-size: 30px 100%;
+    /* Width of one wave cycle (30px), height covers element's current height */
+    mask-repeat: repeat-x;
+    animation: water-wave-animation-inner 2s linear infinite;
+}
+
+@keyframes water-wave-animation-inner {
+    0% {
+        mask-position: 0 0;
+    }
+
+    100% {
+        mask-position: -30px 0;
+        /* Move one wave cycle width (30px) to the left */
+    }
 }
 
 /* progres-bar css end */
