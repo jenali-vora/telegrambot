@@ -107,6 +107,14 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  isZipFile(filename: string): boolean {
+    if (!filename) {
+      return false;
+    }
+    const extension = filename.split('.').pop()?.toLowerCase();
+    return extension === 'zip';
+  }
+  
   navigateToPreview(batchAccessId: string, filename: string): void {
     if (!batchAccessId || !filename) {
       console.error('Batch Access ID and filename are required for preview.');

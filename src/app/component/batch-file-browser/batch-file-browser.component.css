@@ -375,4 +375,9 @@ hr {
     .all-file-list-wrapper {
         padding: 20px;
     }
+    .file-size{
+        margin-right: 0;
+        padding-left: 0;
+
+    }
 }
