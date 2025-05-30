@@ -64,7 +64,7 @@ export const routes: Routes = [
         component: BlogsComponent
       },
       { path: 'blog/:slug', component: BlogDetailComponent },
-      { path: 'browse/:accessId', component: BatchFileBrowserComponent },
+      { path: 'batch-view/:accessId', component: BatchFileBrowserComponent },
       {
         path: 'my-files',
         component: UserFilesPageComponent,
@@ -79,7 +79,7 @@ export const routes: Routes = [
         path: 'games',
         component: GamesComponent
       },
-      { path: 'browse/:accessId', component: FilePreviewComponent },
+      { path: 'preview/:accessId', component: FilePreviewComponent },
       // Removed: { path: '', redirectTo: '/home', pathMatch: 'full' }
       // This is no longer needed as HomeComponent is now the default for the empty path.
     ]
