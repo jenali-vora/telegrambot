@@ -1,5 +1,4 @@
-// src/app/shared/component/orbital-display/orbital-display.component.ts
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding } from '@angular/core'; // Added HostBinding
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
 
@@ -33,16 +32,15 @@ export class OrbitalDisplayComponent implements OnInit {
   @Output() transferInitiatedFromPanel = new EventEmitter<void>();
   @Output() cancelUploadFromPanel = new EventEmitter<void>();
   @Output() newTransferFromPanel = new EventEmitter<void>();
+  @Output() filesDroppedInArea = new EventEmitter<FileList>(); // New Output
 
   private dragEnterCounter = 0;
 
-  // SVG Circular Progress properties
   readonly radius = 52;
   readonly strokeWidth = 12;
   readonly viewBoxSize = (this.radius + this.strokeWidth) * 2;
   readonly circumference = 2 * Math.PI * this.radius;
 
-  // Make circumference available as a CSS variable on the host element
   @HostBinding('style.--component-circumference-val')
   get hostCircumference(): number {
     return this.circumference;
@@ -60,41 +58,28 @@ export class OrbitalDisplayComponent implements OnInit {
     return this.items.length > 0 || !!this.batchShareableLink;
   }
 
-  // Helper to calculate stroke-dashoffset for normal progress
   private get _normalProgressStrokeDashoffset(): number {
     const offset = this.circumference - (this.uploadProgressPercentage / 100) * this.circumference;
-    return Math.max(0, Math.min(offset, this.circumference)); // Clamp value
+    return Math.max(0, Math.min(offset, this.circumference));
   }
 
-  // Determines if the "spinning dot" state should be active
   get isAtZeroProgressAndUploading(): boolean {
-    const result = this.isUploading && this.uploadProgressPercentage === 0;
-    return result;
+    return this.isUploading && this.uploadProgressPercentage === 0;
   }
 
-  // Dynamically bound to [style.strokeDasharray] of the progress circle
   get dynamicStrokeDasharray(): string {
     if (this.isAtZeroProgressAndUploading) {
-      // For the spinning dot: a very small dash length (e.g., 0.1 or 1)
-      // and a gap covering the rest of the circumference.
-      // stroke-linecap: round will make this small dash appear as a dot.
       const dotLength = 0.1;
       return `${dotLength}, ${this.circumference - dotLength}`;
     } else {
-      // For normal progress: the dash is the full circumference.
-      // stroke-dashoffset will then reveal the correct portion.
       return this.circumference.toString();
     }
   }
 
-  // Dynamically bound to [style.strokeDashoffset] of the progress circle
   get dynamicStrokeDashoffset(): string {
     if (this.isAtZeroProgressAndUploading) {
-      // For the spinning dot, the CSS animation will control the offset.
-      // Set to 0 as the initial state for the animation.
       return '0';
     } else {
-      // For normal progress, use the calculated offset.
       return this._normalProgressStrokeDashoffset.toString();
     }
   }
@@ -104,7 +89,7 @@ export class OrbitalDisplayComponent implements OnInit {
   }
 
   onCentralButtonClick(): void {
-    if (!this.isUploading) {
+    if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
       this.requestFileUpload.emit();
     }
   }
@@ -112,29 +97,40 @@ export class OrbitalDisplayComponent implements OnInit {
   onDragEnterArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    if (this.isUploading) {
+
+    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
+      this.isDragActiveLocal = false;
+      this.dragEnterCounter = 0;
       return;
     }
+
     this.dragEnterCounter++;
     if (event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items.length > 0) {
       this.isDragActiveLocal = true;
       event.dataTransfer.dropEffect = 'copy';
+    } else {
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
     }
   }
 
   onDragOverArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    if (this.isUploading) {
+
+    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
+      // No need to change isDragActiveLocal here, onDragEnterArea handles entry.
       return;
     }
+
     if (event.dataTransfer) {
       if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
         event.dataTransfer.dropEffect = 'copy';
+        this.isDragActiveLocal = true; // Keep highlighting if valid
       } else {
         event.dataTransfer.dropEffect = 'none';
+        this.isDragActiveLocal = false; // Turn off if no valid items
       }
     }
   }
@@ -142,25 +138,32 @@ export class OrbitalDisplayComponent implements OnInit {
   onDragLeaveArea(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    if (this.isUploading) return;
+
     this.dragEnterCounter--;
-    if (this.dragEnterCounter === 0) {
+    if (this.dragEnterCounter <= 0) {
       this.isDragActiveLocal = false;
+      this.dragEnterCounter = 0;
     }
   }
 
   onDropArea(event: DragEvent): void {
     event.preventDefault();
-    // Added stopPropagation for consistency, and reset drag state if uploading
-    if (this.isUploading) {
-      event.stopPropagation();
-      this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0;
-      return;
-    }
+    event.stopPropagation(); // Crucial: stop event from bubbling to window listeners
+
     this.isDragActiveLocal = false;
     this.dragEnterCounter = 0;
-    // Actual drop handling (emitting files) would go here
+
+    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
+      console.log('OrbitalDisplay: Drop ignored, component not in receptive state.');
+      return;
+    }
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.filesDroppedInArea.emit(files);
+    } else {
+      console.log('OrbitalDisplay: Drop event occurred but no files found.');
+    }
   }
 
   onRequestAddFilesPanel(): void { this.requestAddFilesFromPanel.emit(); }
