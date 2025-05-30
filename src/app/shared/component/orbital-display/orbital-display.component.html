@@ -87,10 +87,7 @@
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
             </svg>
-            <div class="progress-percentage-text-new" [style.--current-progress-percent]="uploadProgressPercentage">
-                <!-- This line is key -->
-                {{ uploadProgressPercentage.toFixed(0) }}%
-            </div>
+            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
         </div>
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
             By uploading files you agree to the Transfer Terms & Conditions
