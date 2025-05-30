@@ -466,36 +466,52 @@
     margin-bottom: 10px;
 }
 
-/* Add to the end of home.component.css */
-/* src/app/component/home/home.component.css */
-/* ... (Keep all styles from the previous "TransferNow Home Colors" answer) ... */
-
-/* Optional: Style for the drop zone when dragging over */
 .upload-main-wrapper.drag-over-active {
     outline: 3px dashed #0073E6;
-    /* Use TransferNow blue */
     outline-offset: 5px;
-    /* Offset from the element edge */
     background-color: rgba(0, 115, 230, 0.05);
-    /* Very light blue tint */
 }
 
-/* Simple error message display */
-.upload-error-message {
-    /* margin-top: 1rem; */
-    color: var(--delete-color);
-    /* Light red text (from dark theme variables) */
-    background-color: #e3e7f9;
-    /* Dark red background (from dark theme variables) */
-    padding: 0.75rem 1rem;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    max-width: 500px;
-    border: 1px solid var(--delete-color);
-    display: inline-block;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    margin-bottom: 20px;
+.upload-error-toast {
+    position: fixed;
+    top: 80px;
+    right: 0px;
+    background-color: #f8f0f8;
+    color: #c73e3e;
+    border: 1px solid #e79999;
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    max-width: 380px;
     text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInAndOutToast 6s ease-in-out forwards;
+}
+
+@keyframes slideInAndOutToast {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    8.33% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    91.67% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
 }
 
 /* transfer section css end */
@@ -790,6 +806,7 @@
     .contact-list ul {
         flex-basis: calc((100% - 1 * 30px) / 2);
     }
+
     .registerd-user-heading span {
         font-size: 35px;
     }
@@ -797,7 +814,8 @@
     .registerd-user-heading h5 {
         font-size: 22px;
     }
-    .right-section{
+
+    .right-section {
         padding: 20px;
     }
 }
@@ -931,7 +949,8 @@
     .right-section {
         padding: 25px;
     }
-    .registerd-wrapper{
+
+    .registerd-wrapper {
         flex-direction: column;
     }
 }

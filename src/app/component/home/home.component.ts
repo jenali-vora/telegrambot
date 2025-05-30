@@ -616,7 +616,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
-            this.shareableLinkForPanel = `${frontendBaseUrl}/browse/${data.batch_access_id}`;
+            this.shareableLinkForPanel = `${frontendBaseUrl}/batch-view/${data.batch_access_id}`;
             console.log(`HomeComponent: Generated shareable link: ${this.shareableLinkForPanel}`);
           } else {
             console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id'.");
