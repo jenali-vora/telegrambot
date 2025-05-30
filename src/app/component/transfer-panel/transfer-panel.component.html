@@ -1,7 +1,7 @@
 <!-- src/app/component/transfer-panel/transfer-panel.component.html -->
 <div class="transfer-panel-wrapper card-style">
 
-    <!-- "Add More" Actions: Show if no items AND not uploading (overall batch state) -->
+    <!-- "Add More" Actions: Show if no items AND not uploading -->
     <div class="add-more-actions" *ngIf="items.length === 0 && !isUploading">
         <button type="button" class="btn btn-add" (click)="addMoreFiles()">
             <i class="fas fa-file-circle-plus"></i> Add more files
@@ -16,103 +16,49 @@
         <div class="file-summary">
             <span class="count">
                 {{ totalCount }} file{{ totalCount !== 1 ? 's' : '' }}
-                <!-- Display total size based on context -->
                 <ng-container *ngIf="!isUploading && !batchShareableLink">({{ totalSize | byteFormat }})</ng-container>
                 <ng-container *ngIf="batchShareableLink">({{ totalSize | byteFormat }})</ng-container>
-                <!-- If uploading, total batch size comes from isUploading context (passed as totalBytes) -->
-                <ng-container *ngIf="isUploading && !batchShareableLink && totalBytes > 0">
-                    (Total: {{ totalBytes | byteFormat }})
-                </ng-container>
             </span>
-            <!-- Clear All button: Show if items exist, NOT uploading (overall), AND no shareable link -->
+            <!-- Clear All button: Show if items exist, NOT uploading, AND no shareable link -->
             <button *ngIf="items.length > 0 && !isUploading && !batchShareableLink" class="btn icon-btn btn-clear-all"
                 title="Remove selection" (click)="clearAllItems()">
                 <i class="fas fa-trash-alt"></i>
             </button>
-            <!-- Cancel Upload button (for the whole batch): Show if uploading (overall) -->
-            <button *ngIf="isUploading" class="btn icon-btn btn-cancel-upload" title="Cancel Entire Upload"
+            <!-- Cancel Upload button: Show if uploading -->
+            <button *ngIf="isUploading" class="btn icon-btn btn-cancel-upload" title="Cancel Upload"
                 (click)="handleCancelUpload()">
-                <i class="fas fa-times-circle"></i> Cancel All
+                <i class="fas fa-times-circle"></i>
             </button>
         </div>
 
         <div class="file-list-scroll">
             <ul class="file-list">
                 @for(item of items; track item.id) {
-                <li class="file-list-item" [class.status-pending]="item.status === 'pending' && isUploading"
-                    [class.status-uploading]="item.status === 'uploading'"
-                    [class.status-completed]="item.status === 'completed'"
-                    [class.status-failed]="item.status === 'failed' || item.status === 'error_generic' || item.status === 'error_size'"
-                    [class.status-cancelled]="item.status === 'cancelled'">
-
-                    <div class="item-icon"><i [ngClass]="item.icon || 'fas fa-file'"></i></div>
-
+                <li class="file-list-item" [class.is-uploading-item]="isUploading"
+                    [class.is-completed-item]="batchShareableLink">
+                    <div class="item-icon"><i [ngClass]="item.icon"></i></div>
                     <div class="item-details">
                         <span class="item-name" [title]="item.name">{{ item.name }}</span>
-
-                        <!-- Error Message Display -->
-                        <div *ngIf="(item.status === 'failed' || item.status === 'error_generic' || item.status === 'error_size') && item.errorMessage"
-                            class="item-error-text">
-                            <i class="fas fa-exclamation-triangle"></i> {{ item.errorMessage }}
+                        <div *ngIf="isUploading && !batchShareableLink" class="item-progress-text">
+                            {{ currentUploadProgressSizeDisplay }} | {{ uploadPercentage.toFixed(0) }}% • {{
+                            etaFormatted }}
                         </div>
-
-                        <!-- Progress Display (for uploading items) -->
-                        <ng-container *ngIf="item.status === 'uploading'">
-                            <div class="item-progress-text">
-                                <span *ngIf="isUploading"> <!-- Check overall upload state too -->
-                                    {{ (item.individualProgress || 0).toFixed(0) }}%
-                                    <ng-container *ngIf="item.statusMessage"> • {{item.statusMessage}}</ng-container>
-                                    <!-- You might want to show individual ETA if available from backend per file -->
-                                </span>
+                        <div *ngIf="isUploading && !batchShareableLink" class="item-linear-progress-bar-wrapper">
+                            <div class="progress-bar-custom">
+                                <div class="progress-bar-custom-fill" [style.width.%]="uploadPercentage"></div>
                             </div>
-                            <div class="item-linear-progress-bar-wrapper">
-                                <div class="progress-bar-custom">
-                                    <div class="progress-bar-custom-fill"
-                                        [style.width.%]="item.individualProgress || 0"></div>
-                                </div>
-                            </div>
-                        </ng-container>
-
-                        <!-- Status Text (for completed, pending, cancelled) -->
-                        <div *ngIf="item.status === 'completed'" class="item-status-text item-status-completed">
-                            Completed
                         </div>
-                        <div *ngIf="item.status === 'pending' && isUploading"
-                            class="item-status-text item-status-pending">
-                            Pending...
-                        </div>
-                        <div *ngIf="item.status === 'cancelled'" class="item-status-text item-status-cancelled">
-                            Cancelled
-                        </div>
-                    </div> <!-- End item-details -->
-
-                    <!-- Item Size (shown if not in an active upload state for this item, or completed) -->
-                    <div class="item-size-static"
-                        *ngIf="!item.status || item.status === 'completed' || item.status === 'failed' || item.status === 'error_generic' || item.status === 'error_size'">
-                        {{ item.size | byteFormat }}
                     </div>
-
-
-                    <div class="item-actions">
-                        <!-- Remove button (before overall upload starts or if item failed and can be removed) -->
-                        <button
-                            *ngIf="(!isUploading && !batchShareableLink && !item.status) || ((item.status === 'failed' || item.status === 'error_generic' || item.status === 'error_size') && !isUploading)"
-                            class="btn icon-btn btn-remove-item" title="Remove this item"
-                            (click)="requestItemRemoval(item, $event)">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                        <!-- Download button (before overall upload starts) -->
-                        <button *ngIf="!isUploading && !batchShareableLink && !item.status"
-                            class="btn icon-btn btn-download-item" title="Download this item (Local)"
+                    <div *ngIf="!isUploading && !batchShareableLink" class="item-size">{{ item.size | byteFormat }}
+                    </div>
+                    <div class="item-actions" *ngIf="!isUploading && !batchShareableLink">
+                        <button class="btn icon-btn btn-download-item" title="Download this item (Local)"
                             (click)="requestItemDownload(item, $event)">
                             <i class="fas fa-download"></i>
                         </button>
-
-                        <!-- Per-Item Cancel button -->
-                        <button *ngIf="isUploading && (item.status === 'uploading' || item.status === 'pending')"
-                            class="btn text-btn btn-cancel-item" title="Cancel this file's upload"
-                            (click)="requestItemCancellation(item, $event)">
-                            Cancel
+                        <button class="btn icon-btn btn-remove-item" title="Remove this item"
+                            (click)="requestItemRemoval(item, $event)">
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 </li>
@@ -125,17 +71,36 @@
     </div>
 
     <!-- Actions after upload is complete (Shareable Link & New Transfer) -->
-    <div *ngIf="batchShareableLink && !isUploading" class="completed-transfer-actions">
-        <!-- ... (remains the same) ... -->
+    <div *ngIf="batchShareableLink" class="completed-transfer-actions">
+        <div class="share-link-display">
+            <label>Your download link:</label>
+            <div class="share-link-input-group">
+                <input type="text" readonly [value]="batchShareableLink" title="Shareable download link">
+                <button type="button" class="btn btn-secondary copy-button"
+                    (click)="copyLink(batchShareableLink, $event)" title="Copy link to clipboard">
+                    <i class="fas fa-copy"></i>Copy link
+                </button>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-new-transfer" (click)="initiateNewTransfer()">
+            <i class="fas fa-plus-circle"></i> Start New Transfer
+        </button>
+        <div class="copy-success-tooltips-container">
+            @for(tooltip of tooltips; track tooltip.id) {
+            <div class="copy-success-tooltip">
+                {{ tooltip.message }}
+            </div>
+            }
+        </div>
     </div>
 
-    <!-- Upload Button Area: Show if items exist AND no shareable link is present (overall batch context) -->
+    <!-- Upload Button Area: Show if items exist AND no shareable link is present -->
+    <!-- The button text and disabled state will change based on isUploading -->
     <div class="panel-actions-upload" *ngIf="items.length > 0 && !batchShareableLink">
         <button class="btn btn-primary btn-upload-tg" (click)="startTransfer()" [disabled]="isUploading">
             <i class="fas fa-spinner fa-spin" *ngIf="isUploading"></i>
             <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i>
-            {{ isUploading ? (totalCount > 1 ? 'Uploading Files...' : 'Uploading File...') : (totalCount > 1 ? 'Upload
-            Files' : 'Upload File') }}
+            {{ isUploading ? 'Uploading...' : 'Upload' }}
         </button>
         <!-- General status message during upload, shown below the main upload button -->
         <div *ngIf="isUploading && generalUploadStatusMessage" class="upload-status-message-general">
