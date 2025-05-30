@@ -52,7 +52,7 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    const accessIdFromRoute = this.route.snapshot.paramMap.get('accessId');
+    this.accessId = this.route.snapshot.paramMap.get('accessId');
     this.filenameQueryParam = this.route.snapshot.queryParamMap.get('filename');
 
     if (!this.accessId) {

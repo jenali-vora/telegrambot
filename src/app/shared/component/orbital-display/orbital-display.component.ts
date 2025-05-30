@@ -52,6 +52,10 @@ export class OrbitalDisplayComponent implements OnInit {
 
   ngOnInit(): void { }
 
+  get showCircularProgressUI(): boolean {
+    return this.isUploading && this.items.length > 0 && !this.batchShareableLink;
+  }
+
   get showTransferPanelLogic(): boolean {
     return this.items.length > 0 || !!this.batchShareableLink;
   }
