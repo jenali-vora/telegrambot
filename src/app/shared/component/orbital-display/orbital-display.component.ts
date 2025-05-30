@@ -64,7 +64,8 @@ export class OrbitalDisplayComponent implements OnInit {
 
   // Determines if the "spinning dot" state should be active
   get isAtZeroProgressAndUploading(): boolean {
-    return this.isUploading && this.uploadProgressPercentage === 0;
+    const result = this.isUploading && this.uploadProgressPercentage === 0;
+    return result;
   }
 
   // Dynamically bound to [style.strokeDasharray] of the progress circle
