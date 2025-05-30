@@ -10,6 +10,10 @@ export interface SelectedItem {
   size: number;
   isFolder?: boolean;
   icon: string;
+  status?: 'pending' | 'uploading' | 'completed' | 'failed' | 'cancelled' | 'error_size' | 'error_generic';
+  individualProgress?: number;
+  errorMessage?: string;
+  statusMessage?: string;
 }
 
 interface TooltipMessage {
@@ -36,6 +40,7 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
+  @Input() generalUploadStatusMessage: string = '';
 
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
@@ -43,8 +48,9 @@ export class TransferPanelComponent implements OnDestroy {
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
   @Output() cancelUpload = new EventEmitter<void>();
-  @Output() newTransferRequested = new EventEmitter<void>(); 
-   @Input() generalUploadStatusMessage: string = ''; 
+  @Output() newTransferRequested = new EventEmitter<void>();
+  @Output() itemCancellationRequested = new EventEmitter<SelectedItem>();
+
 
   tooltips: TooltipMessage[] = [];
   private nextTooltipId: number = 0;
@@ -68,6 +74,13 @@ export class TransferPanelComponent implements OnDestroy {
   clearAllItems(): void {
     if (!this.isUploading) {
       this.itemRemoved.emit(undefined);
+    }
+  }
+
+  requestItemCancellation(item: SelectedItem, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.isUploading && (item.status === 'uploading' || item.status === 'pending')) {
+      this.itemCancellationRequested.emit(item);
     }
   }
 

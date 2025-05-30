@@ -164,7 +164,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadError = null;
     this.selectedItems = [];
     this.shareableLinkForPanel = null;
-     this.completedBatchAccessId = null;
+    this.completedBatchAccessId = null;
     this.currentItemBeingUploaded = null;
     this.currentUploadId = null;
     this.uploadStatusMessage = '';
@@ -174,7 +174,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadProgress = 0;
     this.nextItemId = 0;
     this.batchUploadLinks = [];
-    this.isDraggingOverWindow = false;
+    // this.isDraggingOverWindow = false;
     this.isGamePanelVisible = false;
     this.updatePlayGamesButtonVisibility();
     this.dragEnterCounter = 0;
@@ -234,20 +234,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @HostListener('window:dragenter', ['$event'])
   onWindowDragEnter(event: DragEvent): void {
+    if (!event.dataTransfer) return;
+
     event.preventDefault();
     event.stopPropagation();
     this.dragEnterCounter++;
 
-    if (!this.isUploading && !this.shareableLinkForPanel) {
-      if (!this.isDraggingOverWindow) {
-        this.isDraggingOverWindow = true;
-        this.cdRef.detectChanges();
-      }
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'copy';
-      }
+    if (this.selectedItems.length > 0 || this.isUploading || this.shareableLinkForPanel) {
+      event.dataTransfer.dropEffect = 'none';
     } else {
-      if (event.dataTransfer) {
+      // If not already set to 'copy' by a receptive child (like orbital-display),
+      // default to 'none' for the window.
+      if (event.dataTransfer.dropEffect !== 'copy') {
         event.dataTransfer.dropEffect = 'none';
       }
     }
@@ -255,18 +253,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   @HostListener('window:dragover', ['$event'])
   onWindowDragOver(event: DragEvent): void {
+    if (!event.dataTransfer) return;
+
     event.preventDefault();
     event.stopPropagation();
-    if (!this.isUploading && !this.shareableLinkForPanel) {
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'copy';
-      }
-      if (!this.isDraggingOverWindow) {
-        this.isDraggingOverWindow = true;
-        this.cdRef.detectChanges();
-      }
+
+    if (this.selectedItems.length > 0 || this.isUploading || this.shareableLinkForPanel) {
+      event.dataTransfer.dropEffect = 'none';
     } else {
-      if (event.dataTransfer) {
+      // If not already set to 'copy' by a receptive child, default to 'none'.
+      if (event.dataTransfer.dropEffect !== 'copy') {
         event.dataTransfer.dropEffect = 'none';
       }
     }
@@ -280,38 +276,41 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.dragEnterCounter--;
     if (this.dragEnterCounter <= 0) {
       this.dragEnterCounter = 0;
-      if (this.isDraggingOverWindow) {
-        this.isDraggingOverWindow = false;
-        this.cdRef.detectChanges();
-      }
     }
   }
-
   @HostListener('window:drop', ['$event'])
   onWindowDrop(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
+    event.stopPropagation(); // Crucial to stop the browser's default file open action
 
-    this.isDraggingOverWindow = false;
-    this.dragEnterCounter = 0;
-    this.cdRef.detectChanges();
+    this.dragEnterCounter = 0; // Reset counter
 
-    if (!this.isUploading && !this.shareableLinkForPanel) {
-      const files = event.dataTransfer?.files;
-      if (files && files.length > 0) {
-        this.handleFiles(files, false);
-      }
+    // If the drop happened on orbital-display's upload-area, its onDropArea handler
+    // would have processed it and called event.stopPropagation().
+    // This primarily catches drops outside designated zones, which are now ignored.
+    console.log('HomeComponent: Window drop event. If not handled by a specific zone, it is ignored. Target:', event.target);
+  }
+  handleFilesDroppedInOrbital(fileList: FileList): void {
+    console.log('HomeComponent: Files dropped in orbital display area.', fileList);
+    // Ensure conditions are met before processing (no items selected, not uploading, no link)
+    if (this.selectedItems.length === 0 && !this.isUploading && !this.shareableLinkForPanel) {
+      this.handleFiles(fileList, false); // Assuming these are files, not detected as folders from this drop
     } else {
-      let reason = "";
-      if (this.isUploading) reason = "upload is in progress";
-      else if (this.shareableLinkForPanel) reason = "a shareable link for a completed transfer is displayed";
-      else reason = "current state does not permit drop";
-      console.log(`Drop ignored: ${reason}.`);
+      console.log('HomeComponent: Drop in orbital area ignored, component not in receptive state for new files.');
     }
   }
-
-  triggerFileInput(): void { if (this.isUploading) return; this.fileInputRef?.nativeElement.click(); }
-  triggerFolderInput(): void { if (this.isUploading) return; this.folderInputRef?.nativeElement.click(); }
+  triggerFileInput(): void {
+    // Only allow triggering file input if no items selected, not uploading, and no link
+    if (this.selectedItems.length === 0 && !this.isUploading && !this.shareableLinkForPanel) {
+      this.fileInputRef?.nativeElement.click();
+    }
+  }
+  triggerFolderInput(): void {
+    // Similar condition for folder input
+    if (this.selectedItems.length === 0 && !this.isUploading && !this.shareableLinkForPanel) {
+      this.folderInputRef?.nativeElement.click();
+    }
+  }
 
   handleFiles(fileList: FileList, isFolderSelection: boolean = false): void {
     if (this.isUploading) {
