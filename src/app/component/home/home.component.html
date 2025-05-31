@@ -14,6 +14,9 @@
                 <div *ngIf="uploadError" class="upload-error-toast global-upload-error">
                     {{ uploadError }}
                 </div>
+                <div *ngIf="uploadSuccessMessage" class="upload-success-toast global-upload-success">
+                    {{ uploadSuccessMessage }}
+                </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
                     <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"

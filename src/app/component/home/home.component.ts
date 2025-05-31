@@ -66,6 +66,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isUploading: boolean = false;
   uploadError: string | null = null;
+  uploadSuccessMessage: string | null = null;
   selectedItems: SelectedItem[] = [];
   currentItemBeingUploaded: SelectedItem | null = null;
   currentUploadId: string | null = null;
@@ -162,6 +163,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private resetUploadState(): void {
     this.isUploading = false;
     this.uploadError = null;
+    this.uploadSuccessMessage = null;
     this.selectedItems = [];
     this.shareableLinkForPanel = null;
     this.completedBatchAccessId = null;
@@ -324,6 +326,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.batchUploadLinks = [];
     }
     this.uploadError = null; // Clear previous error
+    this.uploadSuccessMessage = null;
 
     if (!fileList || fileList.length === 0) return;
 
@@ -430,6 +433,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.isUploading = true;
     this.uploadError = null;
+    this.uploadSuccessMessage = null;
     this.shareableLinkForPanel = null;
     this.batchUploadLinks = [];
     this.closeEventSource();
@@ -612,6 +616,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
           const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || 'Upload complete!';
+          this.uploadSuccessMessage = "Files uploaded successfully.";
+          this.uploadError = null;
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
@@ -664,11 +670,13 @@ export class HomeComponent implements OnInit, OnDestroy {
               errorMessage = `SSE error (unparseable): ${(errorEvent as MessageEvent).data}`;
             }
           }
+          this.uploadSuccessMessage = null;
           this.handleBatchUploadError(errorMessage, errorEvent);
         });
       };
     } catch (error) {
       console.error("Failed to create EventSource:", error);
+      this.uploadSuccessMessage = null;
       this.handleBatchUploadError(`Client-side error setting up upload progress: ${(error as Error).message}`);
     }
   }
@@ -679,6 +687,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.zone.run(() => {
       this.uploadError = errorMessage;
+      this.uploadSuccessMessage = null;
       this.isUploading = false;
       this.uploadProgressDetails = {
         ...this.uploadProgressDetails,
@@ -701,6 +710,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel || 'ID not yet established');
 
     this.isUploading = false;
+    this.uploadSuccessMessage = null;
+    this.uploadError = null;
     this.closeEventSource();
 
     /*
