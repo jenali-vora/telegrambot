@@ -45,7 +45,7 @@ export class OrbitalDisplayComponent implements OnInit {
   get hostCircumference(): number {
     return this.circumference;
   }
-
+  readonly liquidPseudoElementHeight = 400;
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void { }
@@ -83,7 +83,21 @@ export class OrbitalDisplayComponent implements OnInit {
       return this._normalProgressStrokeDashoffset.toString();
     }
   }
+  get dynamicLiquidTopOffset(): string {
+    // The "container" for the liquid fill is effectively the circle defined by 'radius'.
+    // Its height (diameter) is this.radius * 2.
+    // However, the viewBoxSize might be a better reference if the liquid overlay div matches the SVG's full dimensions.
+    // Let's use the height of the circular-progress-wrapper-new, which is 180px in your CSS.
+    const fillAreaHeight = 180; // Corresponds to circular-progress-wrapper-new height
 
+    const startTop = fillAreaHeight; // Liquid starts with its top at the bottom of the fill area
+    const endTop = -50; // Target for 100% full (from original example, relative to top of fill area)
+
+    const totalTravelDistance = startTop - endTop;
+    const currentTop = startTop - (this.uploadProgressPercentage / 100) * totalTravelDistance;
+
+    return `${currentTop}px`;
+  }
   onNewTransferPanel(): void {
     this.newTransferFromPanel.emit();
   }
@@ -101,7 +115,7 @@ export class OrbitalDisplayComponent implements OnInit {
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
       this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0; 
+      this.dragEnterCounter = 0;
       return;
     }
 

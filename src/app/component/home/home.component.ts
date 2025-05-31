@@ -114,8 +114,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     { icon: 'fa-solid fa-file-shield', title: "Secure & Encrypted Uploads" },
   ]
   redisterdUser = [
-    { icon: 'assets/image/ru-i.png', title: 'Registered users', count: '327,026,694' },
-    { icon: 'assets/image/files-uploadImg.png', title: 'Uploaded files', count: '191,649,393,254' }
+    { icon: 'assets/image/rg-i.png', title: 'Registered users', count: '327,026,694' },
+    { icon: 'assets/image/upload-files-img1.png', title: 'Uploaded files', count: '191,649,393,254' }
   ]
   @HostListener('window:beforeunload', ['$event'])
   handleBeforeUnload(event: BeforeUnloadEvent): void {

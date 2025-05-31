@@ -43,14 +43,41 @@
 
         <!-- New Circular SVG Progress UI (shown when items exist AND uploading AND no link yet) -->
         <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new">
+            <!-- SVG for background track AND clipPath definition -->
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
+                <defs>
+                    <!-- This clipPath will define the circular area for the liquid fill -->
+                    <clipPath id="liquidFillClip">
+                        <circle [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius" />
+                    </clipPath>
+                </defs>
+
+                <!-- Background track of the circle (remains visible) -->
                 <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
+
+                <!-- Original progress arc - This will be effectively hidden or unused visually when liquid is shown.
+                     You could add *ngIf="!showLiquidFill" or similar if you want to toggle,
+                     but for this request, the liquid replaces its visual.
+                     We can leave it in the DOM but ensure it doesn't visually conflict.
+                     Setting its stroke to transparent or a very low opacity via CSS is one way if liquid is primary.
+                -->
                 <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
             </svg>
+
+            <!-- HTML Overlay for the liquid fill, clipped by the SVG path -->
+            <div class="liquid-fill-overlay" [style.clip-path]="'url(#liquidFillClip)'"
+                [style.-webkit-clip-path]="'url(#liquidFillClip)'">
+                <div class="liquid-fill-content" [style.--liquid-top-offset]="dynamicLiquidTopOffset"
+                    [style.--liquid-rotation-duration]="'7s'">
+                    <!-- The ::before pseudo-element of this div will be the actual liquid -->
+                </div>
+            </div>
+
+            <!-- Percentage text (needs to be on top) -->
             <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
         </div>
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">

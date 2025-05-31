@@ -30,6 +30,7 @@
     --animated-dash-gap: 10px;
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
     --component-circumference-val: 326.725;
+    --liquid-animation-duration: 7s;
 }
 
 
@@ -428,6 +429,11 @@
     height: 100%;
     transform: rotate(-90deg);
     overflow: visible;
+    position: absolute;
+    /* SVG can be in the background layer */
+    top: 0;
+    left: 0;
+    z-index: 0;
 }
 
 .circular-progress-background-new,
@@ -450,6 +456,60 @@
 
 .circular-progress-value-new.spinning-dot {
     animation: spin-dot 1.5s linear infinite;
+    stroke: var(--button-color);
+    opacity: 1;
+}
+
+.liquid-fill-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Should match dimensions of circular-progress-wrapper-new */
+    height: 100%;
+    /* Should match dimensions of circular-progress-wrapper-new */
+    /* clip-path is applied via inline style from component for cross-browser SVG path */
+    overflow: hidden;
+    /* Essential for the ::before pseudo-element animation */
+    z-index: 1;
+    /* Above SVG background, below text */
+}
+
+.liquid-fill-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /* For its ::before pseudo-element */
+}
+
+.liquid-fill-content::before {
+    content: "";
+    position: absolute;
+    width: 400px;
+    /* Larger than the container for the wave effect */
+    height: var(--liquid-pseudo-element-height, 400px);
+    /* From TS, or fixed value */
+    background: var(--button-color);
+    /* The green fill color */
+    left: 50%;
+    /* transform: translateX(-50%); is part of the animation */
+    border-radius: 40%;
+    /* Creates the "liquid" curve */
+    animation: liquid-wave-animation var(--liquid-rotation-duration, 7s) ease-out infinite;
+    z-index: 0;
+    /* Behind any direct content of .liquid-fill-content */
+    top: var(--liquid-top-offset);
+    /* Dynamically controlled by Angular */
+}
+
+@keyframes liquid-wave-animation {
+    from {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
 }
 
 @keyframes spin-dot {
@@ -471,6 +531,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 2;
 }
 
 /* progres-bar css end */
