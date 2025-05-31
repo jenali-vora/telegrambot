@@ -19,16 +19,7 @@
                 </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
-                    <!-- <div *ngIf="isDraggingOverWindow && selectedItems.length === 0 && !shareableLinkForPanel && !isUploading"
-                        class="fullscreen-drag-overlay" (drop)="onWindowDrop($event)" (dragover)="onWindowDragOver($event)"
-                        (dragleave)="onWindowDragLeave($event)" (dragenter)="onWindowDragEnter($event)">
-                        <div class="drag-overlay-content">
-                            <img src="assets/image/upload.svg" alt="Drop files" class="drag-overlay-icon">
-                            <h2>Drop your files here</h2>
-                            <p>Add your files or folders by drag-and-dropping them on this window 😉</p>
-                        </div>
-                    </div> -->
-                    <!-- Main Upload Interaction Area -->
+    
                     <div class="upload-interaction-area">
                         <div>
                             <app-orbital-display (requestFileUpload)="triggerFileInput()" [items]="selectedItems"
@@ -49,41 +40,6 @@
                                 (filesDroppedInArea)="handleFilesDroppedInOrbital($event)">
                             </app-orbital-display>
                         </div>
-                        <!-- <div class="upload-main-wrapper"
-                            *ngIf="selectedItems.length === 0 && !shareableLinkForPanel && !isUploading">
-        
-                            <div class="upload-welcome-wrapper">
-                                <div class="position-relative custo-start">
-                                    <button class="upload-start" title="Start Transfer" (click)="triggerFileInput()">
-                                        <span class="upload-start-label">Uploading</span>
-                                        <span class="upload-strat-icon"><img src="assets/image/9974321.png"
-                                                alt="Start Upload"></span>
-                                        <span class="uploader-lines"><span class="uploader-lines-animation"></span></span>
-                                    </button>
-                                    <div class="upload-start-tooltip">
-                                        <span>Click or drag-and-drop your files here</span>
-                                        <hr data-separator="or">
-                                        <div class="custo-selector">
-                                            <button type="button" title="Select Files" (click)="triggerFileInput()">
-                                                <img src="assets/image/file-upload.png" alt="Upload Files">
-                                            </button>
-                                            <button type="button" title="Select Folder" (click)="triggerFolderInput()">
-                                                <img src="assets/image/folder.svg" alt="Upload Folder">
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-                        <!-- <app-transfer-panel
-                            *ngIf="( (selectedItems.length > 0 || shareableLinkForPanel) || isUploading )"
-                            [items]="selectedItems" [isUploading]="isUploading"
-                            [batchShareableLink]="shareableLinkForPanel" [uploadStatusMessage]="uploadStatusMessage"
-                            (requestAddFiles)="triggerFileInput()" (requestAddFolder)="triggerFolderInput()"
-                            (itemRemoved)="handleItemRemovedFromPanel($event)"
-                            (itemDownloadRequested)="handleDownloadRequest($event)"
-                            (transferInitiated)="initiateTransferFromPanel()" class="transfer-panel-container">
-                        </app-transfer-panel> -->
                     </div>
 
                     <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)"
@@ -110,52 +66,6 @@
         </section>
     </div>
     <!-- === END: File List Section === -->
-
-
-    <!-- Other Sections (keep as is) -->
-    <!-- <section class="section-7 transfer-main container">
-        <div class="row discfeatures">
-            <div class="col-12 col-md-5 col-lg-5 share-image p-0" appScrollAnimation="slide-in-left"
-                [animationThreshold]="0.5">
-                <img src="assets/image/main.png" alt="">
-            </div>
-            <div class="col-12 col-lg-6 col-md-6 p-0" appScrollAnimation="slide-in-right" [animationThreshold]="0.5"
-                animationDelay="0.5s">
-                <div class="transfer-content">
-                    <h2 class="text-left"><span class="text-highlight-gradient">Transfer and share files</span> by email
-                        or link with no size limit</h2>
-                    <p>Easily share large files and documents with your colleagues, clients, or partners by email or
-                        link with no size limit based on your personalized plan.
-                        <br><br>
-                        TransferNow Enterprise is designed to facilitate collaborative work by enabling fast file
-                        sharing within your organization or externally, in a secure and centralized environment ensuring
-                        effective and secure management for IT administrators or CIOs.
-                        <br><br>
-                        User transfers are available for 21 days by default, and you can configure file transfer
-                        availability for your organization based on your preferences and personalized plan settings.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-    <!-- <section class="section-2 transfer-file-section container" appScrollAnimation="fade-in-up"
-        [animationThreshold]="0.15">
-        <div class="transfer-content">
-            <h2>How to send and <span class="text-highlight-gradient">share large files</span> with TransferNow?</h2>
-        </div>
-        <div class="transfer-step stagger-children" appScrollAnimation="fade-in" [animationThreshold]="0.1"
-            animationDelay="0.2s">
-            @for (item of stepContent; track $index) {
-            <ol>
-                <li>
-                    <h3><span class="step-heading">{{item.number}}</span>{{item.title}}</h3>
-                    <p>{{item.des}}</p>
-                </li>
-            </ol>
-            }
-        </div>
-    </section> -->
 
     <section class="section-3 integrate-transfer container">
         <div class="row m-0 integration-content-wrapper" appScrollAnimation="fade-in" [animationThreshold]="0.1">

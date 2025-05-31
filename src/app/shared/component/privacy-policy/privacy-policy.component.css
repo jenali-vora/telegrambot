@@ -1,0 +1,43 @@
+.privacy-policy {
+    padding: 50px 20px;
+}
+
+.heading-main {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.heading {
+    font-size: 56px;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.sub-heading {
+    font-weight: 700;
+}
+
+.detail {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.detail h5 {
+    margin-bottom: 0;
+    font-size: 18px;
+}
+
+.detail p {
+    margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+    .heading {
+        font-size: 38px;
+        text-align: center;
+    }
+}
