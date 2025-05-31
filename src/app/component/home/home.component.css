@@ -770,6 +770,7 @@
 
 .registerd-wrapper {
     display: flex;
+    gap: 20px;
 }
 
 .img-box {
@@ -777,8 +778,8 @@
 }
 
 .img-box img {
-    width: 100%;
-    height: 70px;
+    width: 73px;
+    height: 73px;
 }
 
 /* section-8 css end */
@@ -838,6 +839,11 @@
 
     .right-section {
         padding: 20px;
+    }
+
+    .img-box img {
+        width: 65px;
+        height: 65px;
     }
 }
 
