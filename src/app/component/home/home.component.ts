@@ -611,7 +611,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             return;
           }
           const data = JSON.parse(event.data);
-          this.uploadStatusMessage = "Files uploaded successfully.";
+          this.uploadStatusMessage = data.message || 'Upload complete!';
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
