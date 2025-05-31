@@ -1,11 +1,6 @@
 /* src/app/component/blog-detail/blog-detail.component.css */
-
 .blog-detail-container {
-    max-width: 800px;
-    /* Adjust content width */
-    margin: 2rem auto;
-    /* Center container */
-    padding: 0 15px;
+    padding: 50px 0px;
 }
 
 .post-header h1 {
@@ -195,4 +190,10 @@
     }
 
     /* Stack related posts on smaller screens */
+}
+
+@media (max-width: 480px) {
+    .blog-detail-container {
+        padding: 50px 20px;
+    }
 }

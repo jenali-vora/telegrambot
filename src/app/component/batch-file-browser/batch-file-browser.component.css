@@ -351,6 +351,7 @@ hr {
 @media (max-width: 480px) {
     .file-list li {
         flex-direction: column;
+        padding: 8px;
     }
 
     .file-icon {
@@ -372,9 +373,10 @@ hr {
     }
 
     .all-file-list-wrapper {
-        padding: 20px;
+        padding: 10px;
     }
-    .file-size{
+
+    .file-size {
         margin-right: 0;
         padding-left: 0;
 

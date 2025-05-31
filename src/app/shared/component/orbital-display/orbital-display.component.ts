@@ -1,11 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-orbital-display',
   standalone: true,
-  imports: [CommonModule, TransferPanelComponent],
+  imports: [CommonModule, TransferPanelComponent,RouterLink],
   templateUrl: './orbital-display.component.html',
   styleUrls: ['./orbital-display.component.css']
 })

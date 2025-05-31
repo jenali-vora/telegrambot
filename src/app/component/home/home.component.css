@@ -60,88 +60,6 @@
 }
 
 /* games css end*/
-.transfer-step.stagger-children>ol {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.transfer-step.stagger-children.is-visible>ol {
-    opacity: 1;
-    transform: translateY(0);
-    padding: 0;
-}
-
-/* Apply individual delays to <ol> children for staggering effect */
-.transfer-step.stagger-children.is-visible>ol:nth-child(1) {
-    transition-delay: 0.1s;
-    /* Delay for the first <ol> */
-}
-
-.transfer-step.stagger-children.is-visible>ol:nth-child(2) {
-    transition-delay: 0.25s;
-    /* Delay for the second <ol> */
-}
-
-.transfer-step.stagger-children.is-visible>ol:nth-child(3) {
-    transition-delay: 0.4s;
-    /* Delay for the third <ol> */
-}
-
-/* ... rest of your existing styles ... */
-.fullscreen-drag-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgb(64, 82, 181, .6);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    color: white;
-    box-sizing: border-box;
-    padding: 20px;
-}
-
-.drag-overlay-content {
-    padding: 30px 40px;
-    border: 5px dashed rgba(255, 255, 255, 0.75);
-    border-radius: 10px;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.drag-overlay-icon {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 25px;
-}
-
-.drag-overlay-content h2 {
-    font-size: 2.4rem;
-    font-weight: bold;
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.drag-overlay-content p {
-    font-size: 1.15rem;
-    line-height: 1.5;
-    margin-bottom: 0;
-    /* max-width: 450px; */
-    text-align: center;
-}
 
 .hero-section {
     /* --- Background Image --- */
@@ -196,280 +114,11 @@
     line-height: 1.6;
 }
 
-.upload-welcome-wrapper {
-    /* min-width: 740px; */
-    padding-bottom: 220px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: column;
-    transition: all .2s cubic-bezier(.79, 0, .178, 1)
-}
-
-.upload-start {
-    position: relative;
-    width: 230px;
-    height: 230px;
-    border-radius: 50%;
-    border: 0 solid rgba(0, 0, 0, 0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    font-size: 25px;
-    font-weight: 600;
-    padding: 0;
-    overflow: hidden;
-    background: var(--white-color);
-    color: #e36812;
-    animation: uploader_ripple__yH_nl 2s infinite;
-    margin-top: 30px;
-}
-
-@keyframes uploader_ripple__yH_nl {
-    0% {
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 hsla(0, 0%, 100%, .1), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 hsla(0, 0%, 100%, 0), 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 hsla(0, 0%, 100%, .1);
-    }
-
-    100% {
-        box-shadow: 0 0 0 20px rgba(0, 0, 0, 0), 0 0 0 60px hsla(0, 0%, 100%, 0), 0 0 0 70px rgba(0, 0, 0, 0), 0 0 0 80px hsla(0, 0%, 100%, 0), 0 0 0 90px rgba(0, 0, 0, 0);
-    }
-}
-
-.upload-start-label {
-    position: absolute;
-    opacity: 1;
-    transition: opacity .2s ease, transform .26s ease;
-    transform: translateY(0);
-}
-
-.upload-start:hover .upload-start-label {
-    opacity: 0;
-    transition: opacity .2s ease, transform .33s ease;
-    transform: translateY(-100px);
-}
-
-.upload-strat-icon {
-    position: absolute;
-    opacity: 0;
-    transition: opacity .2s ease, transform .26s ease;
-    transform: translateY(100px);
-}
-
-.upload-strat-icon img {
-    height: 55px;
-}
-
-.upload-start:hover .upload-strat-icon {
-    opacity: 1;
-    transition: opacity .2s ease, transform .33s ease;
-    transform: translateY(0);
-}
-
-.uploader-lines {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border-radius: 50%;
-    z-index: 5;
-}
-
-.uploader-lines .uploader-lines-animation {
-    width: 100%;
-    height: 100%;
-    animation: uploader_spinSpin__hklD_ 3s linear infinite;
-    border-top: 13px solid rgba(var(--theme-border-color-r), var(--theme-border-color-g), var(--theme-border-color-b), .6) !important;
-    border-right: 13px solid rgba(var(--theme-border-color-r), var(--theme-border-color-g), var(--theme-border-color-b), 1) !important;
-    border-bottom: 13px solid rgba(var(--theme-border-color-r), var(--theme-border-color-g), var(--theme-border-color-b), .8) !important;
-    border-left: 13px solid rgba(var(--theme-border-color-r), var(--theme-border-color-g), var(--theme-border-color-b), .7) !important;
-    position: absolute;
-    border-radius: 50%;
-    -webkit-border-radius: 50%;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: auto;
-}
-
-@keyframes uploader_spinSpin__hklD_ {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(1turn);
-    }
-}
-
-.upload-start-tooltip {
-    display: block;
-    transition: all .3s ease;
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -165px;
-    width: 100%;
-    font-size: 15px;
-    line-height: 23px;
-    letter-spacing: .5px;
-    background-color: #fff;
-    border-radius: 6px;
-    box-shadow: 0 0 30px 0 rgba(34, 36, 83, .4);
-    padding: 10px 0;
-    animation: uploader_levitation__OSYMa 1.2s ease-in-out infinite alternate;
-    text-align: center;
-}
-
-@keyframes uploader_levitation__OSYMa {
-    0% {
-        transform: translate(0);
-    }
-
-    100% {
-        transform: translateY(.5em);
-    }
-}
-
-.upload-start-tooltip::before {
-    bottom: 99%;
-    left: 50%;
-    content: "";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border: 15px solid rgba(0, 0, 0, 0);
-    border-bottom-color: #fff;
-    margin-left: -15px;
-}
-
-.upload-start-tooltip span {
-    display: block;
-    padding: 0 24px;
-    color: var(--black-color);
-    font-size: 15px;
-    line-height: 23px;
-    letter-spacing: .5px;
-    text-align: center;
-}
-
-.upload-start-tooltip hr {
-    position: relative;
-    margin: 15px 0;
-    overflow: visible;
-    opacity: .33;
-    color: var(--border);
-}
-
-.upload-start-tooltip hr::before {
-    content: attr(data-separator);
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    top: -21px;
-    left: 50%;
-    margin-left: -20px;
-    background: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #000;
-    overflow: visible;
-}
-
-.custo-selector {
-    display: flex;
-    flex-direction: row;
-    padding: 0 20px 5px;
-}
-
-.custo-selector button {
-    padding: 4px 12px;
-    background: rgba(0, 0, 0, 0);
-    border: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    flex: 1 1;
-    margin: 0;
-    transition: all .3s cubic-bezier(.79, 0, .178, 1);
-}
-
-.custo-selector button img {
-    height: 24px;
-    opacity: .5;
-    margin: 0;
-
-}
-
-.transfer-file-section {
-    background-color: #fbfbfd;
-}
-
 .transfer-content h2 {
     text-align: center;
     font-size: 50px;
     font-weight: 600;
     margin-bottom: 40px;
-}
-
-.transfer-step {
-    display: flex;
-    gap: 20px;
-}
-
-.transfer-step ol {
-    list-style: none;
-    width: 100%;
-}
-
-.transfer-step ol li {
-    /* margin-right: 50px; */
-    list-style: none;
-    background: var(--white-color);
-    border-radius: 33px 0 33px 0;
-    padding: 30px;
-    box-shadow: 0 5px 15px -5px rgba(0, 0, 0, .1);
-    width: 100%;
-    height: 100%;
-}
-
-.transfer-step h3 {
-    display: flex;
-    flex-direction: column;
-    font-size: 20px;
-    line-height: 1.4;
-    font-weight: 600;
-    max-width: 90%;
-    margin-bottom: 20px;
-}
-
-.transfer-step .step-heading {
-    line-height: 38px;
-    text-align: center;
-    background-color: var(--button-color);
-    color: var(--white-color);
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 50%;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
-.upload-main-wrapper.drag-over-active {
-    outline: 3px dashed #0073E6;
-    outline-offset: 5px;
-    background-color: rgba(0, 115, 230, 0.05);
 }
 
 .upload-error-toast {
@@ -631,35 +280,11 @@
     height: 100%;
 }
 
-.transfer-main .discfeatures {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-}
-
 .text-left {
     text-align: left !important;
 }
 
 /* section-7 css end */
-
-/* progress-bar css start */
-.upload-progress-overlay {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
-    width: 380px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-/* Optional: If the progress item itself doesn't have a background/shadow */
-.upload-progress-overlay app-upload-progress-item {
-    display: block;
-}
 
 /* progressbar css end */
 .upload-interaction-area {
@@ -787,23 +412,6 @@
 /* --- Responsiveness --- */
 
 @media (max-width: 992px) {
-    .upload-start-tooltip {
-        display: none;
-    }
-
-    .transfer-step ol li {
-        margin: 0;
-        padding: 20px;
-    }
-
-    .transfer-step h3 {
-        font-size: 17px;
-    }
-
-    .transfer-main .discfeatures {
-        gap: 40px;
-    }
-
     /* .section-my-files-link {
         padding: 1.5rem 1rem;
     } */
@@ -819,10 +427,6 @@
     .btn.view-my-files-btn {
         font-size: 0.9rem;
         padding: 0.6rem 1.2rem;
-    }
-
-    .upload-welcome-wrapper {
-        padding-bottom: 0;
     }
 
     .contact-list ul {
@@ -898,19 +502,6 @@
         text-align: center;
     }
 
-    .upload-welcome-wrapper {
-        max-width: 100%;
-        min-width: 100%;
-    }
-
-    .transfer-step {
-        flex-direction: column;
-    }
-
-    .transfer-step ol {
-        padding: 0;
-    }
-
     .contact-list ul li span {
         align-items: flex-start;
         flex-direction: column;
@@ -930,19 +521,10 @@
         min-width: unset;
     }
 
-    .transfer-main .discfeatures {
-        flex-direction: column;
-    }
 
     .transfer-main .share-image img {
         width: 100%;
         height: auto;
-    }
-
-    .upload-progress-overlay {
-        right: 0;
-        width: 100%;
-        padding: 10px;
     }
 
     .upload-interaction-area {
@@ -951,10 +533,6 @@
 
     .txt-center {
         text-align: center;
-    }
-
-    .transfer-step.stagger-children.is-visible>ol {
-        margin-bottom: 0;
     }
 
     .bg-color {
@@ -979,5 +557,9 @@
 
     .registerd-wrapper {
         flex-direction: column;
+    }
+
+    .integrate-transfer {
+        padding: 20px 30px;
     }
 }

@@ -17,6 +17,7 @@ import { ResetPasswordComponent } from './shared/component/reset-password/reset-
 import { ArchivedFilesPageComponent } from './shared/component/archived-files-page/archived-files-page.component';
 import { GamesComponent } from './shared/component/games/games.component';
 import { FilePreviewComponent } from './shared/component/file-preview/file-preview.component';
+import { PrivacyPolicyComponent } from './shared/component/privacy-policy/privacy-policy.component';
 
 export const routes: Routes = [
   // Routes WITHOUT Main Header/Footer
@@ -80,6 +81,7 @@ export const routes: Routes = [
         component: GamesComponent
       },
       { path: 'preview/:accessId', component: FilePreviewComponent },
+      { path: 'privacy', component: PrivacyPolicyComponent },
       // Removed: { path: '', redirectTo: '/home', pathMatch: 'full' }
       // This is no longer needed as HomeComponent is now the default for the empty path.
     ]

@@ -55,7 +55,7 @@
         </div>
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
             By uploading files you agree to the Transfer Terms & Conditions
-            and <a href="#">Privacy Policy</a>.
+            and <a routerLink="/privacy">Privacy Policy</a>.
         </p>
 
         <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
