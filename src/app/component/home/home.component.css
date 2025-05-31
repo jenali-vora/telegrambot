@@ -492,6 +492,27 @@
     animation: slideInAndOutToast 6s ease-in-out forwards;
 }
 
+.upload-success-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: #e6ffed;
+    color: var(--button-color);
+    border: 1px solid var(--button-color);
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    max-width: 380px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInAndOutToast 6s ease-in-out forwards;
+    /* Re-use existing animation */
+}
+
 @keyframes slideInAndOutToast {
     0% {
         opacity: 0;
