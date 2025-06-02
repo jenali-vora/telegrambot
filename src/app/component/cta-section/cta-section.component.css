@@ -72,7 +72,7 @@
     font-size: 0.9rem;
     /* Button text size */
     font-weight: 600;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
     text-decoration: none;
     /* Remove underline if using <a> tags */

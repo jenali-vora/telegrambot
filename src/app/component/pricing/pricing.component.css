@@ -55,7 +55,7 @@
     /* Default white */
     color: var(--button-color);
     /* Default blue text */
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: 0.9rem;
     font-weight: 500;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -270,7 +270,7 @@
     font-size: 0.95rem;
     font-weight: 500;
     border-radius: 6px;
-    cursor: pointer;
+    /* cursor: pointer; */
     text-align: center;
     text-decoration: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
@@ -390,7 +390,7 @@
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: 6px;
-    cursor: pointer;
+    /* cursor: pointer; */
     text-align: center;
     text-decoration: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;

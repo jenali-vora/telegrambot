@@ -17,6 +17,9 @@
                 <div *ngIf="uploadSuccessMessage" class="upload-success-toast global-upload-success">
                     {{ uploadSuccessMessage }}
                 </div>
+                 <div *ngIf="anonymousUploadLimitMessage" class="global-info-toast">
+                    {{ anonymousUploadLimitMessage }}
+                </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
     

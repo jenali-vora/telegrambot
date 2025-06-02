@@ -99,7 +99,7 @@
     <div class="panel-actions-upload" *ngIf="items.length > 0 && !batchShareableLink">
         <button class="btn btn-primary btn-upload-tg" (click)="startTransfer()" [disabled]="isUploading">
             <i class="fas fa-spinner fa-spin" *ngIf="isUploading"></i>
-            <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i>
+            <!-- <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i> -->
             {{ isUploading ? 'Uploading...' : 'Upload' }}
         </button>
         <!-- General status message during upload, shown below the main upload button -->

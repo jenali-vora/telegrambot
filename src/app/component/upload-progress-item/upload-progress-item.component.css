@@ -33,7 +33,7 @@
 
 .progress-header i {
   color: #888;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .progress-divider {
@@ -135,7 +135,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  /* cursor: pointer; */
   padding: 0;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }

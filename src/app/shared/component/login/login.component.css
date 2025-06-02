@@ -106,7 +106,7 @@
     transform: translateY(-50%);
     background: none;
     border: none;
-    cursor: pointer;
+    /* cursor: pointer; */
     padding: 5px;
     color: #aaa;
 }
@@ -143,11 +143,11 @@
     margin: 0;
     font-size: 13px;
     color: #555;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 input[type="checkbox"] {
-    cursor: pointer;
+    /* cursor: pointer; */
     accent-color: var(--button-color);
     /* Match button color */
 }
@@ -159,7 +159,7 @@ input[type="checkbox"] {
     border: none;
     padding: 20px 25px;
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-weight: 600;
     font-size: 14px;
     transition: background-color 0.2s ease;
@@ -260,7 +260,7 @@ input[type="checkbox"] {
     transform: translateY(-50%);
     background: none;
     border: none;
-    cursor: pointer;
+    /* cursor: pointer; */
     padding: 5px 8px;
     /* Adjust padding */
     display: flex;

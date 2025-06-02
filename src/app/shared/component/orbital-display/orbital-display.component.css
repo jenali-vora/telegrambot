@@ -89,7 +89,7 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .img img {
@@ -184,7 +184,7 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease-in-out;
     animation-name: common_shakeElem__bJOpt;
     animation-duration: 5s;
@@ -259,7 +259,7 @@
     font-weight: bold;
     display: flex;
     align-items: center;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .limit-info .increase-limit-link:hover {
