@@ -217,7 +217,7 @@
 }
 
 .user-profile-trigger {
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .user-name-display {
@@ -318,7 +318,7 @@
     display: flex;
     align-items: center;
     padding: 8px 6px;
-    cursor: default;
+    /* cursor: default; */
 }
 
 /* .user-avatar-lg {
@@ -380,7 +380,7 @@
     text-align: left;
     font-size: 0.85rem;
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.15s ease;
     box-sizing: border-box;
     text-align: center;
@@ -406,7 +406,7 @@
     border: none;
     color: var(--button-color);
     font-size: 1.4rem;
-    cursor: pointer;
+    /* cursor: pointer; */
     padding: 5px;
     margin-left: 10px;
     line-height: 1;
@@ -504,7 +504,7 @@
     /* Adjust size */
     color: var(--button-color);
     /* Use variable or fallback */
-    cursor: pointer;
+    /* cursor: pointer; */
     padding: 5px;
     line-height: 1;
 }
@@ -635,7 +635,7 @@
     font-size: 0.9rem;
     text-decoration: none;
     display: inline-block;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     box-sizing: border-box;
     line-height: 1.4;
@@ -676,7 +676,7 @@
     font-weight: 500;
     border-radius: 4px;
     /* Example has slightly rounded corners */
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
     line-height: 1.5;
     /* Ensure text is vertically centered */

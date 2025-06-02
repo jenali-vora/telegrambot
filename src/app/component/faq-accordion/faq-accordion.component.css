@@ -45,7 +45,7 @@
 .faq-question {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    /* cursor: pointer; */
     user-select: none;
     font-size: 22px;
     font-weight: 500;

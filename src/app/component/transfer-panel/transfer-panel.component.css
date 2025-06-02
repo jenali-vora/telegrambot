@@ -75,7 +75,7 @@
     padding: 3px 5px;
     background: none;
     border: none;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: 1rem;
     /* Or 0.9rem to match other icons */
 }
@@ -118,7 +118,7 @@
     border: 1px solid var(--button-color) !important;
     color: var(--white-color);
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease;
     display: flex;
     align-items: center;
@@ -188,7 +188,7 @@
     font-size: 0.8rem;
     /* Slightly smaller text */
     font-weight: 500;
-    cursor: pointer;
+    /* cursor: pointer; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -268,7 +268,7 @@
     padding: 3px 5px;
     background: none;
     border: none;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: 1rem;
     /* Make icon slightly larger */
 }
@@ -549,7 +549,7 @@
     background: none;
     border: none;
     padding: 3px 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     font-size: 0.9rem;
     /* Adjust icon size */
     color: #999;
@@ -613,7 +613,7 @@
     color: var(--white-color);
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: background-color 0.2s ease;
     display: flex;
     /* Align icon and text */

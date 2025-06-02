@@ -56,7 +56,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   public showPlayGamesButton: boolean = false;
   private previousShowPlayGamesButtonState: boolean = false;
   public isGamePanelVisible: boolean = false;
+  public anonymousUploadLimitMessage: string | null = null;
   private readonly ONE_GIGABYTE_IN_BYTES = 1 * 1024 * 1024 * 1024;
+  private readonly genericUploadMessage = "Your files are being uploaded, wait a few moment.";
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
@@ -176,6 +178,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadProgress = 0;
     this.nextItemId = 0;
     this.batchUploadLinks = [];
+    this.anonymousUploadLimitMessage = null;
     // this.isDraggingOverWindow = false;
     this.isGamePanelVisible = false;
     this.updatePlayGamesButtonVisibility();
@@ -434,6 +437,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isUploading = true;
     this.uploadError = null;
     this.uploadSuccessMessage = null;
+    this.anonymousUploadLimitMessage = null;
     this.shareableLinkForPanel = null;
     this.batchUploadLinks = [];
     this.closeEventSource();
@@ -551,7 +555,20 @@ export class HomeComponent implements OnInit, OnDestroy {
             return;
           }
           const data = JSON.parse(event.data);
-          this.uploadStatusMessage = data.message || 'Upload started.';
+          let finalMessage: string;
+          const serverMessage = data.message;
+          if (serverMessage) {
+            const lowerServerMessage = serverMessage.toLowerCase();
+            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+              finalMessage = this.genericUploadMessage;
+            } else {
+              finalMessage = serverMessage; // Use other server messages as is
+            }
+          } else {
+            finalMessage = 'Upload started.'; // Default for 'start' if no server message
+          }
+          this.uploadStatusMessage = finalMessage;
+
           if (data.totalBytes && data.totalBytes !== this.uploadProgressDetails.totalBytes) {
             this.uploadProgressDetails.totalBytes = parseInt(data.totalBytes, 10);
             if (this.currentItemBeingUploaded) {
@@ -570,7 +587,21 @@ export class HomeComponent implements OnInit, OnDestroy {
             return;
           }
           const data = JSON.parse(event.data);
-          this.uploadStatusMessage = data.message || 'Processing...';
+
+          let finalMessage: string;
+          const serverMessage = data.message;
+          if (serverMessage) {
+            const lowerServerMessage = serverMessage.toLowerCase();
+            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+              finalMessage = this.genericUploadMessage;
+            } else {
+              finalMessage = serverMessage; // Use other server messages as is
+            }
+          } else {
+            finalMessage = 'Processing...'; // Default for 'status' if no server message
+          }
+          this.uploadStatusMessage = finalMessage;
+
           if (typeof data.percentage === 'number') {
             this.uploadProgressDetails.percentage = Math.min(parseFloat(data.percentage), 100);
             this.uploadProgress = this.uploadProgressDetails.percentage;
@@ -599,7 +630,21 @@ export class HomeComponent implements OnInit, OnDestroy {
               this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
             }
             this.uploadProgress = this.uploadProgressDetails.percentage;
-            this.uploadStatusMessage = data.message || `Uploading: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
+            let finalMessage: string;
+            const serverMessage = data.message;
+            if (serverMessage) {
+              const lowerServerMessage = serverMessage.toLowerCase();
+              if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+                finalMessage = this.genericUploadMessage;
+              } else {
+                finalMessage = serverMessage; // Use other server messages as is
+              }
+            } else {
+              // Default for 'progress' if no server message, show percentage
+              finalMessage = `Uploading: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
+            }
+            this.uploadStatusMessage = finalMessage;
+            this.uploadStatusMessage = finalMessage;
             this.cdRef.detectChanges();
           } catch (e) {
             console.error("Error parsing SSE 'progress' event data:", event.data, e);
@@ -616,13 +661,33 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
           const data = JSON.parse(event.data);
           this.uploadStatusMessage = data.message || 'Upload complete!';
-          this.uploadSuccessMessage = "Files uploaded successfully.";
+          // this.uploadSuccessMessage = "Files uploaded successfully.";
           this.uploadError = null;
           if (data.batch_access_id) {
             this.completedBatchAccessId = data.batch_access_id;
             const frontendBaseUrl = window.location.origin;
             this.shareableLinkForPanel = `${frontendBaseUrl}/batch-view/${data.batch_access_id}`;
             console.log(`HomeComponent: Generated shareable link: ${this.shareableLinkForPanel}`);
+            if (!this.authService.isLoggedIn()) {
+              // User is anonymous and upload was successful with a link
+              this.anonymousUploadLimitMessage = "Upload successful! Your files are available for 5 days. For longer storage and more features, please log in or sign up.";
+              this.uploadSuccessMessage = null; // Ensure generic success message isn't shown
+
+              // Set a timeout to clear the message after a few seconds
+              setTimeout(() => {
+                this.anonymousUploadLimitMessage = null;
+                this.cdRef.detectChanges();
+              }, 7000); // Display for 7 seconds (adjust as needed, animation is 6s)
+            } else {
+              // User is logged in
+              this.uploadSuccessMessage = "Files uploaded successfully!";
+              this.anonymousUploadLimitMessage = null; // Ensure anonymous message isn't shown
+
+              setTimeout(() => {
+                this.uploadSuccessMessage = null;
+                this.cdRef.detectChanges();
+              }, 6000); // Standard timeout for success message
+            }
           } else {
             console.error("HomeComponent: SSE 'complete' event is MISSING 'batch_access_id'.");
             this.uploadError = "Upload complete, but could not generate a shareable batch link.";
