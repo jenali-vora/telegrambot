@@ -50,6 +50,7 @@ export interface TelegramFileMetadata {
 export interface InitiateUploadResponse {
   upload_id: string;
   filename: string;
+  sse_gdrive_upload_url?: string;
   shareable_link?: string;
   message?: string;
   access_id?: string;

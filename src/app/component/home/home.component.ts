@@ -59,6 +59,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public anonymousUploadLimitMessage: string | null = null;
   private readonly ONE_GIGABYTE_IN_BYTES = 1 * 1024 * 1024 * 1024;
   private readonly genericUploadMessage = "Your files are being uploaded, wait a few moment.";
+  private gdriveEventSource: EventSource | null = null;
+  private telegramEventSource: EventSource | null = null;
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
@@ -191,6 +193,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.folderInputRef?.nativeElement) {
       this.folderInputRef.nativeElement.value = '';
     }
+    this.closeAllEventSources();
     console.log('HomeComponent: Upload state has been reset.');
     this.updatePlayGamesButtonVisibility();
   }
@@ -463,10 +466,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentItemBeingUploaded = {
       id: -1,
       name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
-      size: totalBatchSize,
+      size: this.selectedItems.reduce((sum, item) => sum + item.size, 0), // totalBatchSize
       file: null,
-      icon: batchIcon,
-      isFolder: batchIsFolder
+      icon: /* batchIcon calculation */ this.selectedItems.length === 1 ? (this.selectedItems[0].isFolder ? 'fas fa-folder' : this.selectedItems[0].icon) : 'fas fa-archive',
+      isFolder: /* batchIsFolder calculation */ this.selectedItems.length === 1 ? (this.selectedItems[0].isFolder ?? false) : false
     };
 
     this.uploadProgressDetails = {
@@ -509,11 +512,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.apiService.initiateUpload(formData).subscribe({
       next: (res: InitiateUploadResponse) => {
         if (!this.isUploading) return;
-        if (res.upload_id) {
-          this.currentUploadId = res.upload_id;
-          this.listenToUploadProgress(res.upload_id, this.currentItemBeingUploaded);
+        if (res.upload_id && res.sse_gdrive_upload_url) {
+          this.currentUploadId = res.upload_id; // This is the operation_id / access_id
+          // Start with GDrive SSE
+          this.listenToGDriveUploadProgress(res.upload_id, res.sse_gdrive_upload_url, this.currentItemBeingUploaded);
         } else {
-          this.handleBatchUploadError('Server did not return a valid upload ID for the batch.');
+          this.handleBatchUploadError('Server did not return a valid upload ID or GDrive SSE URL.');
         }
       },
       error: (err: Error) => {
@@ -522,6 +526,340 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
   }
+  private handleGDriveComplete(data: any, operationId: string): void {
+    this.zone.run(() => {
+      if (operationId !== this.currentUploadId || !this.isUploading) {
+        this.closeGDriveEventSource();
+        return;
+      }
+      console.log('GDrive upload complete. SSE Data:', data);
+      this.uploadStatusMessage = data.message || 'File available. Archival to final storage in progress...';
+
+      // Data from backend 'gdrive_complete' event will now have:
+      // data.access_id
+      // data.filename (this is batch_display_name if batch, or original_filename if single)
+      // data.is_batch (boolean)
+
+      if (data.access_id && data.filename) {
+        this.completedBatchAccessId = data.access_id;
+        const frontendBaseUrl = window.location.origin;
+        let viewPageRoute = '/batch-view/';
+
+        // Construct the user-facing link to the view page
+        if (data.is_batch) {
+           this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
+        } else {
+          // Assuming you have a single file view page like /file-view/:accessId
+          // Or if single files also use batch-view, adjust accordingly.
+          // For now, let's assume single files might also go to a specific view or a generic get page.
+          // If single files should also show in a "batch-view" like display:
+           this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
+          // Or, if you have a dedicated single file preview/download page triggered by access_id:
+          // this.shareableLinkForPanel = `${frontendBaseUrl}/file-preview/${data.access_id}`; 
+        }
+        console.log('HomeComponent: Constructed Frontend Shareable Link:', this.shareableLinkForPanel);
+
+        if (this.currentItemBeingUploaded) {
+          this.currentItemBeingUploaded.name = data.filename; // Use filename from event for display
+        }
+        this.uploadProgressDetails.percentage = 100;
+        this.uploadProgress = 100;
+
+        // Success messages
+        if (!this.authService.isLoggedIn()) {
+          this.anonymousUploadLimitMessage = "File ready! Link generated. Final archival in background.";
+          setTimeout(() => { this.anonymousUploadLimitMessage = null; this.cdRef.detectChanges(); }, 7000);
+        } else {
+          this.uploadSuccessMessage = "File ready! Link generated. Final archival in background.";
+          setTimeout(() => { this.uploadSuccessMessage = null; this.cdRef.detectChanges(); }, 6000);
+        }
+      } else {
+        this.handleBatchUploadError("GDrive phase completed, but essential data (access_id/filename) missing from server event.");
+      }
+
+      this.isUploading = false;
+      this.closeGDriveEventSource();
+
+      if (this.currentUser && this.username) {
+        this.loadUserFileCount();
+      }
+      this.cdRef.detectChanges();
+    });
+  }
+
+  private listenToGDriveUploadProgress(operationId: string, relativeSseUrl: string, batchItemRepresentation: SelectedItem | null): void {
+    this.closeAllEventSources();
+
+    this.closeAllEventSources();
+    const backendApiUrl = this.apiService.getApiBaseUrl();
+    const fullSseUrl = `${backendApiUrl}${relativeSseUrl}`;
+
+    try {
+      this.gdriveEventSource = new EventSource(fullSseUrl, { withCredentials: this.authService.isLoggedIn() });
+      const es = this.gdriveEventSource;
+
+      es.onopen = () => this.zone.run(() => {
+        if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
+        // Log the full URL being used for clarity
+        console.log(`GDrive SSE connection opened for: ${operationId} URL: ${fullSseUrl}`);
+        this.uploadStatusMessage = 'Connecting to temporary storage...';
+        this.cdRef.detectChanges();
+      });
+
+      // ... (rest of the GDrive SSE event listeners: 'start', 'status', 'progress', 'gdrive_complete', 'error', 'onerror')
+      // No changes needed inside these listeners for this specific fix.
+
+      // Example of one listener, ensure all use `es`
+      es.addEventListener('start', (event: MessageEvent) => this.zone.run(() => {
+        if (operationId !== this.currentUploadId || !this.isUploading) return;
+        const data = JSON.parse(event.data);
+        this.uploadStatusMessage = data.message || 'GDrive upload started.';
+        if (data.totalSize && data.totalSize !== this.uploadProgressDetails.totalBytes) {
+          this.uploadProgressDetails.totalBytes = parseInt(data.totalSize, 10);
+          if (this.currentItemBeingUploaded) this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
+        }
+        this.uploadProgressDetails.percentage = 0;
+        this.uploadProgressDetails.bytesSent = 0;
+        this.uploadProgress = 0;
+        this.cdRef.detectChanges();
+      }));
+
+      es.addEventListener('status', (event: MessageEvent) => this.zone.run(() => {
+        if (operationId !== this.currentUploadId || !this.isUploading) return;
+        const data = JSON.parse(event.data);
+        this.uploadStatusMessage = data.message || 'GDrive processing...';
+        this.cdRef.detectChanges();
+      }));
+
+      es.addEventListener('progress', (event: MessageEvent) => this.zone.run(() => {
+        if (operationId !== this.currentUploadId || !this.isUploading) return;
+        const data = JSON.parse(event.data);
+        this.uploadProgressDetails.percentage = data.percentage !== undefined ? Math.min(parseFloat(data.percentage), 100) : this.uploadProgressDetails.percentage;
+        this.uploadProgressDetails.bytesSent = data.bytesSent !== undefined ? parseInt(data.bytesSent, 10) : this.uploadProgressDetails.bytesSent;
+        this.uploadProgress = this.uploadProgressDetails.percentage;
+        this.uploadStatusMessage = `Uploading to temporary storage: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
+        this.cdRef.detectChanges();
+      }));
+
+      es.addEventListener('gdrive_complete', (event: MessageEvent) => this.zone.run(() => {
+        this.handleGDriveComplete(JSON.parse(event.data), operationId);
+        if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
+        const data = JSON.parse(event.data);
+        console.log('GDrive upload complete. Data:', data);
+        this.uploadStatusMessage = data.message || 'Temporary storage complete. Preparing final transfer...';
+
+        this.closeGDriveEventSource();
+        if (data.access_id) {
+          this.uploadProgressDetails.percentage = 0;
+          this.uploadProgressDetails.bytesSent = 0;
+          this.uploadProgress = 0;
+          this.listenToTelegramUploadProgress(data.access_id, batchItemRepresentation);
+        } else {
+          this.handleBatchUploadError("GDrive phase completed but essential data missing for next step.");
+        }
+        this.cdRef.detectChanges();
+      }));
+
+      es.addEventListener('error', (errorEventOrMsgEvent: Event) => this.zone.run(() => {
+        if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
+        let errorMessage = 'Error during temporary storage phase.';
+        if (errorEventOrMsgEvent instanceof MessageEvent && (errorEventOrMsgEvent as MessageEvent).data) {
+          try {
+            const parsedError = JSON.parse((errorEventOrMsgEvent as MessageEvent).data);
+            errorMessage = parsedError.message || parsedError.error || errorMessage;
+          } catch (e) { console.warn("Could not parse GDrive SSE error event data:", (errorEventOrMsgEvent as MessageEvent).data); }
+        }
+        console.error("GDrive SSE Error Event: ", errorEventOrMsgEvent, "Parsed message:", errorMessage);
+        this.handleBatchUploadError(errorMessage, errorEventOrMsgEvent);
+      }));
+
+      es.onerror = (errorEvent: Event) => this.zone.run(() => {
+        if (es.readyState === EventSource.CLOSED) {
+          console.log("GDrive EventSource closed by client or gracefully.");
+          return;
+        }
+        // Add a check for status if possible, though EventSource doesn't directly expose HTTP status on generic onerror
+        // The 404 is now handled by the browser before this generic onerror might fire for network issues.
+        // If the connection fails due to 404, this `onerror` will indeed be triggered.
+        if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
+        console.error("GDrive SSE Connection Error (onerror): ", errorEvent, "Target URL was:", fullSseUrl);
+        this.handleBatchUploadError(`Connection error during temporary storage phase (URL: ${relativeSseUrl}). Check backend.`, errorEvent);
+      });
+
+
+    } catch (error) {
+      console.error("Failed to create GDrive EventSource:", error);
+      this.handleBatchUploadError(`Client-side error setting up GDrive upload progress: ${(error as Error).message}`);
+    }
+  }
+  private listenToTelegramUploadProgress(accessId: string, batchItemRepresentation: SelectedItem | null): void {
+    this.closeTelegramEventSource(); // Ensure any old Telegram SSE is closed
+
+    const apiUrl = this.apiService.getApiBaseUrl();
+    const url = `${apiUrl}/stream-progress/${accessId}`; // This is for the Telegram phase
+
+    try {
+      this.telegramEventSource = new EventSource(url, { withCredentials: this.authService.isLoggedIn() });
+      const es = this.telegramEventSource;
+
+      es.onopen = () => this.zone.run(() => {
+        if (accessId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
+        console.log(`Telegram SSE connection opened for: ${accessId}`);
+        // Initial message, might be overwritten by 'start' event.
+        this.uploadStatusMessage = 'Starting final transfer phase...';
+        this.cdRef.detectChanges();
+      });
+
+      es.addEventListener('start', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (accessId !== this.currentUploadId || !this.isUploading) { return; }
+          const data = JSON.parse(event.data);
+          let finalMessage: string = data.message || 'Upload started for final destination.';
+          const serverMessage = data.message; // Use original server message for filtering
+          if (serverMessage) {
+            const lowerServerMessage = serverMessage.toLowerCase();
+            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+              finalMessage = this.genericUploadMessage;
+            }
+          }
+          this.uploadStatusMessage = finalMessage;
+
+          // Telegram SSE 'start' event might provide a new totalSize (e.g. if file was processed differently)
+          // If the GDrive stage set totalBytes, and Telegram 'start' also sets totalSize, the latter takes precedence for this phase's display.
+          if (data.totalSize && data.totalSize !== this.uploadProgressDetails.totalBytes) {
+            this.uploadProgressDetails.totalBytes = parseInt(data.totalSize, 10);
+            if (this.currentItemBeingUploaded) this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
+          } else if (this.uploadProgressDetails.totalBytes === 0 && this.currentItemBeingUploaded && this.currentItemBeingUploaded.size > 0) {
+            // If totalSize wasn't in this event, but currentItemBeingUploaded has a size (likely from GDrive phase), use it.
+            this.uploadProgressDetails.totalBytes = this.currentItemBeingUploaded.size;
+          }
+          // Reset progress for this new phase
+          this.uploadProgressDetails.percentage = 0;
+          this.uploadProgressDetails.bytesSent = 0; // Bytes sent for GDrive is done.
+          this.uploadProgress = 0;
+
+          console.log('Telegram SSE "start" event data:', data);
+          this.cdRef.detectChanges();
+        });
+      });
+
+      es.addEventListener('status', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (accessId !== this.currentUploadId || !this.isUploading) { return; }
+          const data = JSON.parse(event.data);
+          let finalMessage: string = data.message || 'Processing for final destination...';
+          const serverMessage = data.message;
+          if (serverMessage) {
+            const lowerServerMessage = serverMessage.toLowerCase();
+            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+              finalMessage = this.genericUploadMessage;
+            }
+          }
+          this.uploadStatusMessage = finalMessage;
+          if (typeof data.percentage === 'number') { /* This event type usually doesn't have percentage */ }
+          console.log('Telegram SSE "status" event data:', data);
+          this.cdRef.detectChanges();
+        });
+      });
+
+      es.addEventListener('progress', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (accessId !== this.currentUploadId || !this.isUploading) { return; }
+          try {
+            const data = JSON.parse(event.data);
+            this.uploadProgressDetails.percentage = data.percentage !== undefined ? Math.min(parseFloat(data.percentage), 100) : this.uploadProgressDetails.percentage;
+            this.uploadProgressDetails.bytesSent = data.bytesSent !== undefined ? parseInt(data.bytesSent, 10) : (data.bytesProcessed !== undefined ? parseInt(data.bytesProcessed, 10) : this.uploadProgressDetails.bytesSent);
+            // totalBytes for this phase should have been set by its 'start' event.
+            this.uploadProgressDetails.speedMBps = data.speedMBps !== undefined ? parseFloat(data.speedMBps) : this.uploadProgressDetails.speedMBps;
+            this.uploadProgressDetails.etaFormatted = data.etaFormatted !== undefined ? data.etaFormatted : this.uploadProgressDetails.etaFormatted;
+
+            this.uploadProgress = this.uploadProgressDetails.percentage;
+            let finalMessage: string;
+            const serverMessage = data.message;
+            if (serverMessage) {
+              const lowerServerMessage = serverMessage.toLowerCase();
+              if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
+                finalMessage = this.genericUploadMessage;
+              } else {
+                finalMessage = serverMessage;
+              }
+            } else {
+              finalMessage = `Transferring to final destination: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
+            }
+            this.uploadStatusMessage = finalMessage;
+            this.cdRef.detectChanges();
+          } catch (e) {
+            console.error("Error parsing Telegram SSE 'progress' event data:", event.data, e);
+          }
+        });
+      });
+
+      es.addEventListener('complete', (event: MessageEvent) => {
+        this.zone.run(() => {
+          if (accessId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
+          const data = JSON.parse(event.data);
+          // ... (rest of your original 'complete' logic from listenToUploadProgress) ...
+          this.uploadStatusMessage = data.message || 'Upload complete!';
+          this.uploadError = null;
+          if (data.batch_access_id) { /* ... */ } else { /* ... */ }
+          // Make sure to set isUploading to false
+          this.isUploading = false;
+          // ... (loadUserFileCount, notifyUploadComplete, etc.)
+          this.closeTelegramEventSource();
+          this.cdRef.detectChanges();
+        });
+      });
+
+      es.addEventListener('error', (errorEventOrMsgEvent: Event) => this.zone.run(() => {
+        if (accessId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
+        let errorMessage = 'Error during final transfer phase.';
+        if (errorEventOrMsgEvent instanceof MessageEvent && (errorEventOrMsgEvent as MessageEvent).data) {
+          try {
+            const parsedError = JSON.parse((errorEventOrMsgEvent as MessageEvent).data);
+            errorMessage = parsedError.message || parsedError.error || errorMessage;
+          } catch (e) { console.warn("Could not parse Telegram SSE error event data:", (errorEventOrMsgEvent as MessageEvent).data); }
+        }
+        console.error("Telegram SSE Error Event: ", errorEventOrMsgEvent, "Parsed message:", errorMessage);
+        this.handleBatchUploadError(errorMessage, errorEventOrMsgEvent);
+      }));
+
+      es.onerror = (errorEvent: Event) => this.zone.run(() => {
+        if (es.readyState === EventSource.CLOSED) {
+          console.log("Telegram EventSource closed by client or gracefully.");
+          return;
+        }
+        if (accessId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
+        console.error("Telegram SSE Connection Error: ", errorEvent);
+        this.handleBatchUploadError('Connection error during final transfer phase.', errorEvent);
+      });
+
+    } catch (error) {
+      console.error("Failed to create Telegram EventSource:", error);
+      this.handleBatchUploadError(`Client-side error setting up Telegram upload progress: ${(error as Error).message}`);
+    }
+  }
+
+  private closeGDriveEventSource(): void {
+    if (this.gdriveEventSource) {
+      this.gdriveEventSource.close();
+      this.gdriveEventSource = null;
+      console.log('HomeComponent: GDrive EventSource closed.');
+    }
+  }
+
+  private closeTelegramEventSource(): void {
+    if (this.telegramEventSource) {
+      this.telegramEventSource.close();
+      this.telegramEventSource = null;
+      console.log('HomeComponent: Telegram EventSource closed.');
+    }
+  }
+
+  private closeAllEventSources(): void {
+    this.closeGDriveEventSource();
+    this.closeTelegramEventSource();
+  }
+
   handleNewTransferRequest(): void {
     console.log('HomeComponent: New transfer requested. Resetting state.');
     this.resetUploadState();
@@ -753,15 +1091,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.zone.run(() => {
       this.uploadError = errorMessage;
       this.uploadSuccessMessage = null;
-      this.isUploading = false;
+      this.isUploading = false; // Stop active uploading state
       this.uploadProgressDetails = {
-        ...this.uploadProgressDetails,
-        percentage: this.uploadProgressDetails.percentage > 0 ? this.uploadProgressDetails.percentage : 0,
+        ...this.uploadProgressDetails, // Keep any progress made if relevant
         speedMBps: 0,
         etaFormatted: 'Error',
       };
       this.uploadStatusMessage = 'Upload Failed';
-      this.closeEventSource();
+      this.closeAllEventSources(); // Close both, just in case
       this.cdRef.detectChanges();
     });
   }
@@ -775,6 +1112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel || 'ID not yet established');
 
     this.isUploading = false;
+    this.closeAllEventSources();
     this.uploadSuccessMessage = null;
     this.uploadError = null;
     this.closeEventSource();

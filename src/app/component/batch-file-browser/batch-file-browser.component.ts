@@ -1,5 +1,7 @@
+// src/app/shared/component/batch-file-browser/batch-file-browser.component.ts
+
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common'; // Added DecimalPipe
+import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription, throwError } from 'rxjs';
@@ -11,19 +13,19 @@ import {
   FileInBatchInfo,
   DownloadAllInitiationResponse,
   SseReadyPayload,
-  SseProgressPayload, // Ensure this is correctly defined as per Step 1
+  SseProgressPayload,
   SseStatusPayload
-} from '../../interfaces/batch.interfaces';
+} from '../../interfaces/batch.interfaces'; // Adjusted path based on common structures
 
-import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
+import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjusted path
 
 @Component({
   selector: 'app-batch-file-browser',
   standalone: true,
-  imports: [CommonModule, RouterLink, ByteFormatPipe, DatePipe, DecimalPipe], // Added DecimalPipe
+  imports: [CommonModule, RouterLink, ByteFormatPipe, DatePipe, DecimalPipe],
   templateUrl: './batch-file-browser.component.html',
   styleUrls: ['./batch-file-browser.component.css'],
-  providers: [DatePipe, DecimalPipe] // Added DecimalPipe
+  providers: [DatePipe, DecimalPipe]
 })
 export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private route = inject(ActivatedRoute);
@@ -31,6 +33,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private cdRef = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
   private datePipe = inject(DatePipe);
+  private router = inject(Router); // Inject Router if not already
 
   @Input() batchAccessIdInput: string | null = null;
   public effectiveBatchAccessId: string | null = null;
@@ -41,33 +44,30 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
 
   downloadStatusMessage: string | null = null;
   downloadStatusType: 'info' | 'error' | 'success' = 'info';
-  isProcessingDownload = false; // General flag to disable buttons
+  isProcessingDownload = false;
 
-  // --- Progress related state ---
   individualProgress: { [key: string]: SseProgressPayload | null } = {};
-  currentDownloadingFile: string | null = null; // Filename of the individual file being downloaded/prepared
+  currentDownloadingFile: string | null = null;
 
   downloadAllProgress: SseProgressPayload | null = null;
-  downloadAllProgressMessage: string | null = null; // For stage messages during "Download All"
-  isDownloadingAll: boolean = false; // True if "Download All" (zip) operation is active
-  // --- End Progress related state ---
+  downloadAllProgressMessage: string | null = null;
+  isDownloadingAll: boolean = false;
 
   private currentSse: EventSource | null = null;
   private routeSubscription: Subscription | null = null;
   private readonly API_BASE_URL = environment.apiUrl;
 
-  constructor(private router: Router) {
+  // constructor() {} // Removed router from constructor as it's injected
 
-  }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchAccessIdInput'] && this.batchAccessIdInput) {
       this.effectiveBatchAccessId = this.batchAccessIdInput;
       this.resetStateAndFetch();
     } else if (changes['batchAccessIdInput'] && !this.batchAccessIdInput && this.effectiveBatchAccessId) {
-      this.batchDetails = null; // Clear details
+      this.batchDetails = null;
       this.error = "Batch ID input removed.";
       this.isLoading = false;
-      this.cleanupPreviousDownloadState(); // Reset download related state
+      this.cleanupPreviousDownloadState();
       this.cdRef.detectChanges();
     }
   }
@@ -82,7 +82,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         } else {
           this.error = 'Batch Access ID not found in URL and no input provided.';
           this.isLoading = false;
-          this.cleanupPreviousDownloadState(); // Reset download state
+          this.cleanupPreviousDownloadState();
           this.cdRef.detectChanges();
         }
       });
@@ -101,7 +101,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       this.isLoading = true;
       this.error = null;
       this.batchDetails = null;
-      this.cleanupPreviousDownloadState(); // This handles SSE, progress vars, status messages
+      this.cleanupPreviousDownloadState();
       this.cdRef.detectChanges();
       this.fetchBatchDetails(this.effectiveBatchAccessId);
     }
@@ -114,14 +114,13 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     const extension = filename.split('.').pop()?.toLowerCase();
     return extension === 'zip';
   }
-  
-  navigateToPreview(batchAccessId: string, filename: string): void {
+
+  navigateToPreview(batchAccessId: string | null, filename: string): void { // Made batchAccessId nullable to match effectiveBatchAccessId
     if (!batchAccessId || !filename) {
       console.error('Batch Access ID and filename are required for preview.');
+      this.setDownloadStatus('Cannot navigate to preview: Missing batch ID or filename.', 'error');
       return;
     }
-    // Navigate to the /browse route with the batch's access_id
-    // AND pass the specific filename as a query parameter
     this.router.navigate(['/preview', batchAccessId], {
       queryParams: { filename: filename }
     });
@@ -129,7 +128,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
 
 
   fetchBatchDetails(accessId: string): void {
-    // ... (fetchBatchDetails implementation remains the same as your provided code)
     if (!accessId) {
       this.error = "Access ID is missing for fetching batch details.";
       this.isLoading = false;
@@ -138,15 +136,15 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.isLoading = true;
     this.error = null;
-    const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`;
+    const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`; // Uses file_bp prefix /api/
     this.http.get<BatchDetails>(endpointUrl)
       .pipe(
         tap(details => console.log('Batch details fetched:', details)),
         catchError(err => {
           console.error('Error fetching batch details:', err);
-          this.error = `Failed to load batch details for ${accessId}: ${err.statusText || err.message || 'Server error'}`;
+          this.error = `Failed to load batch details for ${accessId}: ${err.error?.error || err.statusText || err.message || 'Server error'}`;
           if (err.status === 404) {
-            this.error = `Batch with ID ${accessId} not found (404). Please check the ID or link.`;
+            this.error = `Batch with ID ${accessId} not found. Please check the ID or link.`;
           }
           return throwError(() => err);
         })
@@ -168,14 +166,11 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.isProcessingDownload = false;
     this.downloadStatusMessage = null;
     this.downloadStatusType = 'info';
-
     this.individualProgress = {};
     this.currentDownloadingFile = null;
-
     this.downloadAllProgress = null;
     this.downloadAllProgressMessage = null;
     this.isDownloadingAll = false;
-
     this.cleanupSse();
     this.cdRef.detectChanges();
   }
@@ -183,23 +178,22 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   initiateDownloadAll(): void {
     if (!this.effectiveBatchAccessId || this.isProcessingDownload) return;
 
-    this.cleanupPreviousDownloadState(); // Clear previous state first
+    this.cleanupPreviousDownloadState();
     this.isDownloadingAll = true;
-    this.isProcessingDownload = true; // Disables buttons
-    this.downloadAllProgress = { percentage: 0 }; // Show progress bar immediately
-    this.setDownloadStatus('Initiating Download All (.zip)...', 'info'); // General status
+    this.isProcessingDownload = true;
+    this.downloadAllProgress = { percentage: 0, totalBytes: this.batchDetails?.total_size || 0 };
+    this.setDownloadStatus('Initiating Download All (.zip)...', 'info');
     this.cdRef.detectChanges();
 
-    console.log(`Download All clicked for access_id: ${this.effectiveBatchAccessId}`);
-    this.http.get<DownloadAllInitiationResponse>(`${this.API_BASE_URL}/initiate-download-all/${this.effectiveBatchAccessId}`)
+    // Assuming download_bp is registered with url_prefix='/download'
+   this.http.get<DownloadAllInitiationResponse>(`${this.API_BASE_URL}/initiate-download-all/${this.effectiveBatchAccessId}`)
       .pipe(
         catchError(err => {
           const errorMsg = err.error?.error || err.message || `HTTP error ${err.status}`;
           console.error("Error initiating Download All:", errorMsg);
           this.setDownloadStatus(`Error: ${errorMsg}`, 'error');
-          // Reset flags specific to this operation if it fails at initiation
           this.isDownloadingAll = false;
-          this.isProcessingDownload = false; // Re-enable buttons
+          this.isProcessingDownload = false;
           this.downloadAllProgress = null;
           this.cdRef.detectChanges();
           return throwError(() => new Error(errorMsg));
@@ -207,13 +201,15 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       )
       .subscribe(response => {
         if (response.sse_stream_url) {
+          // sse_stream_url from backend should be absolute or relative to API_BASE_URL
+          // If it's relative like "/download/stream-download-all/...", API_BASE_URL will make it absolute.
           const sseUrl = response.sse_stream_url.startsWith('http') ? response.sse_stream_url : `${this.API_BASE_URL}${response.sse_stream_url}`;
-          this.setupSseConnection(sseUrl); // Removed isDownloadAll param
+          this.setupSseConnection(sseUrl);
         } else {
-          const errorMsg = response.error || "Invalid response from initiation endpoint.";
+          const errorMsg = response.error || "Invalid response from Download All initiation endpoint.";
           this.setDownloadStatus(`Error: ${errorMsg}`, 'error');
           this.isDownloadingAll = false;
-          this.isProcessingDownload = false; // Re-enable buttons
+          this.isProcessingDownload = false;
           this.downloadAllProgress = null;
           this.cdRef.detectChanges();
         }
@@ -223,48 +219,41 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   initiateIndividualDownload(file: FileInBatchInfo): void {
     if (!this.effectiveBatchAccessId || !file.original_filename || this.isProcessingDownload) return;
 
-    this.cleanupPreviousDownloadState(); // Clear previous state first
+    this.cleanupPreviousDownloadState();
     this.currentDownloadingFile = file.original_filename;
-    this.isProcessingDownload = true; // Disables buttons
+    this.isProcessingDownload = true;
 
-    // Initialize progress with more details from the start
     const initialProgressPayload: SseProgressPayload = {
       percentage: 0,
-      bytesSent: 0, // Or bytesProcessed: 0, initialize as 0
-      totalBytes: file.original_size, // Use the known file size from the FileInBatchInfo
-      speedMBps: 0, // Initialize speed to 0
-      etaFormatted: "Estimating...", // Initial placeholder for ETA
-      // etaSeconds can remain undefined or be set to a placeholder if needed
+      bytesSent: 0,
+      totalBytes: file.original_size,
+      speedMBps: 0,
+      etaFormatted: "Estimating...",
     };
     this.individualProgress[file.original_filename] = initialProgressPayload;
-
-    // No need to set a general status message here if the progress bar itself will show info
-    // this.setDownloadStatus(`Initiating download for ${file.original_filename}...`, 'info');
-    this.cdRef.detectChanges(); // Crucial to update the UI with these initial values
+    this.cdRef.detectChanges();
 
     const encodedFilename = encodeURIComponent(file.original_filename);
-    // The SSE URL for individual download in your code is for /download-single/ which is fine.
-    // If it were /initiate-download-single/ that returned an SSE URL, that would be similar to downloadAll.
-    // Assuming /download-single/ directly IS the SSE stream URL.
+    // --- THIS IS THE KEY FIX ---
+    // Assuming download_bp is registered with url_prefix='/download' on the backend
     const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
+    // --- END OF KEY FIX ---
+
+    console.log(`Connecting to SSE for individual file: ${sseUrl}`);
     this.setupSseConnection(sseUrl);
   }
 
-  private setupSseConnection(streamUrl: string): void { // Removed isDownloadAll parameter
-    // cleanupSse is called by cleanupPreviousDownloadState, so not strictly needed here
-    // if called before, but as a safeguard:
+  private setupSseConnection(streamUrl: string): void {
     if (this.currentSse) {
       this.currentSse.close();
     }
-
-    // isProcessingDownload and initial status message set by caller
     this.cdRef.detectChanges();
 
     console.log(`Connecting to SSE: ${streamUrl}`);
-    this.currentSse = new EventSource(streamUrl);
+    this.currentSse = new EventSource(streamUrl); // Removed withCredentials for now, add if needed & CORS configured
 
     this.currentSse.onopen = () => this.zone.run(() => {
-      console.log("SSE connection opened.");
+      console.log("SSE connection opened to:", streamUrl);
       this.setDownloadStatus('Connection established. Preparing file...', 'info');
     });
 
@@ -274,45 +263,37 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         const data: SseStatusPayload = JSON.parse(event.data);
         const message = data.message || 'Processing...';
         if (this.isDownloadingAll && this.downloadAllProgress) {
-          this.downloadAllProgressMessage = message; // Show status as part of progress details
-        } else {
+          this.downloadAllProgressMessage = message;
+        } else if (this.currentDownloadingFile) { // Only set general status if not for 'Download All'
           this.setDownloadStatus(message, 'info');
         }
-      } catch (e) { this.setDownloadStatus(event.data, 'info'); }
+      } catch (e) {
+        if (this.isDownloadingAll) this.downloadAllProgressMessage = event.data;
+        else this.setDownloadStatus(event.data, 'info');
+      }
       this.cdRef.detectChanges();
     }));
 
     this.currentSse.addEventListener('progress', (event: MessageEvent) => this.zone.run(() => {
       try {
         const rawData = JSON.parse(event.data);
-        // Ensure numbers are parsed correctly, provide defaults for undefined
         const progressData: SseProgressPayload = {
           percentage: Number(rawData.percentage) || 0,
           bytesSent: rawData.bytesSent !== undefined ? Number(rawData.bytesSent) : undefined,
           bytesProcessed: rawData.bytesProcessed !== undefined ? Number(rawData.bytesProcessed) : undefined,
-          totalBytes: rawData.totalBytes !== undefined ? Number(rawData.totalBytes) : undefined,
+          totalBytes: rawData.totalBytes !== undefined ? Number(rawData.totalBytes) : (this.isDownloadingAll ? this.downloadAllProgress?.totalBytes : (this.currentDownloadingFile ? this.individualProgress[this.currentDownloadingFile]?.totalBytes : undefined)),
           speedMBps: rawData.speedMBps !== undefined ? Number(rawData.speedMBps) : undefined,
-          etaFormatted: rawData.etaFormatted || this.formatTime(NaN), // Use existing formatTime
+          etaFormatted: rawData.etaFormatted || this.formatTime(NaN),
           etaSeconds: rawData.etaSeconds !== undefined ? Number(rawData.etaSeconds) : undefined,
         };
 
-        // console.log("SSE 'progress' data (parsed):", progressData);
-
         if (this.isDownloadingAll) {
           this.downloadAllProgress = progressData;
-          if (progressData.percentage < 100) {
-            // Optional: Update general status or let progress bar convey it
-            // this.setDownloadStatus(`Overall process: ${progressData.percentage.toFixed(0)}%`, 'info');
-          }
         } else if (this.currentDownloadingFile && this.individualProgress.hasOwnProperty(this.currentDownloadingFile)) {
           this.individualProgress[this.currentDownloadingFile] = progressData;
-          if (progressData.percentage < 100) {
-            // this.setDownloadStatus(`Preparing ${this.currentDownloadingFile}: ${progressData.percentage.toFixed(0)}%`, 'info');
-          }
         }
-        // Hide general status message if a progress bar is active to avoid overlap
         if ((this.isDownloadingAll && this.downloadAllProgress) || this.currentDownloadingFile) {
-          this.downloadStatusMessage = null;
+          this.downloadStatusMessage = null; // Let progress bar show status
         }
         this.cdRef.detectChanges();
       } catch (e) {
@@ -324,54 +305,56 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       console.log("SSE 'ready':", event.data);
       try {
         const sseData: SseReadyPayload = JSON.parse(event.data);
-        if (!sseData.temp_file_id || !sseData.final_filename) throw new Error("Missing temp_file_id or final_filename");
+        if (!sseData.temp_file_id || !sseData.final_filename) throw new Error("Missing temp_file_id or final_filename from 'ready' event");
 
-        // Mark progress as 100%
         if (this.isDownloadingAll && this.downloadAllProgress) {
           this.downloadAllProgress = { ...this.downloadAllProgress, percentage: 100 };
+          this.downloadAllProgressMessage = "Zip file ready!";
         } else if (this.currentDownloadingFile && this.individualProgress[this.currentDownloadingFile]) {
           this.individualProgress[this.currentDownloadingFile] = {
             ...(this.individualProgress[this.currentDownloadingFile] as SseProgressPayload), percentage: 100
           };
         }
-        this.cdRef.detectChanges(); // Show 100%
+        this.cdRef.detectChanges();
 
-        const finalDownloadUrl = `${this.API_BASE_URL}/serve-temp-file/${sseData.temp_file_id}/${encodeURIComponent(sseData.final_filename)}`;
-        this.setDownloadStatus(`Download ready: ${sseData.final_filename}. Starting download...`, 'success');
-        console.log(`Preparation complete. Triggering download: ${finalDownloadUrl}`);
-
-        window.location.href = finalDownloadUrl;
+        const finalDownloadUrl = `${this.API_BASE_URL}/download/serve-temp-file/${sseData.temp_file_id}/${encodeURIComponent(sseData.final_filename)}`;
+        this.setDownloadStatus(`Download ready: ${sseData.final_filename}. Starting...`, 'success');
+        console.log(`Triggering file download from: ${finalDownloadUrl}`);
+        window.location.href = finalDownloadUrl; // Triggers browser download
 
         setTimeout(() => {
-          this.cleanupPreviousDownloadState(); // Full reset for next operation
-        }, 5000); // User sees success msg and 100% for a bit
+          this.cleanupPreviousDownloadState();
+        }, 5000);
       } catch (e: any) {
         console.error("Error processing 'ready' event:", e);
         this.setDownloadStatus(`Error finalizing download: ${e.message || 'Unknown error'}`, 'error');
-        this.cleanupPreviousDownloadState(); // Reset on error too
+        this.cleanupPreviousDownloadState();
       }
     }));
 
     this.currentSse.addEventListener('error', (event: MessageEvent | Event) => this.zone.run(() => {
-      console.error("SSE 'error' event data:", (event as MessageEvent).data || event);
+      const eventData = (event as MessageEvent).data;
+      console.error("SSE 'error' event data:", eventData || event);
       let errorMsg = 'An error occurred during file preparation stream.';
-      if ((event as MessageEvent).data) {
-        try { errorMsg = `Error: ${JSON.parse((event as MessageEvent).data).message || 'Unknown server error.'}`; }
-        catch (e) { errorMsg = `Error: ${(event as MessageEvent).data || 'Server stream error.'}`; }
+      if (eventData) {
+        try { errorMsg = `Error: ${JSON.parse(eventData).message || 'Unknown server error.'}`; }
+        catch (e) { errorMsg = `Error: ${eventData || 'Server stream error.'}`; }
       }
       this.setDownloadStatus(errorMsg, 'error');
-      this.cleanupPreviousDownloadState(); // Reset
+      this.cleanupPreviousDownloadState();
     }));
 
     this.currentSse.onerror = (err: Event) => this.zone.run(() => {
-      if (this.currentSse) {
-        if (this.isProcessingDownload) { // If we were expecting more data
-          console.error("SSE EventSource connection error:", err);
+      if (this.currentSse && this.currentSse.readyState !== EventSource.CLOSED) { // Check if it's not an intentional close
+        if (this.isProcessingDownload) {
+          console.error("SSE EventSource connection error (onerror):", err, "URL:", streamUrl);
           this.setDownloadStatus('Connection lost or server error during file preparation.', 'error');
         } else {
-          console.log("SSE EventSource error after processing seemed complete or was manually closed:", err);
+          console.log("SSE EventSource error (onerror) after processing or manual close:", err);
         }
-        this.cleanupPreviousDownloadState(); // Reset
+        this.cleanupPreviousDownloadState();
+      } else {
+        console.log("SSE EventSource (onerror) but readyState is CLOSED. Likely manual close.");
       }
     });
   }
@@ -385,19 +368,12 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private setDownloadStatus(message: string | null, type: 'info' | 'error' | 'success'): void {
-    // Only show general status if no specific progress bar is active, or it's a final success/error
-    if (message && ((this.isDownloadingAll && this.downloadAllProgress) || this.currentDownloadingFile) && type === 'info' && message.startsWith('Preparing')) {
-      // Let progress bar convey detailed info, maybe keep a simpler general message or none
-      // this.downloadStatusMessage = null; // Example: clear general message
-    } else {
-      this.downloadStatusMessage = message;
-    }
+    this.downloadStatusMessage = message;
     this.downloadStatusType = type;
     this.cdRef.detectChanges();
   }
 
   formatTime(seconds: number | undefined): string {
-    // ... (formatTime implementation remains the same)
     if (seconds === undefined || isNaN(seconds) || seconds < 0 || !isFinite(seconds)) return "--:--";
     seconds = Math.round(seconds);
     const hours = Math.floor(seconds / 3600);
@@ -408,7 +384,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   formatUploadDate(timestamp: string | Date | undefined): string {
-    // ... (formatUploadDate implementation remains the same)
     if (!timestamp) return 'N/A';
     try {
       return this.datePipe.transform(timestamp, 'yyyy-MM-dd HH:mm') || 'Invalid Date';
@@ -418,81 +393,34 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   }
   getFileIconClass(filename: string): string {
     if (!filename) {
-      return 'fa fa-file-o'; // Default icon if no filename
+      return 'fa fa-file-o';
     }
-
     const extension = filename.split('.').pop()?.toLowerCase();
-    let iconClass = 'fa fa-file-o'; // Default file icon
+    let iconClass = 'fa fa-file-o';
 
     switch (extension) {
-      case 'zip':
-      case 'rar':
-      case '7z':
-      case 'tar':
-      case 'gz':
-        iconClass = 'fa fa-file-archive-o'; // Archive icon (like in screenshot 2)
+      case 'zip': case 'rar': case '7z': case 'tar': case 'gz':
+        iconClass = 'fa fa-file-archive-o';
         break;
-      case 'pdf':
-        iconClass = 'fa fa-file-pdf-o';
-        break;
-      case 'doc':
-      case 'docx':
-        iconClass = 'fa fa-file-word-o';
-        break;
-      case 'xls':
-      case 'xlsx':
-        iconClass = 'fa fa-file-excel-o';
-        break;
-      case 'ppt':
-      case 'pptx':
-        iconClass = 'fa fa-file-powerpoint-o';
-        break;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'bmp':
-      case 'svg':
-      case 'webp': // Added webp
-        iconClass = 'fa fa-file-image-o';
-        break;
-      case 'mp3':
-      case 'wav':
-      case 'ogg':
-      case 'aac':
-        iconClass = 'fa fa-file-audio-o';
-        break;
-      case 'mp4':
-      case 'mov':
-      case 'avi':
-      case 'mkv':
-      case 'wmv':
-        iconClass = 'fa fa-file-video-o';
-        break;
-      case 'txt':
-        iconClass = 'fa fa-file-text-o';
-        break;
-      case 'js':
-      case 'ts':
-      case 'html':
-      case 'css':
-      case 'scss':
-      case 'json':
-      case 'xml':
-      case 'py':
-      case 'java':
-      case 'c':
-      case 'cpp':
-        iconClass = 'fa fa-file-code-o';
-        break;
-      // Add more cases as needed
+      case 'pdf': iconClass = 'fa fa-file-pdf-o'; break;
+      case 'doc': case 'docx': iconClass = 'fa fa-file-word-o'; break;
+      case 'xls': case 'xlsx': iconClass = 'fa fa-file-excel-o'; break;
+      case 'ppt': case 'pptx': iconClass = 'fa fa-file-powerpoint-o'; break;
+      case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'svg': case 'webp':
+        iconClass = 'fa fa-file-image-o'; break;
+      case 'mp3': case 'wav': case 'ogg': case 'aac': case 'flac':
+        iconClass = 'fa fa-file-audio-o'; break;
+      case 'mp4': case 'mov': case 'avi': case 'mkv': case 'wmv':
+        iconClass = 'fa fa-file-video-o'; break;
+      case 'txt': iconClass = 'fa fa-file-text-o'; break;
+      case 'js': case 'ts': case 'html': case 'css': case 'scss': case 'json': case 'xml': case 'py': case 'java': case 'c': case 'cpp':
+        iconClass = 'fa fa-file-code-o'; break;
     }
-
-    return iconClass; // Return the determined class (e.g., 'fa fa-file-archive-o')
+    return iconClass;
   }
 
   ngOnDestroy(): void {
-    this.cleanupPreviousDownloadState(); // Ensures SSE is closed and state is clean
+    this.cleanupPreviousDownloadState();
     this.routeSubscription?.unsubscribe();
   }
 }

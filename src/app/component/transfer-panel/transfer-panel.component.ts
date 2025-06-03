@@ -39,12 +39,14 @@ export class TransferPanelComponent implements OnDestroy {
 
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
-  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // Used for pre-upload removal or clear all
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
-  @Output() cancelUpload = new EventEmitter<void>();
-  @Output() newTransferRequested = new EventEmitter<void>(); 
-   @Input() generalUploadStatusMessage: string = ''; 
+  @Output() cancelUpload = new EventEmitter<void>(); // For cancelling the entire batch upload
+  @Output() newTransferRequested = new EventEmitter<void>();
+  @Output() itemUploadCancellationRequested = new EventEmitter<SelectedItem>(); // **** NEW EVENT ****
+
+  @Input() generalUploadStatusMessage: string = '';
 
   tooltips: TooltipMessage[] = [];
   private nextTooltipId: number = 0;
@@ -67,14 +69,26 @@ export class TransferPanelComponent implements OnDestroy {
 
   clearAllItems(): void {
     if (!this.isUploading) {
-      this.itemRemoved.emit(undefined);
+      this.itemRemoved.emit(undefined); // Signals to clear all pre-upload items
     }
   }
 
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
-    if (!this.isUploading) {
+    if (!this.isUploading) { // This is for removing an item *before* upload starts
       this.itemRemoved.emit(item);
+    }
+  }
+
+  // **** NEW METHOD for individual item upload cancellation ****
+  requestIndividualItemUploadCancellation(item: SelectedItem, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.isUploading) { // Only if an upload is in progress
+      this.itemUploadCancellationRequested.emit(item);
+      // The parent component will be responsible for:
+      // 1. Aborting the specific file's upload.
+      // 2. Removing it from the `items` list.
+      // 3. Updating progress, ETA, etc.
     }
   }
 
@@ -91,19 +105,18 @@ export class TransferPanelComponent implements OnDestroy {
     }
   }
 
+  // This method remains for cancelling the *entire* batch upload
   handleCancelUpload(): void {
     if (this.isUploading) {
       this.cancelUpload.emit();
     }
   }
 
-  // **** NEW METHOD ****
   initiateNewTransfer(): void {
     this.newTransferRequested.emit();
   }
 
   copyLink(link: string | null | undefined, event: MouseEvent): void {
-    // ... (copyLink method remains the same)
     if (event) {
       event.preventDefault();
       event.stopPropagation();
