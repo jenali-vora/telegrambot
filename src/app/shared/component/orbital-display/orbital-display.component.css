@@ -30,6 +30,8 @@
     --animated-dash-gap: 10px;
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
     --component-circumference-val: 326.725;
+    --primary-green: #258c4e;
+    --water-color: var(--primary-green);
 }
 
 
@@ -421,6 +423,57 @@
     align-items: center;
     justify-content: center;
     margin: 20px auto;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.water-animation-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    /* Behind SVG and text */
+}
+
+.water-animation-layer::before {
+    content: "";
+    position: absolute;
+    /* Make it larger than the container (180px) for wave effect */
+    width: 360px;
+    /* e.g., 200% of 180px */
+    height: 360px;
+    /* e.g., 200% of 180px */
+    background: var(--water-color);
+    /* Use the defined water color */
+    left: 50%;
+
+    /* 
+       Dynamic 'top' positioning based on progress:
+       Container height (H_c) = 180px.
+       Initial top (0% progress) = H_c = 180px.
+       Final top (100% progress) = H_c * -0.25 = -45px.
+       Total travel distance = 180px - (-45px) = 225px.
+       top = Initial_top - (progress_percentage * total_travel_distance)
+    */
+    top: calc(180px - (var(--upload-progress-percent, 0) * 0.01 * 225px));
+
+    border-radius: 40%;
+    /* Adjust for desired wave shape, e.g., 42% 38% 40% 39% for asymmetry */
+    animation: water-fill-animation 5s linear infinite;
+    /* Renamed animation */
+    /* transform: translateX(-50%) is handled by the animation keyframes */
+}
+
+@keyframes water-fill-animation {
+    from {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
 }
 
 .circular-progress-svg-new {
@@ -428,6 +481,8 @@
     height: 100%;
     transform: rotate(-90deg);
     overflow: visible;
+    position: relative;
+    z-index: 2;
 }
 
 .circular-progress-background-new,
@@ -471,6 +526,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 3;
 }
 
 /* progres-bar css end */
