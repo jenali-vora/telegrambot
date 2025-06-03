@@ -24,8 +24,8 @@
                 title="Remove selection" (click)="clearAllItems()">
                 <i class="fas fa-trash-alt"></i>
             </button>
-            <!-- Cancel Upload button: Show if uploading -->
-            <button *ngIf="isUploading" class="btn icon-btn btn-cancel-upload" title="Cancel Upload"
+            <!-- Cancel ENTIRE Upload button: Show if uploading -->
+            <button *ngIf="isUploading" class="btn icon-btn btn-cancel-upload" title="Cancel entire upload"
                 (click)="handleCancelUpload()">
                 <i class="fas fa-times-circle"></i>
             </button>
@@ -49,15 +49,26 @@
                             </div>
                         </div>
                     </div>
-                    <div *ngIf="!isUploading && !batchShareableLink" class="item-size">{{ item.size | byteFormat }}
+                    <!-- Item size shown when NOT uploading -->
+                    <div *ngIf="!isUploading && !batchShareableLink" class="item-size">
+                        {{ item.size | byteFormat }}
                     </div>
+                    <!-- Item actions (download/remove PRE-UPLOAD) shown when NOT uploading -->
                     <div class="item-actions" *ngIf="!isUploading && !batchShareableLink">
                         <button class="btn icon-btn btn-download-item" title="Download this item (Local)"
                             (click)="requestItemDownload(item, $event)">
                             <i class="fas fa-download"></i>
                         </button>
                         <button class="btn icon-btn btn-remove-item" title="Remove this item"
-                            (click)="requestItemRemoval(item, $event)">
+                            (click)="requestItemRemoval(item, $event)"> <!-- This removes item before upload starts -->
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <!-- Cancel button for INDIVIDUAL item DURING upload -->
+                    <div class="item-actions-uploading" *ngIf="isUploading && !batchShareableLink">
+                        <button class="btn icon-btn btn-cancel-item-upload" title="Cancel upload for this item"
+                            (click)="requestIndividualItemUploadCancellation(item, $event)">
+                            <!-- **** CHANGED CLICK HANDLER & TITLE **** -->
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
@@ -70,7 +81,7 @@
         </div>
     </div>
 
-    <!-- Actions after upload is complete (Shareable Link & New Transfer) -->
+    <!-- ... (rest of the HTML remains the same) ... -->
     <div *ngIf="batchShareableLink" class="completed-transfer-actions">
         <div class="share-link-display">
             <label>Your download link:</label>
@@ -94,15 +105,11 @@
         </div>
     </div>
 
-    <!-- Upload Button Area: Show if items exist AND no shareable link is present -->
-    <!-- The button text and disabled state will change based on isUploading -->
     <div class="panel-actions-upload" *ngIf="items.length > 0 && !batchShareableLink">
         <button class="btn btn-primary btn-upload-tg" (click)="startTransfer()" [disabled]="isUploading">
             <i class="fas fa-spinner fa-spin" *ngIf="isUploading"></i>
-            <!-- <i class="fab fa-telegram-plane" *ngIf="!isUploading"></i> -->
             {{ isUploading ? 'Uploading...' : 'Upload' }}
         </button>
-        <!-- General status message during upload, shown below the main upload button -->
         <div *ngIf="isUploading && generalUploadStatusMessage" class="upload-status-message-general">
             {{ generalUploadStatusMessage }}
         </div>

@@ -42,9 +42,7 @@
         </div>
 
         <!-- New Circular SVG Progress UI (shown when items exist AND uploading AND no link yet) -->
-        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new"
-            [style.--upload-progress-percent]="uploadProgressPercentage">
-            <div class="water-animation-layer"></div>
+        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new">
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
                 <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
