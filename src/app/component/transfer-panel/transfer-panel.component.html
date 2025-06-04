@@ -64,14 +64,7 @@
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
-                    <!-- Cancel button for INDIVIDUAL item DURING upload -->
-                    <div class="item-actions-uploading" *ngIf="isUploading && !batchShareableLink">
-                        <button class="btn icon-btn btn-cancel-item-upload" title="Cancel upload for this item"
-                            (click)="requestIndividualItemUploadCancellation(item, $event)">
-                            <!-- **** CHANGED CLICK HANDLER & TITLE **** -->
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
+
                 </li>
                 }
                 @empty {

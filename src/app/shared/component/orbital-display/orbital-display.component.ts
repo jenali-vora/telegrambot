@@ -28,6 +28,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
   @Output() requestFileUpload = new EventEmitter<void>();
   @Output() requestAddFilesFromPanel = new EventEmitter<void>();
   @Output() requestAddFolderFromPanel = new EventEmitter<void>();
+  @Output() requestFolderUpload = new EventEmitter<void>();
   @Output() itemRemovedFromPanel = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequestedFromPanel = new EventEmitter<SelectedItem>();
   @Output() transferInitiatedFromPanel = new EventEmitter<void>();
@@ -157,7 +158,12 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
     d += ` Z`;
     return d;
   }
-
+  onSelectFolderClick(event: MouseEvent): void {
+    event.stopPropagation(); // Prevent onCentralButtonClick if this is nested within its clickable area
+    if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
+      this.requestFolderUpload.emit();
+    }
+  }
   onNewTransferPanel(): void { this.newTransferFromPanel.emit(); }
   onCentralButtonClick(): void {
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {

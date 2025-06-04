@@ -61,6 +61,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly genericUploadMessage = "Your files are being uploaded, wait a few moment.";
   private gdriveEventSource: EventSource | null = null;
   private telegramEventSource: EventSource | null = null;
+  private anonymousFolderUploadsCount = 0; // New property for folder selection count
+  private readonly MAX_ANONYMOUS_FOLDER_UPLOADS = 5;
 
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('folderInputForStart') folderInputRef!: ElementRef<HTMLInputElement>;
@@ -136,12 +138,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         const wasLoggedIn = !!this.currentUser;
         this.currentUser = user;
         this.username = this.currentUser?.username || this.currentUser?.email || '';
-
+        const isLoggingIn = !!user && !wasLoggedIn;
         const isLoggingOut = !user && wasLoggedIn;
         const isSwitchingUser = !!user && wasLoggedIn && this.currentUser && user.email !== this.currentUser.email;
 
         if (isLoggingOut || isSwitchingUser) {
           this.resetUploadState();
+        } else if (isLoggingIn) {
+          // User just logged in, ensure anonymous-specific limits/counts are cleared
+          this.anonymousFolderUploadsCount = 0;
+          this.anonymousUploadLimitMessage = null;
         }
 
         if (this.currentUser && this.username) {
@@ -181,6 +187,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.nextItemId = 0;
     this.batchUploadLinks = [];
     this.anonymousUploadLimitMessage = null;
+    this.anonymousFolderUploadsCount = 0;
     // this.isDraggingOverWindow = false;
     this.isGamePanelVisible = false;
     this.updatePlayGamesButtonVisibility();
@@ -330,50 +337,70 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.nextItemId = 0;
       this.shareableLinkForPanel = null;
       this.batchUploadLinks = [];
+      this.anonymousFolderUploadsCount = 0;
     }
     this.uploadError = null; // Clear previous error
     this.uploadSuccessMessage = null;
+    this.anonymousUploadLimitMessage = null;
 
-    if (!fileList || fileList.length === 0) return;
 
-    let MAX_TOTAL_FILES: number;
+    if (!fileList || fileList.length === 0) {
+      // If it was a folder selection that resulted in no files (e.g., empty folder selected)
+      // still count it against the anonymous limit if applicable.
+      if (isFolderSelection && !this.authService.isLoggedIn()) {
+        if (this.anonymousFolderUploadsCount < this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+          this.anonymousFolderUploadsCount++;
+          console.log(`Anonymous folder selection count incremented to (empty folder): ${this.anonymousFolderUploadsCount}`);
+          if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+            this.anonymousUploadLimitMessage = `You have reached the limit of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder selections for anonymous users. To add more folders, please log in.`;
+          }
+        } else {
+          this.uploadError = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders. Please login to upload more than 5 files.`;
+        }
+        if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
+        this.cdRef.detectChanges();
+      }
+      return;
+    }
+
     const isLoggedIn = this.authService.isLoggedIn();
 
+    // Folder selection specific limit for anonymous users (check before processing files)
+    if (isFolderSelection && !isLoggedIn) {
+      if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+        this.uploadError = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders. Please log in to upload more than 5 Folder.`;
+        if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
+        this.cdRef.detectChanges();
+        return;
+      }
+    }
+
+    let MAX_TOTAL_FILES_OR_ITEMS_LIMIT: number;
     if (isLoggedIn) {
-      MAX_TOTAL_FILES = Infinity;
+      MAX_TOTAL_FILES_OR_ITEMS_LIMIT = Infinity;
     } else {
-      MAX_TOTAL_FILES = 5; // Anonymous user limit
+      MAX_TOTAL_FILES_OR_ITEMS_LIMIT = 5; // Existing limit for total items for anonymous users
     }
-    console.log(`User is ${isLoggedIn ? 'logged in' : 'anonymous'}. MAX_TOTAL_FILES set to: ${MAX_TOTAL_FILES}`);
+    console.log(`User is ${isLoggedIn ? 'logged in' : 'anonymous'}. Max items limit: ${MAX_TOTAL_FILES_OR_ITEMS_LIMIT}. Anonymous folder selections made so far (before this batch): ${this.anonymousFolderUploadsCount}`);
 
-    const currentCount = this.selectedItems.length;
-    let slotsActuallyAvailable = MAX_TOTAL_FILES - currentCount;
-
-    if (!isFinite(MAX_TOTAL_FILES)) { // If logged in
-      slotsActuallyAvailable = Infinity;
-    }
-
-    // Check if anonymous user is already at the limit and trying to add more
-    if (!isLoggedIn && currentCount >= MAX_TOTAL_FILES && fileList.length > 0) {
-      this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
+    const currentItemCount = this.selectedItems.length;
+    if (!isLoggedIn && currentItemCount >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT && fileList.length > 0) {
+      this.uploadError = `As you are not logged in, you can add a maximum of ${MAX_TOTAL_FILES_OR_ITEMS_LIMIT} files. Please login to upload more than 5 files.`;
       if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
       if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
       this.cdRef.detectChanges();
       return;
     }
 
-
     const newItems: SelectedItem[] = [];
     let filesAddedInThisOperation = 0;
 
     for (let i = 0; i < fileList.length; i++) {
-      if (!isLoggedIn && (currentCount + filesAddedInThisOperation >= MAX_TOTAL_FILES)) {
-        // Stop adding if limit for anonymous user is reached during this operation
+      if (!isLoggedIn && (currentItemCount + filesAddedInThisOperation >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT)) {
         break;
       }
 
       const file = fileList[i];
-
       let itemName = file.name;
       if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) {
         itemName = file.webkitRelativePath;
@@ -388,14 +415,18 @@ export class HomeComponent implements OnInit, OnDestroy {
         continue;
       }
 
+      // For files from folder selection, they are individual files, so isFolder should be false.
+      // isFolder true would be for a conceptual "folder item" if we were adding folder entities, not their contents.
+      const isActualFolderEntry = (isFolderSelection && !file.type && file.size === 0 && file.webkitRelativePath.endsWith(file.name)) || (itemName.endsWith('/'));
+
+
       newItems.push({
         id: this.nextItemId++,
         file: file,
         name: itemName,
         size: file.size,
         icon: this.getFileIcon(itemName),
-        isFolder: (isFolderSelection && file.webkitRelativePath && file.webkitRelativePath === file.name && !file.type && file.size === 0)
-          || (isFolderSelection && itemName.endsWith('/'))
+        isFolder: isActualFolderEntry
       });
       filesAddedInThisOperation++;
     }
@@ -405,12 +436,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
     }
 
-    // Set error message if not all files from the input could be added due to limits (for anonymous users)
-    // This condition applies if the loop was broken because the limit was hit.
-    if (!isLoggedIn && filesAddedInThisOperation < fileList.length) {
-      this.uploadError = "As your not logged in, you can upload maximum 5 files, Please login to upload more than 5 files.";
+    // Increment folder selection count for anonymous users if this was a folder selection action
+    // and it passed the initial check (i.e., anonymousFolderUploadsCount was < MAX_ANONYMOUS_FOLDER_UPLOADS)
+    if (isFolderSelection && !isLoggedIn) {
+      this.anonymousFolderUploadsCount++;
+      console.log(`Anonymous folder selection count incremented to: ${this.anonymousFolderUploadsCount}`);
+      if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+        this.anonymousUploadLimitMessage = `You have reached the limit of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder selections for anonymous users. To add more folders, please log in.`;
+      }
     }
 
+    if (!isLoggedIn && filesAddedInThisOperation < fileList.length && (currentItemCount + filesAddedInThisOperation >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT)) {
+      this.uploadError = `As you are not logged in, you can add a maximum of ${MAX_TOTAL_FILES_OR_ITEMS_LIMIT} files. Please login to upload more than 5 files.`;
+    }
 
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
     if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
@@ -418,7 +456,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.cdRef.detectChanges();
     this.updatePlayGamesButtonVisibility();
   }
-
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -547,13 +584,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // Construct the user-facing link to the view page
         if (data.is_batch) {
-           this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
+          this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
         } else {
           // Assuming you have a single file view page like /file-view/:accessId
           // Or if single files also use batch-view, adjust accordingly.
           // For now, let's assume single files might also go to a specific view or a generic get page.
           // If single files should also show in a "batch-view" like display:
-           this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
+          this.shareableLinkForPanel = `${frontendBaseUrl}${viewPageRoute}${data.access_id}`;
           // Or, if you have a dedicated single file preview/download page triggered by access_id:
           // this.shareableLinkForPanel = `${frontendBaseUrl}/file-preview/${data.access_id}`; 
         }

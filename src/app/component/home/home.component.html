@@ -17,15 +17,16 @@
                 <div *ngIf="uploadSuccessMessage" class="upload-success-toast global-upload-success">
                     {{ uploadSuccessMessage }}
                 </div>
-                 <div *ngIf="anonymousUploadLimitMessage" class="global-info-toast">
+                <div *ngIf="anonymousUploadLimitMessage" class="global-info-toast">
                     {{ anonymousUploadLimitMessage }}
                 </div>
                 <div class="col-12 drop-item" appScrollAnimation="slide-in-right" [animationThreshold]="0.01"
                     animationDelay="0.2s">
-    
+
                     <div class="upload-interaction-area">
                         <div>
-                            <app-orbital-display (requestFileUpload)="triggerFileInput()" [items]="selectedItems"
+                            <app-orbital-display (requestFileUpload)="triggerFileInput()"
+                                (requestFolderUpload)="triggerFolderInput()" [items]="selectedItems"
                                 [isUploading]="isUploading" [batchShareableLink]="shareableLinkForPanel"
                                 [uploadProgressPercentage]="uploadProgressDetails.percentage"
                                 [bytesSent]="uploadProgressDetails.bytesSent"
