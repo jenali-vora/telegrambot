@@ -525,4 +525,16 @@
     /* The 'd' attribute changes, creating the fill effect. No CSS animation needed for shape. */
 }
 
+.dashed-circle-inner .content-wrapper p.clickable-text.select-folder-option {
+    cursor: pointer;
+    color: var(--button-color);
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.dashed-circle-inner .content-wrapper p.clickable-text.select-folder-option:hover {
+    text-decoration: underline;
+}
+
 /* progres-bar css end */

@@ -80,18 +80,6 @@ export class TransferPanelComponent implements OnDestroy {
     }
   }
 
-  // **** NEW METHOD for individual item upload cancellation ****
-  requestIndividualItemUploadCancellation(item: SelectedItem, event: MouseEvent): void {
-    event.stopPropagation();
-    if (this.isUploading) { // Only if an upload is in progress
-      this.itemUploadCancellationRequested.emit(item);
-      // The parent component will be responsible for:
-      // 1. Aborting the specific file's upload.
-      // 2. Removing it from the `items` list.
-      // 3. Updating progress, ETA, etc.
-    }
-  }
-
   requestItemDownload(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
     if (!this.isUploading && item.file) {
