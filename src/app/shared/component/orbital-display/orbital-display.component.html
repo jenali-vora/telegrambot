@@ -41,18 +41,42 @@
             </div>
         </div>
 
-        <!-- New Circular SVG Progress UI (shown when items exist AND uploading AND no link yet) -->
-        <div *ngIf="isUploading && items.length > 0 && !batchShareableLink" class="circular-progress-wrapper-new">
+        <!-- New Circular SVG Progress UI -->
+        <div *ngIf="(isUploading || isUploadComplete) && items.length > 0 && !batchShareableLink"
+            class="circular-progress-wrapper-new" [class.progress-initial-state]="isAtZeroProgressAndUploading"
+            [class.progress-active-state]="uploadProgressPercentage > 0 && !isUploadComplete && !isAtZeroProgressAndUploading"
+            [class.progress-complete-state]="isUploadComplete">
+
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
+                <defs>
+                    <clipPath id="waterClipPath">
+                        <circle [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
+                            [attr.r]="radius - (strokeWidth / 2)" />
+                    </clipPath>
+                </defs>
+
+                <!-- 1. Background Track (Bottom layer) -->
                 <circle class="circular-progress-background-new" [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2"
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
+
+                <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
+                <g [attr.clip-path]="'url(#waterClipPath)'"
+                    *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
+                    <path class="water-fill" [attr.d]="getWaterPathD()" />
+                </g>
+
+                <!-- 3. Progress Value Arc / Your Original Spinning Dot (Top layer for progress indication) -->
                 <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
+
             </svg>
-            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0) }}%</div>
+            <!-- Percentage Text (hidden when upload is complete) -->
+            <div *ngIf="!isUploadComplete" class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0)
+                }}%</div>
         </div>
+
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
             By uploading files you agree to the Transfer Terms & Conditions
             and <a routerLink="/privacy">Privacy Policy</a>.
