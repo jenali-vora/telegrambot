@@ -1,8 +1,7 @@
-/* :host and non-relevant keyframes remain the same */
+/* orbital-display.component.css */
 :host {
     --light-green-border: #c8e6c9;
     --darker-light-green-border: #b0d9b1;
-    /* Used for the animated dashed border */
     --link-color: var(--primary-green);
     --primary-green: #258c4e;
     --border-radius-main: 30px;
@@ -10,6 +9,7 @@
 
     --glow-green-color: rgba(0, 147, 75, 0.2);
     --glow-blue-color: rgba(0, 0, 128, 0.2);
+    /* Kept from original if used elsewhere */
     --glow-offset: 4px;
     --glow-blur: 18px;
     --glow-spread: -2px;
@@ -25,28 +25,36 @@
     --heading-color: #333;
     --text-color-secondary: #666;
     --white-color: #fff;
+    /* For checkmark */
     --animated-border-thickness: 2px;
     --animated-dash-length: 10px;
     --animated-dash-gap: 10px;
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
-    --component-circumference-val: 326.725;
+
+    /*
+       IMPORTANT: Define these to match your desired green theme for the progress bar.
+       --button-color: DARK GREEN (for spinner, active arc, active text, 100% arc).
+       --button-hover: LIGHT GREEN (for water fill, 100% water fill).
+    */
+    --button-color: #0F753C;
+    /* Example Dark Green - REPLACE WITH YOUR ACTUAL DARK GREEN */
+    --button-hover: #D4EDDA;
+    /* Example Light Green for water - REPLACE WITH YOURS */
+
+    /* Unused blue theme variables removed for clarity */
+    /* --water-color-dark-blue: #5B8DEA; */
+    /* --progress-arc-color-light-blue: #A8C5F7; */
 }
 
 
+/* ... (Keep your existing styles for .main-uplod-content, .upload-container, etc. up to .main-uplod-content>.area>.circles li:nth-child(10) ) ... */
 /* MODIFIED KEYFRAME ANIMATION FOR MARCHING ANTS (Clockwise and seamless) */
 @keyframes march {
     to {
         background-position:
-            /* Top border (initial bg-pos: 0 0): To move dashes RIGHT, shift background image LEFT */
             calc(-1 * var(--animated-cycle-length)) 0,
-
-            /* Bottom border (initial bg-pos: 0 100%): To move dashes LEFT, shift background image RIGHT */
             var(--animated-cycle-length) 100%,
-
-            /* Left border (initial bg-pos: 0 0): To move dashes UP, shift background image DOWN */
             0 var(--animated-cycle-length),
-
-            /* Right border (initial bg-pos: 100% 0): To move dashes DOWN, shift background image UP */
             100% calc(-1 * var(--animated-cycle-length));
     }
 }
@@ -61,7 +69,6 @@
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.2);
-    /* This will overlay the animation, giving it a dimmed/blurred look */
     border-radius: var(--border-radius-main);
     position: relative;
     overflow: hidden;
@@ -89,7 +96,6 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
-    /* cursor: pointer; */
 }
 
 .img img {
@@ -134,17 +140,14 @@
     bottom: 0;
     border-radius: inherit;
     box-sizing: border-box;
-
     background:
         linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
         linear-gradient(90deg, var(--darker-light-green-border) 50%, transparent 50%) 0 100% / var(--animated-cycle-length) var(--animated-border-thickness) repeat-x,
         linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 0 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y,
         linear-gradient(0deg, var(--darker-light-green-border) 50%, transparent 50%) 100% 0 / var(--animated-border-thickness) var(--animated-cycle-length) repeat-y;
-
     animation: march 0.5s linear infinite;
     z-index: 0;
 }
-
 
 .dashed-circle-inner {
     width: 100%;
@@ -159,7 +162,6 @@
     position: relative;
     z-index: 1;
 }
-
 
 .dashed-circle-inner.drag-active-highlight {
     background-color: var(--light-green-border);
@@ -176,6 +178,7 @@
 
 .plus-button {
     background-color: var(--button-color);
+    /* This will be dark green if --button-color is your dark green */
     color: var(--white-color);
     width: 50px;
     height: 50px;
@@ -184,7 +187,6 @@
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
-    /* cursor: pointer; */
     transition: background-color 0.2s ease-in-out;
     animation-name: common_shakeElem__bJOpt;
     animation-duration: 5s;
@@ -225,17 +227,14 @@
 
 .plus-button:hover {
     background-color: var(--button-hover);
+    /* This will be light green */
     color: var(--button-color);
-}
-
-.plus-button svg {
-    fill: currentColor;
+    /* Icon becomes dark green. Change to var(--white-color) to keep icon white */
 }
 
 .plus-button i {
     font-size: 24px;
 }
-
 
 .drag-drop-text {
     font-size: 16px;
@@ -259,7 +258,6 @@
     font-weight: bold;
     display: flex;
     align-items: center;
-    /* cursor: pointer; */
 }
 
 .limit-info .increase-limit-link:hover {
@@ -290,7 +288,6 @@
     z-index: 1;
 }
 
-
 @media (max-width: 480px) {
     .upload-container {
         height: auto;
@@ -302,8 +299,6 @@
     }
 }
 
-
-/* --- NEW CIRCLES ANIMATION CSS --- */
 .main-uplod-content>.area {
     position: absolute;
     top: 0;
@@ -311,7 +306,6 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-    /* Behind other content in main-uplod-content */
 }
 
 .main-uplod-content>.area>.circles {
@@ -321,6 +315,8 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .main-uplod-content>.area>.circles li {
@@ -330,11 +326,8 @@
     width: 20px;
     height: 20px;
     background: rgba(255, 255, 255, 0.2);
-    /* Light semi-transparent circles */
     animation: animate-circles 25s linear infinite;
-    /* Renamed keyframe to avoid conflict */
     bottom: -150px;
-    /* Start below the container */
 }
 
 .main-uplod-content>.area>.circles li:nth-child(1) {
@@ -412,6 +405,23 @@
     animation-duration: 11s;
 }
 
+@keyframes animate-circles {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+        border-radius: 0;
+    }
+
+    100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+        border-radius: 50%;
+    }
+}
+
+/* END OF UNCHANGED STYLES */
+
+
 /* progres-bar css start */
 .circular-progress-wrapper-new {
     width: 180px;
@@ -437,10 +447,10 @@
 
 .circular-progress-background-new {
     stroke: #E6E8FA;
+    /* Light lavender/blue track */
 }
 
 .circular-progress-value-new {
-    stroke: var(--button-color);
     stroke-linecap: round;
 }
 
@@ -448,8 +458,57 @@
     transition: stroke-dashoffset 0.2s ease-out, stroke-dasharray 0.2s ease-out;
 }
 
-.circular-progress-value-new.spinning-dot {
+.progress-percentage-text-new {
+    position: absolute;
+    font-size: 36px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* --- Initial State (0% and uploading) --- */
+.progress-initial-state .circular-progress-value-new {
+    stroke: var(--button-color);
+    /* Dark Green for spinner */
+}
+
+.progress-initial-state .circular-progress-value-new.spinning-dot {
     animation: spin-dot 1.5s linear infinite;
+}
+
+.progress-initial-state .progress-percentage-text-new {
+    color: var(--button-color);
+    /* Dark Green text */
+}
+
+/* --- Active Progress State (1-99%) --- */
+.progress-active-state .circular-progress-value-new {
+    stroke: var(--button-color);
+    /* Dark Green for arc */
+}
+
+.progress-active-state .progress-percentage-text-new {
+    color: var(--button-color);
+    /* Dark Green text */
+}
+
+.progress-active-state .water-fill {
+    fill: var(--button-hover);
+    /* Light Green for water */
+}
+
+/* --- Complete State (100%) --- */
+.progress-complete-state .circular-progress-value-new {
+    stroke: var(--button-color);
+    /* Dark Green full arc at 100% */
+    stroke-dasharray: var(--component-circumference-val, 326.725) !important;
+    stroke-dashoffset: 0 !important;
+}
+
+.progress-complete-state .water-fill {
+    fill: var(--button-hover);
+    /* Light Green full water at 100% */
 }
 
 @keyframes spin-dot {
@@ -459,34 +518,11 @@
 
     to {
         stroke-dashoffset: -326;
-        /* Use a value close to your circumference */
     }
 }
 
-.progress-percentage-text-new {
-    position: absolute;
-    font-size: 36px;
-    font-weight: bold;
-    color: var(--button-color);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.water-fill {
+    /* The 'd' attribute changes, creating the fill effect. No CSS animation needed for shape. */
 }
 
 /* progres-bar css end */
-
-@keyframes animate-circles {
-
-    /* Renamed from 'animate' to 'animate-circles' for clarity */
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-        border-radius: 0;
-    }
-
-    100% {
-        transform: translateY(-1000px) rotate(720deg);
-        opacity: 0;
-        border-radius: 50%;
-    }
-}

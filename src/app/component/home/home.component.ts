@@ -567,10 +567,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         // Success messages
         if (!this.authService.isLoggedIn()) {
-          this.anonymousUploadLimitMessage = "File ready! Link generated. Final archival in background.";
+          this.anonymousUploadLimitMessage = "Upload successful! Your files are available for 5 days. For longer storage and more features, please log in or sign up.";
           setTimeout(() => { this.anonymousUploadLimitMessage = null; this.cdRef.detectChanges(); }, 7000);
         } else {
-          this.uploadSuccessMessage = "File ready! Link generated. Final archival in background.";
+          this.uploadSuccessMessage = "Files uploaded successfully!";
           setTimeout(() => { this.uploadSuccessMessage = null; this.cdRef.detectChanges(); }, 6000);
         }
       } else {

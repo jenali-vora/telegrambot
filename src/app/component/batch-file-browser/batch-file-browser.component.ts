@@ -185,8 +185,11 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.setDownloadStatus('Initiating Download All (.zip)...', 'info');
     this.cdRef.detectChanges();
 
-    // Assuming download_bp is registered with url_prefix='/download'
-   this.http.get<DownloadAllInitiationResponse>(`${this.API_BASE_URL}/initiate-download-all/${this.effectiveBatchAccessId}`)
+    // **FIXED URL HERE**
+    const initiateUrl = `${this.API_BASE_URL}/download/initiate-download-all/${this.effectiveBatchAccessId}`;
+    console.log('Initiating Download All with URL:', initiateUrl);
+
+    this.http.get<DownloadAllInitiationResponse>(initiateUrl)
       .pipe(
         catchError(err => {
           const errorMsg = err.error?.error || err.message || `HTTP error ${err.status}`;
@@ -203,6 +206,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         if (response.sse_stream_url) {
           // sse_stream_url from backend should be absolute or relative to API_BASE_URL
           // If it's relative like "/download/stream-download-all/...", API_BASE_URL will make it absolute.
+          // The backend already provides a relative URL that should be correct with the /download prefix.
           const sseUrl = response.sse_stream_url.startsWith('http') ? response.sse_stream_url : `${this.API_BASE_URL}${response.sse_stream_url}`;
           this.setupSseConnection(sseUrl);
         } else {
@@ -234,10 +238,8 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
 
     const encodedFilename = encodeURIComponent(file.original_filename);
-    // --- THIS IS THE KEY FIX ---
-    // Assuming download_bp is registered with url_prefix='/download' on the backend
+    // The download_sse_bp is registered at the root, so no prefix needed for /download-single/
     const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
-    // --- END OF KEY FIX ---
 
     console.log(`Connecting to SSE for individual file: ${sseUrl}`);
     this.setupSseConnection(sseUrl);
@@ -317,6 +319,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         }
         this.cdRef.detectChanges();
 
+        // The serve-temp-file endpoint is also under the /download prefix
         const finalDownloadUrl = `${this.API_BASE_URL}/download/serve-temp-file/${sseData.temp_file_id}/${encodeURIComponent(sseData.final_filename)}`;
         this.setDownloadStatus(`Download ready: ${sseData.final_filename}. Starting...`, 'success');
         console.log(`Triggering file download from: ${finalDownloadUrl}`);

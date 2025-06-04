@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'; // Import OnChanges and SimpleChanges
 import { CommonModule } from '@angular/common';
 import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
 import { RouterLink } from '@angular/router';
@@ -6,11 +6,11 @@ import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-orbital-display',
   standalone: true,
-  imports: [CommonModule, TransferPanelComponent,RouterLink],
+  imports: [CommonModule, TransferPanelComponent, RouterLink],
   templateUrl: './orbital-display.component.html',
   styleUrls: ['./orbital-display.component.css']
 })
-export class OrbitalDisplayComponent implements OnInit {
+export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { // Implement OnChanges
   public isDragActiveLocal: boolean = false;
 
   @Input() centralButtonIconClass: string = 'fas fa-plus';
@@ -33,14 +33,19 @@ export class OrbitalDisplayComponent implements OnInit {
   @Output() transferInitiatedFromPanel = new EventEmitter<void>();
   @Output() cancelUploadFromPanel = new EventEmitter<void>();
   @Output() newTransferFromPanel = new EventEmitter<void>();
-  @Output() filesDroppedInArea = new EventEmitter<FileList>(); // New Output
+  @Output() filesDroppedInArea = new EventEmitter<FileList>();
 
   private dragEnterCounter = 0;
 
   readonly radius = 52;
   readonly strokeWidth = 12;
+  readonly clipRadius = this.radius - (this.strokeWidth / 2);
   readonly viewBoxSize = (this.radius + this.strokeWidth) * 2;
   readonly circumference = 2 * Math.PI * this.radius;
+
+  public waveAnimationPhase = 0;
+  private waveAnimationInterval: any;
+
 
   @HostBinding('style.--component-circumference-val')
   get hostCircumference(): number {
@@ -49,11 +54,46 @@ export class OrbitalDisplayComponent implements OnInit {
 
   constructor(private cdr: ChangeDetectorRef) { }
 
-  ngOnInit(): void { }
+  ngOnChanges(changes: SimpleChanges): void {
+    let triggerChangeDetection = false;
+    // Check if any of the critical inputs that affect display logic have changed
+    if (changes['uploadProgressPercentage'] || changes['isUploading'] || changes['batchShareableLink'] || changes['items']) {
+      triggerChangeDetection = true;
+    }
 
-  get showCircularProgressUI(): boolean {
-    return this.isUploading && this.items.length > 0 && !this.batchShareableLink;
+    if (triggerChangeDetection) {
+      // console.log('OrbitalDisplay: ngOnChanges triggered, detecting changes.', 
+      //   'isUploadComplete:', this.isUploadComplete, 
+      //   'isUploading:', this.isUploading, 
+      //   'percentage:', this.uploadProgressPercentage,
+      //   'batchLink:', this.batchShareableLink
+      // );
+      this.cdr.detectChanges(); // Manually trigger change detection to ensure UI updates
+    }
   }
+
+  ngOnInit(): void {
+    this.waveAnimationInterval = setInterval(() => {
+      // Only animate wave if actively uploading and not complete
+      if (this.isUploading && this.uploadProgressPercentage > 0 && this.uploadProgressPercentage < 100 && !this.isAtZeroProgressAndUploading && !this.isUploadComplete) {
+        this.waveAnimationPhase += 0.04;
+        if (this.waveAnimationPhase > Math.PI * 4) {
+          this.waveAnimationPhase -= Math.PI * 4;
+        }
+        this.cdr.detectChanges();
+      }
+    }, 50);
+  }
+
+  ngOnDestroy(): void {
+    if (this.waveAnimationInterval) {
+      clearInterval(this.waveAnimationInterval);
+    }
+  }
+
+  // get showCircularProgressUI(): boolean { // This getter is not used for the main *ngIf anymore
+  //   return (this.isUploading || this.isUploadComplete) && this.items.length > 0 && !this.batchShareableLink;
+  // }
 
   get showTransferPanelLogic(): boolean {
     return this.items.length > 0 || !!this.batchShareableLink;
@@ -85,86 +125,83 @@ export class OrbitalDisplayComponent implements OnInit {
     }
   }
 
-  onNewTransferPanel(): void {
-    this.newTransferFromPanel.emit();
+  get isUploadComplete(): boolean {
+    return this.uploadProgressPercentage >= 100;
   }
 
+  getWaterPathD(): string {
+    const vbCenter = this.viewBoxSize / 2;
+    const r_for_wave = this.clipRadius;
+    const padding = 5;
+
+    const waterEdgeXBase = (vbCenter - r_for_wave) + (this.uploadProgressPercentage / 100) * (2 * r_for_wave);
+    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15; // No wave when complete
+
+    const yTopBoundary_wave = vbCenter - r_for_wave;
+    const yBottomBoundary_wave = vbCenter + r_for_wave;
+
+    const xAtWaveStart = waterEdgeXBase + (waveAmplitude * Math.sin(this.waveAnimationPhase + Math.PI * 0.3));
+    const xAtWaveEnd = waterEdgeXBase + (waveAmplitude * Math.sin(this.waveAnimationPhase * 0.9 + Math.PI * 1.1));
+
+    const cp1y = vbCenter - r_for_wave * 0.5;
+    const cp1x = waterEdgeXBase + waveAmplitude * 1.2 * Math.sin(this.waveAnimationPhase * 0.7 + Math.PI * 0.6);
+    const cp2y = vbCenter + r_for_wave * 0.5;
+    const cp2x = waterEdgeXBase - waveAmplitude * 1.2 * Math.sin(this.waveAnimationPhase * 1.1 + Math.PI * 0.1);
+
+    let d = `M ${0 - padding}, ${0 - padding}`;
+    d += ` L ${xAtWaveStart}, ${0 - padding}`;
+    d += ` L ${xAtWaveStart}, ${yTopBoundary_wave}`;
+    d += ` C ${cp1x}, ${cp1y}, ${cp2x}, ${cp2y}, ${xAtWaveEnd}, ${yBottomBoundary_wave}`;
+    d += ` L ${xAtWaveEnd}, ${this.viewBoxSize + padding}`;
+    d += ` L ${0 - padding}, ${this.viewBoxSize + padding}`;
+    d += ` Z`;
+    return d;
+  }
+
+  onNewTransferPanel(): void { this.newTransferFromPanel.emit(); }
   onCentralButtonClick(): void {
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
       this.requestFileUpload.emit();
     }
   }
 
+  // ... other event handlers remain the same ...
   onDragEnterArea(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-
+    event.preventDefault(); event.stopPropagation();
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
-      this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0; 
-      return;
+      this.isDragActiveLocal = false; this.dragEnterCounter = 0; return;
     }
-
     this.dragEnterCounter++;
     if (event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items.length > 0) {
-      this.isDragActiveLocal = true;
-      event.dataTransfer.dropEffect = 'copy';
-    } else {
-      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
-    }
+      this.isDragActiveLocal = true; event.dataTransfer.dropEffect = 'copy';
+    } else { if (event.dataTransfer) event.dataTransfer.dropEffect = 'none'; }
   }
 
   onDragOverArea(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-
+    event.preventDefault(); event.stopPropagation();
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
-      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
-      // No need to change isDragActiveLocal here, onDragEnterArea handles entry.
-      return;
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'none'; return;
     }
-
     if (event.dataTransfer) {
       if (event.dataTransfer.items && event.dataTransfer.items.length > 0) {
-        event.dataTransfer.dropEffect = 'copy';
-        this.isDragActiveLocal = true; // Keep highlighting if valid
-      } else {
-        event.dataTransfer.dropEffect = 'none';
-        this.isDragActiveLocal = false; // Turn off if no valid items
-      }
+        event.dataTransfer.dropEffect = 'copy'; this.isDragActiveLocal = true;
+      } else { event.dataTransfer.dropEffect = 'none'; this.isDragActiveLocal = false; }
     }
   }
 
   onDragLeaveArea(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-
+    event.preventDefault(); event.stopPropagation();
     this.dragEnterCounter--;
-    if (this.dragEnterCounter <= 0) {
-      this.isDragActiveLocal = false;
-      this.dragEnterCounter = 0;
-    }
+    if (this.dragEnterCounter <= 0) { this.isDragActiveLocal = false; this.dragEnterCounter = 0; }
   }
 
   onDropArea(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation(); // Crucial: stop event from bubbling to window listeners
-
-    this.isDragActiveLocal = false;
-    this.dragEnterCounter = 0;
-
-    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
-      console.log('OrbitalDisplay: Drop ignored, component not in receptive state.');
-      return;
-    }
-
+    event.preventDefault(); event.stopPropagation();
+    this.isDragActiveLocal = false; this.dragEnterCounter = 0;
+    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) { return; }
     const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.filesDroppedInArea.emit(files);
-    } else {
-      console.log('OrbitalDisplay: Drop event occurred but no files found.');
-    }
+    if (files && files.length > 0) { this.filesDroppedInArea.emit(files); }
   }
 
   onRequestAddFilesPanel(): void { this.requestAddFilesFromPanel.emit(); }
