@@ -30,20 +30,6 @@
     --animated-dash-length: 10px;
     --animated-dash-gap: 10px;
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
-
-    /*
-       IMPORTANT: Define these to match your desired green theme for the progress bar.
-       --button-color: DARK GREEN (for spinner, active arc, active text, 100% arc).
-       --button-hover: LIGHT GREEN (for water fill, 100% water fill).
-    */
-    --button-color: #0F753C;
-    /* Example Dark Green - REPLACE WITH YOUR ACTUAL DARK GREEN */
-    --button-hover: #D4EDDA;
-    /* Example Light Green for water - REPLACE WITH YOURS */
-
-    /* Unused blue theme variables removed for clarity */
-    /* --water-color-dark-blue: #5B8DEA; */
-    /* --progress-arc-color-light-blue: #A8C5F7; */
 }
 
 
