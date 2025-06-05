@@ -62,20 +62,24 @@
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
 
                 <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
+                <!-- MODIFIED: Ensure water fill is shown when complete (100%) and not just during active upload <100% -->
                 <g [attr.clip-path]="'url(#waterClipPath)'"
                     *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
                     <path class="water-fill" [attr.d]="getWaterPathD()" />
                 </g>
 
-                <!-- 3. Progress Value Arc / Your Original Spinning Dot (Top layer for progress indication) -->
-                <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
+                <!-- 3. Progress Value Arc / Spinning Dot (Top layer for progress indication) -->
+                <!-- MODIFIED: Removed *ngIf to allow full circle at 100% -->
+                <circle class="circular-progress-value-new"
+                    [class.spinning-dot]="isAtZeroProgressAndUploading"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
 
             </svg>
-            <!-- Percentage Text (hidden when upload is complete) -->
-            <div *ngIf="!isUploadComplete" class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0)
+            <!-- Percentage Text -->
+            <!-- MODIFIED: Removed *ngIf to show "100%" -->
+            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0)
                 }}%</div>
         </div>
 

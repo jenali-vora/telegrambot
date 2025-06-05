@@ -657,55 +657,6 @@
     color: var(--white-color);
 }
 
-.language-selector-container {
-    position: relative;
-    /* Crucial for absolute positioning of the modal */
-    display: flex;
-    align-items: center;
-}
-
-.btn-language-selector {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    /* Subtle border for dark header */
-    color: var(--heading-color);
-    padding: 5px 10px;
-    /* Adjusted padding to be similar to example */
-    font-size: 0.875rem;
-    /* Approx 14px */
-    font-weight: 500;
-    border-radius: 4px;
-    /* Example has slightly rounded corners */
-    /* cursor: pointer; */
-    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
-    line-height: 1.5;
-    /* Ensure text is vertically centered */
-    min-width: 40px;
-    /* Enough space for "EN" */
-    text-align: center;
-}
-
-.btn-language-selector:focus-visible {
-    outline: 2px solid var(--button-color);
-    /* Or your focus color */
-    outline-offset: 2px;
-}
-
-
-/* Styles for language selector in fixed header state */
-.fixed-header .btn-language-selector {
-    color: var(--text-color, #5f6368);
-    /* Darker text for light background */
-    border-color: #dadce0;
-    /* Standard border color like Google's UI elements */
-}
-
-.fixed-header .btn-language-selector:hover {
-    background-color: #f1f3f4;
-    /* Light grey hover */
-    border-color: #cdd0d4;
-}
-
 /* toggle menu css end */
 /* --- Media Query: Tablet/Smaller Desktops (e.g., below 992px) --- */
 @media (max-width: 992px) {
@@ -752,11 +703,6 @@
         display: inline-flex;
         align-items: center;
         margin-left: 10px;
-    }
-
-    .btn-language-selector {
-        padding: 4px 8px;
-        font-size: 0.8rem;
     }
 }
 
