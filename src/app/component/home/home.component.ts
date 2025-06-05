@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public isGamePanelVisible: boolean = false;
   public anonymousUploadLimitMessage: string | null = null;
   private readonly ONE_GIGABYTE_IN_BYTES = 1 * 1024 * 1024 * 1024;
-  private readonly genericUploadMessage = "Your files are being uploaded, wait a few moment.";
+  private readonly genericUploadMessage = "Your files are being uploaded, wait a few minutes.";
   private gdriveEventSource: EventSource | null = null;
   private telegramEventSource: EventSource | null = null;
   private anonymousFolderUploadsCount = 0;
@@ -332,19 +332,32 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const isLoggedIn = this.authService.isLoggedIn();
     const MAX_TOTAL_FILES_OR_ITEMS_LIMIT = isLoggedIn ? Infinity : 5;
-    const genericAnonymousLimitErrorMessage = `As you are not logged in, you can add a maximum of ${MAX_TOTAL_FILES_OR_ITEMS_LIMIT} files. Please login to upload more than 5 files.`;
+
+    // --- Message Definitions ---
+    let totalItemLimitErrorMessage: string; // For the overall item limit
+    if (isFolderSelection) {
+      totalItemLimitErrorMessage = `As your not logged in, you can upload maximum ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders. Please login to upload more than  ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders.`;
+    } else {
+      totalItemLimitErrorMessage = `As your not logged in, you can upload maximum ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files. Please login to upload more than  ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files.`;
+    }
+
+    // --- MODIFIED Folder Limit Messages based on your specific request ---
+    const FOLDER_LIMIT_ERROR_MESSAGE = `As your not logged in, you can upload maximum ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders. Please login to upload more than  ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders.`;
+    const FOLDER_LIMIT_INFO_MESSAGE = `You have reached the limit of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder additions for anonymous users. To add more folders, please log in.`;
+    // --- End Message Definitions ---
 
 
+    // Handle empty fileList (e.g., empty folder selected)
     if (!fileList || fileList.length === 0) {
       if (isFolderSelection && !isLoggedIn) {
-        if (this.anonymousFolderUploadsCount < this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-          this.anonymousFolderUploadsCount++;
-          console.log(`Anonymous folder selection count incremented to (empty folder): ${this.anonymousFolderUploadsCount}`);
-          if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-            this.anonymousUploadLimitMessage = `You have reached the limit of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder selections for anonymous users. To add more folders, please log in.`;
-          }
+        if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+          this.uploadError = FOLDER_LIMIT_ERROR_MESSAGE; // Will use the corrected string
         } else {
-          this.uploadError = genericAnonymousLimitErrorMessage; // MODIFIED
+          this.anonymousFolderUploadsCount++;
+          console.log(`Anonymous folder selection count incremented (empty folder): ${this.anonymousFolderUploadsCount}`);
+          if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
+            this.anonymousUploadLimitMessage = FOLDER_LIMIT_INFO_MESSAGE; // Will use the corrected string
+          }
         }
         if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
         this.cdRef.detectChanges();
@@ -352,20 +365,21 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Check folder addition limit before processing files from a non-empty folder
     if (isFolderSelection && !isLoggedIn) {
       if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-        this.uploadError = genericAnonymousLimitErrorMessage; // MODIFIED
+        this.uploadError = FOLDER_LIMIT_ERROR_MESSAGE; // Use the new precise message
         if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
         this.cdRef.detectChanges();
         return;
       }
+      // If not at the limit, proceed. The count will be incremented later if files are actually added from this folder.
     }
 
-    console.log(`User is ${isLoggedIn ? 'logged in' : 'anonymous'}. Max items limit: ${MAX_TOTAL_FILES_OR_ITEMS_LIMIT}. Anonymous folder selections made so far (before this batch): ${this.anonymousFolderUploadsCount}`);
-
+    // Check total item limit if trying to add new items when already at the limit
     const currentItemCount = this.selectedItems.length;
     if (!isLoggedIn && currentItemCount >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT && fileList.length > 0) {
-      this.uploadError = genericAnonymousLimitErrorMessage; // Already correct
+      this.uploadError = totalItemLimitErrorMessage; // This is for the overall 5 item limit
       if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
       if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
       this.cdRef.detectChanges();
@@ -379,13 +393,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (!isLoggedIn && (currentItemCount + filesAddedInThisOperation >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT)) {
         break;
       }
-
+      // ... (file processing logic: itemName, skip empty, skip .DS_Store, isActualFolderEntry)
       const file = fileList[i];
       let itemName = file.name;
       if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) {
         itemName = file.webkitRelativePath;
       }
-
       if (file.size === 0 && !isFolderSelection && !itemName.includes('/')) {
         console.log(`Skipping empty file: ${itemName}`);
         continue;
@@ -394,8 +407,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log(`Skipping .DS_Store file: ${itemName} (original: ${file.name})`);
         continue;
       }
-
-      const isActualFolderEntry = (isFolderSelection && !file.type && file.size === 0 && file.webkitRelativePath.endsWith(file.name)) || (itemName.endsWith('/'));
+      const isActualFolderEntry = (isFolderSelection && !file.type && file.size === 0 && file.webkitRelativePath.endsWith(file.name)) || (itemName.includes('/') && !itemName.split('/').pop()?.includes('.'));
 
       newItems.push({
         id: this.nextItemId++,
@@ -413,16 +425,31 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
     }
 
-    if (isFolderSelection && !isLoggedIn && filesAddedInThisOperation > 0) { // Count only if files were actually processed from folder
+    // Handle folder selection count increment and informational message for anonymous users
+    // This happens *after* files from the folder have been processed (if any were).
+    if (isFolderSelection && !isLoggedIn && (filesAddedInThisOperation > 0 || (fileList.length > 0 && newItems.length === 0 && !this.uploadError))) {
+      // Increment count for THIS folder selection/addition action IF:
+      // 1. It was a folder selection.
+      // 2. User is anonymous.
+      // 3. EITHER files were actually added OR it was a non-empty folder that resulted in 0 valid items (e.g., all .DS_Store) and no *other* error is already set.
+      // We don't increment if the folder processing was blocked by `FOLDER_LIMIT_ERROR_MESSAGE` earlier.
+      // The `this.uploadError` check prevents incrementing if, for example, the total item limit was hit mid-folder.
+
+      // The `anonymousFolderUploadsCount` should have been less than `MAX_ANONYMOUS_FOLDER_UPLOADS` to reach here.
       this.anonymousFolderUploadsCount++;
-      console.log(`Anonymous folder selection count incremented to: ${this.anonymousFolderUploadsCount}`);
-      if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS && !this.uploadError) { // Show folder limit message if not already showing item limit error
-        this.anonymousUploadLimitMessage = `You have reached the limit of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder selections for anonymous users. To add more folders, please log in.`;
+      console.log(`Anonymous folder selection count incremented (processed folder): ${this.anonymousFolderUploadsCount}`);
+
+      if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS && !this.uploadError) {
+        this.anonymousUploadLimitMessage = FOLDER_LIMIT_INFO_MESSAGE;
       }
     }
 
+    // If not all files from fileList were added due to hitting the total item limit (MAX_TOTAL_FILES_OR_ITEMS_LIMIT)
     if (!isLoggedIn && filesAddedInThisOperation < fileList.length && (currentItemCount + filesAddedInThisOperation >= MAX_TOTAL_FILES_OR_ITEMS_LIMIT)) {
-      this.uploadError = genericAnonymousLimitErrorMessage; // Already correct
+      // Ensure this error message (about total items) doesn't overwrite a more specific FOLDER_LIMIT_ERROR_MESSAGE if that was already set.
+      if (!this.uploadError) {
+        this.uploadError = totalItemLimitErrorMessage;
+      }
     }
 
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
@@ -592,14 +619,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       es.onopen = () => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
         console.log(`GDrive SSE connection opened for: ${operationId} URL: ${fullSseUrl}`);
-        this.uploadStatusMessage = 'Connecting to temporary storage...';
+        this.uploadStatusMessage = 'Connecting to temporary storage...'; // Initial connection message
         this.cdRef.detectChanges();
       });
 
       es.addEventListener('start', (event: MessageEvent) => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) return;
         const data = JSON.parse(event.data);
-        this.uploadStatusMessage = data.message || 'GDrive upload started.';
+        // this.uploadStatusMessage = data.message || 'GDrive upload started.'; // Original
+        this.uploadStatusMessage = this.genericUploadMessage; // Changed
         if (data.totalSize && data.totalSize !== this.uploadProgressDetails.totalBytes) {
           this.uploadProgressDetails.totalBytes = parseInt(data.totalSize, 10);
           if (this.currentItemBeingUploaded) this.currentItemBeingUploaded.size = this.uploadProgressDetails.totalBytes;
@@ -613,7 +641,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       es.addEventListener('status', (event: MessageEvent) => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) return;
         const data = JSON.parse(event.data);
-        this.uploadStatusMessage = data.message || 'GDrive processing...';
+        // this.uploadStatusMessage = data.message || 'GDrive processing...'; // Original
+        this.uploadStatusMessage = this.genericUploadMessage; // Changed
         this.cdRef.detectChanges();
       }));
 
@@ -623,35 +652,30 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.uploadProgressDetails.percentage = data.percentage !== undefined ? Math.min(parseFloat(data.percentage), 100) : this.uploadProgressDetails.percentage;
         this.uploadProgressDetails.bytesSent = data.bytesSent !== undefined ? parseInt(data.bytesSent, 10) : this.uploadProgressDetails.bytesSent;
         this.uploadProgress = this.uploadProgressDetails.percentage;
-        this.uploadStatusMessage = "Your files are being uploaded, wait a few moment.";
+        this.uploadStatusMessage = this.genericUploadMessage; // Already correct from previous change
         this.cdRef.detectChanges();
       }));
 
       es.addEventListener('gdrive_complete', (event: MessageEvent) => this.zone.run(() => {
-        // Do not call this.handleGDriveComplete directly here as it might prematurely end the upload state.
-        // This event signals the end of GDrive *phase*. The overall upload might continue.
         if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
 
         const data = JSON.parse(event.data);
         console.log('GDrive phase finished. Data:', data);
+        // Keep specific messages for completion/transition
         this.uploadStatusMessage = data.message || 'Temporary storage complete. Preparing final transfer...';
 
-        this.closeGDriveEventSource(); // GDrive part is done.
+        this.closeGDriveEventSource();
 
         if (data.access_id) {
-          // Check if this gdrive_complete is the *final* step (e.g. no telegram step)
-          // This needs a flag from backend, e.g., data.is_final_step or similar
-          // Or, if the backend sends a different event type for final completion.
-          if (data.is_final_step === true || !data.sse_telegram_upload_url) { // Assuming sse_telegram_upload_url indicates next step
-            // This was the final step. Finalize the upload.
+          if (data.is_final_step === true || !data.sse_telegram_upload_url) {
             this.completedBatchAccessId = data.access_id;
             const frontendBaseUrl = window.location.origin;
             this.shareableLinkForPanel = `${frontendBaseUrl}/batch-view/${data.access_id}`;
             if (this.currentItemBeingUploaded) this.currentItemBeingUploaded.name = data.filename || this.currentItemBeingUploaded.name;
             this.uploadProgressDetails.percentage = 100;
             this.uploadProgress = 100;
-            this.isUploading = false; // Final completion
-            this.uploadStatusMessage = data.final_message || "Upload complete!";
+            this.isUploading = false;
+            this.uploadStatusMessage = data.final_message || "Upload complete!"; // Final completion message
 
             if (!this.authService.isLoggedIn()) {
               this.anonymousUploadLimitMessage = "Upload successful! Your files are available for 5 days. For longer storage and more features, please log in or sign up.";
@@ -662,14 +686,12 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
             if (this.currentUser && this.username) this.loadUserFileCount();
 
-          } else if (data.sse_telegram_upload_url) { // If there's a URL for the next (Telegram) phase
-            this.uploadProgressDetails.percentage = 0; // Reset for next phase visually if desired
+          } else if (data.sse_telegram_upload_url) {
+            this.uploadProgressDetails.percentage = 0;
             this.uploadProgressDetails.bytesSent = 0;
             this.uploadProgress = 0;
-            // The currentUploadId (operationId / access_id) remains the same for the whole operation.
             this.listenToTelegramUploadProgress(operationId, data.sse_telegram_upload_url, batchItemRepresentation);
           } else {
-            // GDrive completed, but no clear next step or finalization signal. This is an issue.
             this.handleBatchUploadError("GDrive phase completed but next step unclear or finalization data missing.");
           }
         } else {
@@ -678,6 +700,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
       }));
 
+      // ... (error and onerror handlers remain the same)
       es.addEventListener('error', (errorEventOrMsgEvent: Event) => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) { this.closeGDriveEventSource(); return; }
         let errorMessage = 'Error during temporary storage phase.';
@@ -695,7 +718,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (es.readyState === EventSource.CLOSED) {
           console.log("GDrive EventSource closed by client or gracefully.");
           if (this.isUploading && operationId === this.currentUploadId) {
-            // If it closed unexpectedly while still uploading this operation, treat as error
             // this.handleBatchUploadError('GDrive connection closed unexpectedly.');
           }
           return;
@@ -710,11 +732,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.handleBatchUploadError(`Client-side error setting up GDrive upload progress: ${(error as Error).message}`);
     }
   }
+
   private listenToTelegramUploadProgress(operationId: string, relativeTelegramSseUrl: string, batchItemRepresentation: SelectedItem | null): void {
     this.closeTelegramEventSource();
 
     const backendApiUrl = this.apiService.getApiBaseUrl();
-    const fullTelegramSseUrl = `${backendApiUrl}${relativeTelegramSseUrl}`; // Use the passed relative URL
+    const fullTelegramSseUrl = `${backendApiUrl}${relativeTelegramSseUrl}`;
 
     try {
       this.telegramEventSource = new EventSource(fullTelegramSseUrl, { withCredentials: this.authService.isLoggedIn() });
@@ -723,7 +746,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       es.onopen = () => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
         console.log(`Telegram SSE connection opened for: ${operationId} URL: ${fullTelegramSseUrl}`);
-        this.uploadStatusMessage = 'Starting final transfer phase...';
+        this.uploadStatusMessage = 'Starting final transfer phase...'; // Initial connection message
         this.cdRef.detectChanges();
       });
 
@@ -731,15 +754,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           if (operationId !== this.currentUploadId || !this.isUploading) { return; }
           const data = JSON.parse(event.data);
-          let finalMessage: string = data.message || 'Upload started for final destination.';
-          const serverMessage = data.message;
-          if (serverMessage) {
-            const lowerServerMessage = serverMessage.toLowerCase();
-            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
-              finalMessage = this.genericUploadMessage;
-            }
-          }
-          this.uploadStatusMessage = finalMessage;
+          // Original logic for finalMessage was here
+          this.uploadStatusMessage = this.genericUploadMessage; // Changed
 
           if (data.totalSize && data.totalSize !== this.uploadProgressDetails.totalBytes) {
             this.uploadProgressDetails.totalBytes = parseInt(data.totalSize, 10);
@@ -760,15 +776,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           if (operationId !== this.currentUploadId || !this.isUploading) { return; }
           const data = JSON.parse(event.data);
-          let finalMessage: string = data.message || 'Processing for final destination...';
-          const serverMessage = data.message;
-          if (serverMessage) {
-            const lowerServerMessage = serverMessage.toLowerCase();
-            if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
-              finalMessage = this.genericUploadMessage;
-            }
-          }
-          this.uploadStatusMessage = finalMessage;
+          // Original logic for finalMessage was here
+          this.uploadStatusMessage = this.genericUploadMessage; // Changed
           console.log('Telegram SSE "status" event data:', data);
           this.cdRef.detectChanges();
         });
@@ -785,19 +794,8 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.uploadProgressDetails.etaFormatted = data.etaFormatted !== undefined ? data.etaFormatted : this.uploadProgressDetails.etaFormatted;
 
             this.uploadProgress = this.uploadProgressDetails.percentage;
-            let finalMessage: string;
-            const serverMessage = data.message;
-            if (serverMessage) {
-              const lowerServerMessage = serverMessage.toLowerCase();
-              if (lowerServerMessage.includes("fetching") || lowerServerMessage.includes("sent tg chunk")) {
-                finalMessage = this.genericUploadMessage;
-              } else {
-                finalMessage = serverMessage;
-              }
-            } else {
-              finalMessage = `Transferring to final destination: ${this.uploadProgressDetails.percentage.toFixed(0)}%`;
-            }
-            this.uploadStatusMessage = finalMessage;
+            // Original logic for finalMessage was here
+            this.uploadStatusMessage = this.genericUploadMessage; // Changed
             this.cdRef.detectChanges();
           } catch (e) {
             console.error("Error parsing Telegram SSE 'progress' event data:", event.data, e);
@@ -809,10 +807,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.zone.run(() => {
           if (operationId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
           const data = JSON.parse(event.data);
-          this.uploadStatusMessage = data.message || 'Upload complete!';
+          this.uploadStatusMessage = data.message || 'Upload complete!'; // Final completion message
           this.uploadError = null;
 
-          if (data.access_id && data.filename) { // Assuming 'complete' from Telegram provides these
+          if (data.access_id && data.filename) {
             this.completedBatchAccessId = data.access_id;
             const frontendBaseUrl = window.location.origin;
             this.shareableLinkForPanel = `${frontendBaseUrl}/batch-view/${data.access_id}`;
@@ -827,15 +825,14 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
           } else {
             this.uploadError = "Upload complete, but essential link data missing.";
-            this.shareableLinkForPanel = null; // Ensure no stale link
+            this.shareableLinkForPanel = null;
           }
 
           this.uploadProgressDetails.percentage = 100;
-          // Ensure totalBytes reflects actual size if available from 'complete' event
           this.uploadProgressDetails.totalBytes = data.totalSize || this.uploadProgressDetails.totalBytes;
           this.uploadProgressDetails.bytesSent = this.uploadProgressDetails.totalBytes;
           this.uploadProgress = 100;
-          this.isUploading = false; // Final completion
+          this.isUploading = false;
 
           if (this.currentUser && this.username) {
             this.loadUserFileCount();
@@ -846,6 +843,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
       });
 
+      // ... (error and onerror handlers remain the same)
       es.addEventListener('error', (errorEventOrMsgEvent: Event) => this.zone.run(() => {
         if (operationId !== this.currentUploadId || !this.isUploading) { this.closeTelegramEventSource(); return; }
         let errorMessage = 'Error during final transfer phase.';
@@ -970,9 +968,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
     if (errorEvent) console.error("Error during batch upload:", errorMessage, errorEvent);
     else console.error("Error during batch upload:", errorMessage);
+    let displayMessage = errorMessage; // Default to the message from backend
+
+    // Check for specific GDrive quota error string
+    if (errorMessage &&
+      (errorMessage.toLowerCase().includes("storage quota has been exceeded") ||
+        errorMessage.toLowerCase().includes("storagequotaexceeded"))) {
+      displayMessage = "Upload failed: The Google Drive storage is full. Please free up space in the designated Google Drive account or contact support.";
+    }
 
     this.zone.run(() => {
-      this.uploadError = errorMessage;
+      this.uploadError = displayMessage;
       this.uploadSuccessMessage = null;
       this.isUploading = false;
       this.uploadProgressDetails = {
@@ -1053,6 +1059,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   closeGamePanel(): void {
     this.isGamePanelVisible = false;
   }
+
   handleDownloadRequest(itemToDownload: SelectedItem): void {
     if (this.isUploading) return;
     try {
@@ -1082,6 +1089,162 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.triggerFileInput();
   }
 
+  async handleDataTransferItemsDropped(items: DataTransferItemList | null): Promise<void> {
+    if (!this.isReceptiveToNewFiles()) {
+      console.log('HomeComponent: Drop ignored, component not in receptive state for new files.');
+      return;
+    }
+    if (!items) {
+      console.log('HomeComponent: No DataTransferItems received.');
+      return;
+    }
+
+    console.log('HomeComponent: DataTransferItems dropped.', items);
+    this.uploadError = null; // Clear previous errors
+
+    try {
+      let wasAnyDirectoryDropped = false;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (typeof item.webkitGetAsEntry === 'function') {
+          const entry = item.webkitGetAsEntry();
+          if (entry && entry.isDirectory) {
+            wasAnyDirectoryDropped = true;
+            break;
+          }
+        }
+      }
+
+      const files = await this.extractFilesFromDataTransferItems(items);
+
+      if (files.length > 0) {
+        // The 'true' for isFolderSelection helps handleFiles prioritize webkitRelativePath
+        // and triggers anonymous folder limits if applicable.
+        this.handleFiles(this.createFileListFromArray(files), wasAnyDirectoryDropped || files.some(f => f.webkitRelativePath && f.webkitRelativePath.includes('/')));
+      } else if (wasAnyDirectoryDropped) {
+        // An empty folder or folder with unreadable/filtered files was dropped.
+        // Call handleFiles with an empty list to trigger anonymous folder count logic.
+        this.handleFiles(this.createFileListFromArray([]), true);
+        console.log('HomeComponent: An empty folder or folder with no valid files was dropped.');
+      } else {
+        console.log('HomeComponent: No files extracted from dropped items.');
+        // Optionally, provide feedback if nothing was addable
+        // this.uploadError = "No files could be added from the dropped items.";
+      }
+    } catch (error) {
+      console.error('HomeComponent: Error processing dropped items:', error);
+      this.uploadError = "Error processing dropped items. Some files or folders might not be readable.";
+    } finally {
+      this.cdRef.detectChanges();
+    }
+  }
+
+  private isReceptiveToNewFiles(): boolean {
+    return this.selectedItems.length === 0 && !this.isUploading && !this.shareableLinkForPanel;
+  }
+
+
+  private async extractFilesFromDataTransferItems(items: DataTransferItemList): Promise<File[]> {
+    const filesAccumulator: File[] = [];
+    const promises: Promise<void>[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === 'file' && typeof item.webkitGetAsEntry === 'function') {
+        const entry = item.webkitGetAsEntry();
+        if (entry) {
+          promises.push(this.traverseFileSystemEntry(entry, filesAccumulator));
+        } else {
+          // Fallback for items that are 'file' kind but not true FileSystem entries (rare for drops)
+          const file = item.getAsFile();
+          if (file) {
+            // Check if it's a file we want (e.g., not .DS_Store directly here if not handled by traverse)
+            if (!file.name.toLowerCase().endsWith('.ds_store') && (file.size > 0 || (file.size === 0 && file.type !== ''))) { // Allow empty files if they have a type
+              filesAccumulator.push(file);
+            }
+          }
+        }
+      }
+    }
+
+    await Promise.all(promises);
+    return filesAccumulator.filter(file => file instanceof File); // Ensure all are actual File objects
+  }
+
+  private async traverseFileSystemEntry(entry: FileSystemEntry, filesAccumulator: File[]): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (entry.isFile) {
+        (entry as FileSystemFileEntry).file(
+          (file) => {
+            // Files like .DS_Store are filtered later in handleFiles,
+            // or can be filtered here too.
+            // The `file` object should have `webkitRelativePath` correctly set by the browser.
+            // e.g., if "MyFolder" containing "image.jpg" is dropped,
+            // file.name = "image.jpg", file.webkitRelativePath = "MyFolder/image.jpg"
+            if (file.name.toLowerCase().endsWith('.ds_store')) {
+              console.log(`Skipping .DS_Store file during traversal: ${entry.fullPath || entry.name}`);
+              resolve();
+              return;
+            }
+            filesAccumulator.push(file);
+            resolve();
+          },
+          (err) => {
+            console.error(`Error reading file ${entry.fullPath || entry.name}:`, err);
+            resolve(); // Skip problematic files by resolving the promise
+          }
+        );
+      } else if (entry.isDirectory) {
+        const directoryReader = (entry as FileSystemDirectoryEntry).createReader();
+        const readAllSubEntries = async () => {
+          let allSubEntries: FileSystemEntry[] = [];
+          const readBatch = (): Promise<FileSystemEntry[]> => {
+            return new Promise<FileSystemEntry[]>((batchResolve, batchReject) => {
+              directoryReader.readEntries(
+                (batch) => batchResolve(batch),
+                (err) => batchReject(err)
+              );
+            });
+          };
+
+          try {
+            let currentBatch: FileSystemEntry[];
+            do {
+              currentBatch = await readBatch();
+              allSubEntries = allSubEntries.concat(currentBatch);
+            } while (currentBatch.length > 0);
+
+            const entryPromises: Promise<void>[] = [];
+            for (const subEntry of allSubEntries) {
+              entryPromises.push(this.traverseFileSystemEntry(subEntry, filesAccumulator));
+            }
+            await Promise.all(entryPromises);
+            resolve();
+          } catch (dirReadError) {
+            console.error(`Error reading directory contents for ${entry.fullPath || entry.name}:`, dirReadError);
+            resolve(); // Skip problematic directories by resolving
+          }
+        };
+        readAllSubEntries();
+      } else {
+        console.warn(`Skipping unknown entry type: ${entry.name}`);
+        resolve();
+      }
+    });
+  }
+  private createFileListFromArray(files: File[]): FileList {
+    const dataTransfer = new DataTransfer();
+    if (files && files.length > 0) {
+      files.forEach(file => {
+        if (file instanceof File) { // Ensure it's actually a File object
+          dataTransfer.items.add(file);
+        } else {
+          console.warn("Attempted to add non-File object to DataTransfer:", file);
+        }
+      });
+    }
+    return dataTransfer.files;
+  }
   getFileIcon(filename: string | undefined): string {
     if (!filename) return 'fas fa-question-circle';
 

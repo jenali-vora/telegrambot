@@ -35,6 +35,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
   @Output() cancelUploadFromPanel = new EventEmitter<void>();
   @Output() newTransferFromPanel = new EventEmitter<void>();
   @Output() filesDroppedInArea = new EventEmitter<FileList>();
+   @Output() dataTransferItemsDropped = new EventEmitter<DataTransferItemList>();
 
   private dragEnterCounter = 0;
 
@@ -203,11 +204,19 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
   }
 
   onDropArea(event: DragEvent): void {
-    event.preventDefault(); event.stopPropagation();
-    this.isDragActiveLocal = false; this.dragEnterCounter = 0;
-    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) { return; }
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) { this.filesDroppedInArea.emit(files); }
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragActiveLocal = false;
+    this.dragEnterCounter = 0;
+
+    if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
+      return;
+    }
+
+    const items = event.dataTransfer?.items; // Get DataTransferItemList
+    if (items && items.length > 0) {
+      this.dataTransferItemsDropped.emit(items); // Emit DataTransferItemList
+    }
   }
 
   onRequestAddFilesPanel(): void { this.requestAddFilesFromPanel.emit(); }

@@ -50,20 +50,6 @@
         </div>
       </div>
 
-      <!-- ++ NEW: Language Selector Container ++ -->
-      <div class="language-selector-container">
-        <button class="btn btn-language-selector" #languageSelectorBtn (click)="toggleLanguageModal($event)"
-          aria-label="Select language" [attr.aria-expanded]="isLanguageModalOpen">
-          {{ currentLanguageCode.toUpperCase() }}
-        </button>
-        <!-- The modal component's :host has position: absolute, so it will position relative to this container -->
-        <app-language-selector-modal *ngIf="isLanguageModalOpen" [isOpen]="isLanguageModalOpen"
-          [currentLanguage]="currentLanguageCode" [availableLanguages]="availableLanguages" [appName]="appName"
-          (closeModalRequest)="closeLanguageModal()" (languageSelected)="onLanguageSelected($event)"
-          (contactRequested)="onContactForTranslation()">
-        </app-language-selector-modal>
-      </div>
-
       <!-- Hamburger Button (Shown on mobile by CSS) -->
       <button class="mobile-menu-toggle" id="hamburger-button" (click)="openMenu()" aria-label="Open menu"
         [attr.aria-expanded]="isMenuOpen" aria-controls="mobile-sidebar">

@@ -219,4 +219,7 @@
     :host ::ng-deep .testimonials-carousel-container .carousel-control-next {
         right: 0px;
     }
+    .testimonial-section-wrapper{
+        padding: 0px 0;
+    }
 }
