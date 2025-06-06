@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'; // Import OnChanges and SimpleChanges
+// src/app/shared/component/orbital-display/orbital-display.component.ts
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding, OnDestroy, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component';
+import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component'; // Ensure SelectedItem is exported and has 'progress'
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -10,11 +11,11 @@ import { RouterLink } from '@angular/router';
   templateUrl: './orbital-display.component.html',
   styleUrls: ['./orbital-display.component.css']
 })
-export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { // Implement OnChanges
+export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   public isDragActiveLocal: boolean = false;
 
   @Input() centralButtonIconClass: string = 'fas fa-plus';
-  @Input() items: SelectedItem[] = [];
+  @Input() items: SelectedItem[] = []; // Assuming SelectedItem has a 'progress: number' property (0-100) for individual file progress
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
 
@@ -35,7 +36,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
   @Output() cancelUploadFromPanel = new EventEmitter<void>();
   @Output() newTransferFromPanel = new EventEmitter<void>();
   @Output() filesDroppedInArea = new EventEmitter<FileList>();
-   @Output() dataTransferItemsDropped = new EventEmitter<DataTransferItemList>();
+  @Output() dataTransferItemsDropped = new EventEmitter<DataTransferItemList>();
 
   private dragEnterCounter = 0;
 
@@ -58,25 +59,17 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
 
   ngOnChanges(changes: SimpleChanges): void {
     let triggerChangeDetection = false;
-    // Check if any of the critical inputs that affect display logic have changed
     if (changes['uploadProgressPercentage'] || changes['isUploading'] || changes['batchShareableLink'] || changes['items']) {
       triggerChangeDetection = true;
     }
 
     if (triggerChangeDetection) {
-      // console.log('OrbitalDisplay: ngOnChanges triggered, detecting changes.', 
-      //   'isUploadComplete:', this.isUploadComplete, 
-      //   'isUploading:', this.isUploading, 
-      //   'percentage:', this.uploadProgressPercentage,
-      //   'batchLink:', this.batchShareableLink
-      // );
-      this.cdr.detectChanges(); // Manually trigger change detection to ensure UI updates
+      this.cdr.detectChanges();
     }
   }
 
   ngOnInit(): void {
     this.waveAnimationInterval = setInterval(() => {
-      // Only animate wave if actively uploading and not complete
       if (this.isUploading && this.uploadProgressPercentage > 0 && this.uploadProgressPercentage < 100 && !this.isAtZeroProgressAndUploading && !this.isUploadComplete) {
         this.waveAnimationPhase += 0.04;
         if (this.waveAnimationPhase > Math.PI * 4) {
@@ -92,10 +85,6 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
       clearInterval(this.waveAnimationInterval);
     }
   }
-
-  // get showCircularProgressUI(): boolean { // This getter is not used for the main *ngIf anymore
-  //   return (this.isUploading || this.isUploadComplete) && this.items.length > 0 && !this.batchShareableLink;
-  // }
 
   get showTransferPanelLogic(): boolean {
     return this.items.length > 0 || !!this.batchShareableLink;
@@ -137,7 +126,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
     const padding = 5;
 
     const waterEdgeXBase = (vbCenter - r_for_wave) + (this.uploadProgressPercentage / 100) * (2 * r_for_wave);
-    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15; // No wave when complete
+    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15;
 
     const yTopBoundary_wave = vbCenter - r_for_wave;
     const yBottomBoundary_wave = vbCenter + r_for_wave;
@@ -160,7 +149,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
     return d;
   }
   onSelectFolderClick(event: MouseEvent): void {
-    event.stopPropagation(); // Prevent onCentralButtonClick if this is nested within its clickable area
+    event.stopPropagation();
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
       this.requestFolderUpload.emit();
     }
@@ -172,7 +161,6 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
     }
   }
 
-  // ... other event handlers remain the same ...
   onDragEnterArea(event: DragEvent): void {
     event.preventDefault(); event.stopPropagation();
     if (this.items.length > 0 || this.isUploading || this.batchShareableLink) {
@@ -213,9 +201,9 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges { /
       return;
     }
 
-    const items = event.dataTransfer?.items; // Get DataTransferItemList
+    const items = event.dataTransfer?.items;
     if (items && items.length > 0) {
-      this.dataTransferItemsDropped.emit(items); // Emit DataTransferItemList
+      this.dataTransferItemsDropped.emit(items);
     }
   }
 

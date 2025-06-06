@@ -62,25 +62,27 @@
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
 
                 <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
-                <!-- MODIFIED: Ensure water fill is shown when complete (100%) and not just during active upload <100% -->
                 <g [attr.clip-path]="'url(#waterClipPath)'"
                     *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
                     <path class="water-fill" [attr.d]="getWaterPathD()" />
                 </g>
 
                 <!-- 3. Progress Value Arc / Spinning Dot (Top layer for progress indication) -->
-                <!-- MODIFIED: Removed *ngIf to allow full circle at 100% -->
-                <circle class="circular-progress-value-new"
-                    [class.spinning-dot]="isAtZeroProgressAndUploading"
+                <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
 
             </svg>
             <!-- Percentage Text -->
-            <!-- MODIFIED: Removed *ngIf to show "100%" -->
-            <div class="progress-percentage-text-new">{{ uploadProgressPercentage.toFixed(0)
-                }}%</div>
+            <!-- MODIFIED: Layout changed to flex column to accommodate file count -->
+            <div class="progress-percentage-text-new">
+                <span>{{ uploadProgressPercentage.toFixed(0) }}%</span>
+                <!-- Display file upload status (X of Y files) -->
+                <!-- <span class="file-upload-status">
+                    {{ completedFilesCount }} of {{ items.length }} file{{ items.length === 1 ? '' : 's' }}
+                </span> -->
+            </div>
         </div>
 
         <p class="terms-text" *ngIf="items.length === 0 && !isUploading">
