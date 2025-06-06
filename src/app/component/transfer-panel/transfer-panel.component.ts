@@ -10,6 +10,8 @@ export interface SelectedItem {
   size: number;
   isFolder?: boolean;
   icon: string;
+  progress?: number;
+  status?: 'pending' | 'uploading' | 'complete' | 'error';
 }
 
 interface TooltipMessage {

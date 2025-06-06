@@ -1,8 +1,9 @@
-import { AfterViewInit, Component, ElementRef, HostListener, Inject, PLATFORM_ID, Renderer2, NgZone } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, PLATFORM_ID, Renderer2, NgZone, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/component/header/header.component';
 import { FooterComponent } from './shared/component/footer/footer.component';
 import { isPlatformBrowser } from '@angular/common';
+import { TawkToChatService } from './shared/services/tawk-to-chat.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,7 @@ import { isPlatformBrowser } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnInit {
   title = 'telegrambot';
   private ringElements: NodeListOf<HTMLElement> | null = null;
   private isBrowser: boolean;
@@ -23,6 +24,7 @@ export class AppComponent implements AfterViewInit {
   constructor(
     private renderer: Renderer2,
     private elRef: ElementRef,
+    private tawkToChatService: TawkToChatService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private ngZone: NgZone
   ) {
@@ -31,6 +33,10 @@ export class AppComponent implements AfterViewInit {
       // Check for coarse pointer using matchMedia
       this.isCoarsePointerDevice = window.matchMedia('(pointer: coarse)').matches;
     }
+  }
+
+  ngOnInit(): void {
+    this.tawkToChatService.loadScript();
   }
 
   ngAfterViewInit(): void {
@@ -66,10 +72,10 @@ export class AppComponent implements AfterViewInit {
   private updateCursorPosition(x: number, y: number): void {
     // This check is redundant if onMouseMove already checks ringElements, but safe
     if (this.ringElements) {
-        this.ringElements.forEach(ring => {
-            const transformValue = `translateX(${x - this.offsetX}px) translateY(${y - this.offsetY}px)`;
-            this.renderer.setStyle(ring, 'transform', transformValue);
-        });
+      this.ringElements.forEach(ring => {
+        const transformValue = `translateX(${x - this.offsetX}px) translateY(${y - this.offsetY}px)`;
+        this.renderer.setStyle(ring, 'transform', transformValue);
+      });
     }
   }
 

@@ -21,12 +21,8 @@
         calc(var(--glow-offset) * -1) calc(var(--glow-offset) * -1) var(--glow-blur) var(--glow-spread) var(--glow-blue-color),
         var(--glow-offset) var(--glow-offset) var(--glow-blur) var(--glow-spread) var(--glow-green-color),
         0px var(--base-shadow-offset-y) var(--base-shadow-blur) var(--base-shadow-spread) var(--base-shadow-color);
-
-    --heading-color: #333;
-    --text-color-secondary: #666;
-    --white-color: #fff;
     /* For checkmark */
-    --animated-border-thickness: 2px;
+    --animated-border-thickness: 4px;
     --animated-dash-length: 10px;
     --animated-dash-gap: 10px;
     --animated-cycle-length: calc(var(--animated-dash-length) + var(--animated-dash-gap));
@@ -168,7 +164,7 @@
     color: var(--white-color);
     width: 50px;
     height: 50px;
-    border-radius: 50%;
+    border-radius: 15PX;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -181,6 +177,7 @@
     position: relative;
     z-index: 1;
     border: 2px solid var(--button-color);
+    rotate: 44deg;
 }
 
 @keyframes common_shakeElem__bJOpt {
@@ -220,6 +217,7 @@
 
 .plus-button i {
     font-size: 24px;
+    rotate: 47deg;
 }
 
 .drag-drop-text {

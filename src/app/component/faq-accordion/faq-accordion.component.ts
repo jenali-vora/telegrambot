@@ -20,20 +20,28 @@ export class FaqAccordionComponent {
   // Input to receive FAQ data from parent component
   @Input() faqItems: FaqItem[] = [ // Default/Example data (replace with actual data source)
     {
-      question: 'Where are TransferNow files hosted?',
-      answer: 'By using our service to send or receive your files you have a dedicated and secure global cloud infrastructure where files are stored and encrypted on disk (AES-XTS 256 bits) in datacenters (AICPA SOC 2 Type II) on the European, American and Asian continents.'
+      question: 'Can I upload files without creating an account?',
+      answer: 'Yes, you can upload files or folders up to 5 GB without signing up. It is a quick and easy way to share content without any commitment.'
     },
     {
-      question: 'Is my personal data safe?',
-      answer: 'Yes, your personal data is handled with utmost care according to GDPR and other relevant privacy regulations. We implement robust security measures to protect your information.'
+      question: 'What are the limitations for non-logged-in users?',
+      answer: 'You can upload a maximum of 5 GB per session.Uploaded file links are valid only for 5 days.After 5 days, the files will be automatically deleted.You cannot view or manage uploaded files later unless you log in.'
     },
     {
-      question: 'Do you open and/or use my files?',
-      answer: 'Absolutely not. We operate under a zero-knowledge principle regarding your file content. Files are encrypted during transfer and at rest, and we do not access or scan the content of your files.'
+      question: 'What do I get if I log in or create an account?',
+      answer: 'Increased upload limit beyond 5 GB.Higher upload speed for faster transfers.Access to all previously uploaded files in your personal dashboard.Download and preview your files anytime.Shared file links never expire unless you delete them.Option to organize files into folders for better management.'
     },
     {
-      question: 'Are my files safe?',
-      answer: 'Yes, file safety is paramount. Files are encrypted using strong AES-256 encryption both during transit (TLS) and while stored on our servers. Access is strictly controlled.'
+      question: 'Can I manage files uploaded without an account?',
+      answer: 'No. For security and privacy reasons, we don’t store user identity for guest uploads. To manage, delete, or re-access files later, you need to log in.'
+    },
+    {
+      question: 'What happens if I share a link as a guest?',
+      answer: 'It will be valid for only 5 days.After that, the link will no longer work.To make links permanent, you must log in before uploading.'
+    },
+    {
+      question: ' Is my data secure on this platform?',
+      answer: 'Yes. We use encryption and secure servers to keep your files safe. Logged-in users also have access to privacy controls to manage who can view or download their files.'
     }
   ];
 

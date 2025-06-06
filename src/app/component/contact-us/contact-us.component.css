@@ -227,8 +227,8 @@
     border-color: var(--button-hover);
     /* Light blue border on focus */
     outline: 0;
-    box-shadow: 0 0 0 0.2rem var(--button-hover);
-    /* Subtle blue glow */
+    box-shadow: rgba(58, 140, 110, 0.36) 0px 0px 0px 4px, rgba(34, 34, 34, 0.16) 0px 0px 0px
+        /* Subtle blue glow */
 }
 
 /* Select dropdown specific styles */
