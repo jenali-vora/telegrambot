@@ -110,7 +110,9 @@ export class FileManagerApiService {
 
   listFiles(username: string): Observable<TelegramFileMetadata[]> {
     if (!username) { return throwError(() => new Error('Username required.')); }
-    return this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/files/${encodeURIComponent(username)}`, { headers: this.getAuthHeaders() })
+    const endpointUrl = `${this.apiUrl}/api/files/${encodeURIComponent(username)}`;
+    console.log(`[ApiService.listFiles] Calling endpoint: ${endpointUrl}`);
+    return this.http.get<TelegramFileMetadata[]>(endpointUrl, { headers: this.getAuthHeaders() })
       .pipe(
         tap(files => console.log(`Fetched ${files?.length ?? 0} files for ${username}`)),
         catchError(this.handleError)
@@ -127,12 +129,14 @@ export class FileManagerApiService {
 
   // This method now calls the backend endpoint that "archives" the file.
   // The URL /delete-file/... is correct as per our backend changes.
-  deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> { // Or ApiResponse if you unified them
+  deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
     if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
     const encodedIdentifier = encodeURIComponent(identifier);
-    return this.http.delete<BasicApiResponse>(`${this.apiUrl}/delete-file/${encodeURIComponent(username)}/${encodedIdentifier}`, { headers: this.getAuthHeaders() })
+    const endpointUrl = `${this.apiUrl}/api/delete-file/${encodeURIComponent(username)}/${encodedIdentifier}`;
+    console.log(`[ApiService.deleteFileRecord] Calling endpoint: ${endpointUrl}`);
+    return this.http.delete<BasicApiResponse>(endpointUrl, { headers: this.getAuthHeaders() })
       .pipe(
-        tap(res => console.log(`Archive (delete) response for ${identifier}:`, res)), // Updated log
+        tap(res => console.log(`Archive (delete) response for ${identifier}:`, res)),
         catchError(this.handleError)
       );
   }
@@ -143,17 +147,20 @@ export class FileManagerApiService {
 
   listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
     if (!username) { return throwError(() => new Error('Username required for listing archived files.')); }
-    return this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/archive/list-files/${encodeURIComponent(username)}`, { headers: this.getAuthHeaders() })
+    const endpointUrl = `${this.apiUrl}/api/archive/list-files/${encodeURIComponent(username)}`;
+    console.log(`[ApiService.listArchivedFiles] Calling endpoint: ${endpointUrl}`);
+    return this.http.get<TelegramFileMetadata[]>(endpointUrl, { headers: this.getAuthHeaders() })
       .pipe(
         tap(files => console.log(`Fetched ${files?.length ?? 0} archived files for ${username}`)),
         catchError(this.handleError)
       );
   }
 
-  restoreFile(accessId: string): Observable<ApiResponse> { // Using ApiResponse, adjust if you kept BasicApiResponse
+  restoreFile(accessId: string): Observable<ApiResponse> {
     if (!accessId) { return throwError(() => new Error('Access ID required for restoring file.')); }
-    // POST request with an empty body {} as the access_id is in the URL
-    return this.http.post<ApiResponse>(`${this.apiUrl}/archive/restore-file/${encodeURIComponent(accessId)}`, {}, { headers: this.getAuthHeaders() })
+    const endpointUrl = `${this.apiUrl}/api/archive/restore-file/${encodeURIComponent(accessId)}`;
+    console.log(`[ApiService.restoreFile] Calling endpoint: ${endpointUrl}`);
+    return this.http.post<ApiResponse>(endpointUrl, {}, { headers: this.getAuthHeaders() })
       .pipe(
         tap(res => console.log(`Restore response for ${accessId}:`, res)),
         catchError(this.handleError)
