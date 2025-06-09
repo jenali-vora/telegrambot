@@ -3,7 +3,7 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -126,7 +126,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-
   fetchBatchDetails(accessId: string): void {
     if (!accessId) {
       this.error = "Access ID is missing for fetching batch details.";
@@ -140,13 +139,22 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.http.get<BatchDetails>(endpointUrl)
       .pipe(
         tap(details => console.log('Batch details fetched:', details)),
-        catchError(err => {
+        catchError((err: HttpErrorResponse) => {
           console.error('Error fetching batch details:', err);
-          this.error = `Failed to load batch details for ${accessId}: ${err.error?.error || err.statusText || err.message || 'Server error'}`;
-          if (err.status === 404) {
-            this.error = `Batch with ID ${accessId} not found. Please check the ID or link.`;
+          let userFriendlyError: string;
+          // The screenshot shows a 503 Service Unavailable error from the network,
+          // which the browser often masks as a CORS error. This typically results
+          // in a status of 0 in Angular's HttpErrorResponse.
+          if (err.status === 0 || err.status === 503) {
+            userFriendlyError = 'Failed to connect to the server. The service may be temporarily unavailable. Please try again later.';
+          } else if (err.status === 404) {
+            userFriendlyError = `The requested batch (${accessId}) was not found. Please check the link.`;
+          } else {
+            // For other errors, try to get a specific message from the server response.
+            userFriendlyError = `Failed to load batch details: ${err.error?.error || err.statusText || 'An unexpected error occurred.'}`;
           }
-          return throwError(() => err);
+          this.error = userFriendlyError;
+          return throwError(() => new Error(userFriendlyError));
         })
       )
       .subscribe({
@@ -156,6 +164,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           this.cdRef.detectChanges();
         },
         error: () => {
+          // The error message is already set in catchError. This block just handles the loading state.
           this.isLoading = false;
           this.cdRef.detectChanges();
         }
