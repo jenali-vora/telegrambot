@@ -119,11 +119,17 @@ export class ArchivedFilesPageComponent implements OnInit, OnDestroy {
   // or ideally, you'd refactor them into a shared service or base class.
 
   getDisplayFilename(file: TelegramFileMetadata): string {
+    // For batches, the batch_display_name is the priority.
     if (file.is_batch) {
-      return file.batch_display_name ||
-        (file.files_in_batch && file.files_in_batch.length === 1 ? file.files_in_batch[0].original_filename : '') ||
-        'Unnamed Batch';
+      return file.batch_display_name || 'Unnamed Batch';
     }
+
+    // For single files, the name is likely inside the files_in_batch array.
+    if (file.files_in_batch && file.files_in_batch.length > 0 && file.files_in_batch[0].original_filename) {
+      return file.files_in_batch[0].original_filename;
+    }
+
+    // Fallback for older data structures or edge cases.
     return file.original_filename || file.name || file.sent_filename || 'Unnamed File';
   }
 
@@ -136,23 +142,29 @@ export class ArchivedFilesPageComponent implements OnInit, OnDestroy {
 
   // Re-use or adapt from user-files-page.component.ts
   getFileIcon(file: TelegramFileMetadata): string {
-    // Basic version, enhance as needed (copy from UserFilesPageComponent for full logic)
-    let filenameForIcon = file.original_filename || file.batch_display_name;
-    if (file.is_batch) {
-      filenameForIcon = file.batch_display_name;
-      if ((!filenameForIcon || !filenameForIcon.includes('.')) && file.files_in_batch && file.files_in_batch.length === 1) {
-        filenameForIcon = file.files_in_batch[0].original_filename;
-      }
-      if (!filenameForIcon || (file.files_in_batch && file.files_in_batch.length > 1 && !filenameForIcon.includes('.'))) {
-        return 'fas fa-folder-open text-warning';
-      }
-    } else {
+    // For multi-file batches, always show a folder/archive icon.
+    if (file.is_batch && file.files_in_batch && file.files_in_batch.length > 1) {
+      return 'fas fa-folder-open text-warning';
+    }
+
+    // For single files OR batches-of-one, find the single filename to determine the icon.
+    let filenameForIcon: string | undefined;
+    if (file.files_in_batch && file.files_in_batch.length > 0) {
+      filenameForIcon = file.files_in_batch[0].original_filename;
+    }
+
+    // Fallback to top-level names if files_in_batch is missing for some reason.
+    if (!filenameForIcon) {
       filenameForIcon = file.original_filename || file.name || file.sent_filename;
     }
 
-    if (!filenameForIcon) return 'fas fa-question-circle';
+    // If still no name, return the question mark icon.
+    if (!filenameForIcon) {
+      return 'fas fa-question-circle text-muted';
+    }
+
     const extension = filenameForIcon.split('.').pop()?.toLowerCase();
-    if (!extension) return 'fas fa-file'; // Default if no extension
+    if (!extension) return 'fas fa-file text-muted';
 
     switch (extension) {
       case 'pdf': return 'fas fa-file-pdf text-danger';
@@ -160,7 +172,8 @@ export class ArchivedFilesPageComponent implements OnInit, OnDestroy {
       case 'xls': case 'xlsx': return 'fas fa-file-excel text-success';
       case 'zip': case 'rar': return 'fas fa-file-archive text-secondary';
       case 'png': case 'jpg': case 'jpeg': case 'gif': case 'webp': return 'fas fa-file-image text-purple';
-      // Add more as in your original getFileIcon
+      case 'mp3': case 'wav': case 'ogg': return 'fas fa-file-audio text-orange';
+      case 'mp4': case 'mov': case 'avi': return 'fas fa-file-video text-info';
       default: return 'fas fa-file text-muted';
     }
   }

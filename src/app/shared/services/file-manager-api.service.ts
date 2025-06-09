@@ -216,10 +216,10 @@ export class FileManagerApiService {
       let isTwoStepSse = false;
 
       if (isBatch) {
-        initialApiUrl = `${this.apiUrl}/initiate-download-all/${accessId}`;
+        initialApiUrl = `${this.apiUrl}/download/initiate-download-all/${accessId}`;
         isTwoStepSse = true;
       } else {
-        initialApiUrl = `${this.apiUrl}/stream-download/${accessId}`;
+        initialApiUrl = `${this.apiUrl}/download/stream-download/${accessId}`;
       }
       console.log(`[ApiService.downloadFileBlob] Initial API/SSE URL for ${accessId} (isBatch: ${isBatch}): ${initialApiUrl}`);
 
@@ -260,7 +260,7 @@ export class FileManagerApiService {
               return;
             }
 
-            const finalDownloadUrl = `${this.apiUrl}/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
+            const finalDownloadUrl = `${this.apiUrl}/download/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
             console.log(`[ApiService.downloadFileBlob] Triggering final blob download from: ${finalDownloadUrl}`);
 
             this.http.get(finalDownloadUrl, { responseType: 'blob', headers: this.getAuthHeaders() })
