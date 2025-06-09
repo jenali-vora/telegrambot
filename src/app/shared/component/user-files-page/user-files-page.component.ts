@@ -98,45 +98,51 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
 
   getDisplayFilename(file: TelegramFileMetadata): string {
     if (file.is_batch) {
-      return file.batch_display_name ||
-        (file.files_in_batch && file.files_in_batch.length === 1 ? file.files_in_batch[0].original_filename : '') ||
-        'Unnamed Batch';
+      return file.batch_display_name || 'Unnamed Batch';
+    } else {
+      if (file.files_in_batch && file.files_in_batch.length > 0 && file.files_in_batch[0].original_filename) {
+        return file.files_in_batch[0].original_filename;
+      }
+      return file.batch_display_name || file.original_filename || 'Unnamed File';
     }
-    return file.original_filename || file.name || file.sent_filename || 'Unnamed File';
   }
 
   getItemSize(file: TelegramFileMetadata): number {
     if (file.is_batch) {
       return file.total_original_size ?? 0;
+    } else {
+      if (file.files_in_batch && file.files_in_batch.length > 0 && typeof file.files_in_batch[0].original_size !== 'undefined') {
+        return file.files_in_batch[0].original_size;
+      }
+      return file.original_size ?? file.size ?? 0;
     }
-    return file.original_size ?? file.size ?? 0;
   }
 
   getFileIcon(file: TelegramFileMetadata): string {
-    let filenameForIcon: string | undefined;
+    const filenameForIcon = this.getDisplayFilename(file);
 
     if (file.is_batch) {
-      filenameForIcon = file.batch_display_name;
-      // If it's a batch, and name doesn't look like a file, or it's a multi-file batch...
-      if ((!filenameForIcon || !filenameForIcon.includes('.')) && file.files_in_batch && file.files_in_batch.length === 1) {
-        filenameForIcon = file.files_in_batch[0].original_filename; // Use inner file name for single-file batch icon
+      // A batch of multiple files should always look like a folder/archive.
+      if (file.files_in_batch && file.files_in_batch.length > 1) {
+        return 'fas fa-folder-open text-warning';
       }
-      // If still no clear filename with extension for batch, or it's a multi-file batch, use folder icon
-      if (!filenameForIcon || (file.files_in_batch && file.files_in_batch.length > 1 && !filenameForIcon.includes('.'))) {
-        return 'fas fa-folder-open text-warning'; // Default for multi-file batches or batches named without extension
-      }
-    } else {
-      filenameForIcon = file.original_filename || file.name || file.sent_filename;
+      // If it's a "batch" of one file, we let the logic continue to check the extension.
     }
 
-    if (!filenameForIcon) return 'fas fa-question-circle';
-    const baseNameForIcon = filenameForIcon.includes('/') ? filenameForIcon.substring(filenameForIcon.lastIndexOf('/') + 1) : filenameForIcon;
-
-    if (!baseNameForIcon.includes('.')) { // No extension
-      return file.is_batch ? 'fas fa-archive text-secondary' : (filenameForIcon.includes('/') ? 'fas fa-folder' : 'fas fa-file');
+    if (!filenameForIcon) {
+      return 'fas fa-question-circle text-muted';
     }
 
-    const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
+    const baseName = filenameForIcon.includes('/')
+      ? filenameForIcon.substring(filenameForIcon.lastIndexOf('/') + 1)
+      : filenameForIcon;
+
+    if (!baseName.includes('.')) {
+      return 'fas fa-file text-muted'; // A file without an extension
+    }
+
+    const extension = baseName.split('.').pop()?.toLowerCase();
+
     switch (extension) {
       case 'pdf': return 'fas fa-file-pdf text-danger';
       case 'doc': case 'docx': return 'fas fa-file-word text-primary';
@@ -148,14 +154,11 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
       case 'mp3': case 'wav': case 'ogg': case 'aac': case 'flac': return 'fas fa-file-audio text-orange';
       case 'mp4': case 'mov': case 'avi': case 'mkv': case 'wmv': case 'webm': return 'fas fa-file-video text-teal';
       case 'js': return 'fab fa-js-square text-warning';
-      case 'ts': return 'fas fa-file-code text-primary'; // Corrected from fas fa-file-code
-      case 'json': return 'fas fa-file-code text-success'; // Corrected from fas fa-file-code
+      case 'ts': case 'py': case 'java': case 'cs': case 'sh': return 'fas fa-file-code text-secondary';
       case 'html': return 'fab fa-html5 text-danger';
-      case 'css': case 'scss': case 'sass': return 'fab fa-css3-alt text-info';
-      case 'py': return 'fab fa-python text-primary';
-      case 'java': return 'fab fa-java text-danger';
-      case 'c': case 'cpp': case 'cs': case 'go': case 'php': case 'rb': case 'sh': return 'fas fa-file-code text-secondary';
-      default: return 'fas fa-file text-muted';
+      case 'css': case 'scss': return 'fab fa-css3-alt text-info';
+      case 'json': return 'fas fa-file-code text-success';
+      default: return 'fas fa-question-circle text-muted';
     }
   }
 

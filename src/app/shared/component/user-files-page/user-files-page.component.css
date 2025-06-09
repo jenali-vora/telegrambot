@@ -233,6 +233,7 @@
 
     .archive-files-btn {
         display: flex;
+        width: max-content;
     }
 
     .btn-outline-secondary {
