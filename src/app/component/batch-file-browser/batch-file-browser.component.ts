@@ -115,6 +115,14 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     return extension === 'zip';
   }
 
+  isDocxFile(filename: string): boolean { // <-- NEW METHOD
+    if (!filename) {
+      return false;
+    }
+    const extension = filename.split('.').pop()?.toLowerCase();
+    return extension === 'docx';
+  }
+
   navigateToPreview(batchAccessId: string | null, filename: string): void { // Made batchAccessId nullable to match effectiveBatchAccessId
     if (!batchAccessId || !filename) {
       console.error('Batch Access ID and filename are required for preview.');
