@@ -44,10 +44,12 @@
         </div>
 
         <!-- New Circular SVG Progress UI -->
-        <div *ngIf="(isUploading || isUploadComplete) && items.length > 0 && !batchShareableLink"
-            class="circular-progress-wrapper-new" [class.progress-initial-state]="isAtZeroProgressAndUploading"
-            [class.progress-active-state]="uploadProgressPercentage > 0 && !isUploadComplete && !isAtZeroProgressAndUploading"
-            [class.progress-complete-state]="isUploadComplete">
+        <!-- MODIFIED: Conditions for visibility and state classes now use 'effective' getters -->
+        <div *ngIf="(isUploading || isEffectivelyUploadComplete) && items.length > 0 && !batchShareableLink"
+            class="circular-progress-wrapper-new"
+            [class.progress-initial-state]="isEffectivelyAtZeroProgressAndUploading"
+            [class.progress-active-state]="effectiveUploadProgressPercentage > 0 && !isEffectivelyUploadComplete"
+            [class.progress-complete-state]="isEffectivelyUploadComplete">
 
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
                 <defs>
@@ -62,22 +64,24 @@
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
 
                 <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
-                <g [attr.clip-path]="'url(#waterClipPath)'"
-                    *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
+                <!-- MODIFIED: Condition for water visibility simplified -->
+                <g [attr.clip-path]="'url(#waterClipPath)'" *ngIf="effectiveUploadProgressPercentage > 0">
                     <path class="water-fill" [attr.d]="getWaterPathD()" />
                 </g>
 
                 <!-- 3. Progress Value Arc / Spinning Dot (Top layer for progress indication) -->
-                <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
-                    [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
-                    [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
+                <!-- MODIFIED: Class binding for spinning dot uses 'effective' getter -->
+                <circle class="circular-progress-value-new"
+                    [class.spinning-dot]="isEffectivelyAtZeroProgressAndUploading" [attr.cx]="viewBoxSize / 2"
+                    [attr.cy]="viewBoxSize / 2" [attr.r]="radius" [attr.stroke-width]="strokeWidth"
+                    [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
 
             </svg>
             <!-- Percentage Text -->
-            <!-- MODIFIED: Layout changed to flex column to accommodate file count -->
+            <!-- MODIFIED: Percentage text now uses 'effective' getter -->
             <div class="progress-percentage-text-new">
-                <span>{{ uploadProgressPercentage.toFixed(0) }}%</span>
+                <span>{{ effectiveUploadProgressPercentage.toFixed(0) }}%</span>
                 <!-- Display file upload status (X of Y files) -->
                 <!-- <span class="file-upload-status">
                     {{ completedFilesCount }} of {{ items.length }} file{{ items.length === 1 ? '' : 's' }}
@@ -91,7 +95,7 @@
         </p>
 
         <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
-            [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage"
+            [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage" 
             [bytesSent]="bytesSent" [totalBytes]="totalBytes" [speedMBps]="speedMBps" [etaFormatted]="etaFormatted"
             [generalUploadStatusMessage]="generalUploadStatusMessage" (requestAddFiles)="onRequestAddFilesPanel()"
             (requestAddFolder)="onRequestAddFolderPanel()" (itemRemoved)="onItemRemovedPanel($event)"

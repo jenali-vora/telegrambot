@@ -1,5 +1,4 @@
 /* --- Basic Setup & Container --- */
-
 .overflow-content {
     overflow: hidden;
 }
@@ -7,8 +6,6 @@
 .pricing-section {
     padding: 60px 20px;
     background-color: #f8f9fa;
-    /* Light background */
-    /* Added for basic font */
 }
 
 /* --- Header --- */
@@ -38,12 +35,9 @@
     justify-content: center;
     margin-bottom: 40px;
     border: 1px solid var(--button-color);
-    /* Border around the group */
-    border-radius: 6px;
+    border-radius: 5px;
     overflow: hidden;
-    /* Clip corners */
     width: fit-content;
-    /* Size to content */
     margin-left: auto;
     margin-right: auto;
 }
@@ -52,28 +46,21 @@
     padding: 8px 18px;
     border: none;
     background-color: var(--white-color);
-    /* Default white */
     color: var(--button-color);
-    /* Default blue text */
-    /* cursor: pointer; */
     font-size: 0.9rem;
     font-weight: 500;
     transition: background-color 0.2s ease, color 0.2s ease;
     border-left: 1px solid var(--button-color);
-    /* Separator */
 }
 
 .toggle-btn:first-child {
     border-left: none;
-    /* No separator for the first button */
 }
 
 .toggle-btn.active,
 .toggle-btn:hover {
     background-color: var(--button-color);
-    /* Active/hover blue */
     color: var(--white-color);
-    /* White text */
 }
 
 /* --- Pricing Cards Layout --- */
@@ -81,35 +68,45 @@
     display: flex;
     justify-content: center;
     gap: 30px;
-    flex-wrap: wrap;
-    /* Allow wrapping on smaller screens */
+    /* flex-wrap: wrap; */
+    /* This is key for responsive wrapping */
 }
 
 /* --- Individual Card Styling --- */
 .pricing-card {
     background-color: var(--white-color);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 25px;
-    width: 40%;
-    /* Fixed width or flex-basis */
-    max-width: 90%;
-    /* Ensure it fits on small screens */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    position: relative;
-    /* Needed for save-banner positioning */
+    border-radius: 12px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    /* Flex properties for sizing and wrapping */
+    flex-grow: 1;
+    flex-basis: 280px;
+    /* Base width, allows ~4 cards on large screens */
+    max-width: 320px;
 }
 
-/* --- Premium Card Specifics --- */
-.premium-card {
-    border-color: #f16a78;
-    /* Red border */
+/* --- Highlighted Card (Pro & Team) --- */
+.highlight-card {
     border-width: 2px;
-    /* Thicker border */
-    padding-top: 50px;
-    /* Space for banner */
+    padding-top: 60px;
+}
+
+.free-card,
+.enterprise-card {
+    padding-top: 60px;
+}
+
+.pro-card {
+    border-color: var(--button-color);
+}
+
+.team-card,
+.enterprise-card {
+    border-color: #343a40;
 }
 
 .save-banner {
@@ -117,168 +114,60 @@
     top: 0;
     left: 0;
     right: 0;
-    background-color: #f16a78;
-    /* Red background */
     color: white;
-    padding: 8px 15px;
+    padding: 10px 15px;
     text-align: center;
     font-weight: 600;
-    font-size: 0.85rem;
-    border-radius: 6px 6px 0 0;
-    /* Rounded top corners */
+    font-size: 0.9rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.pro-card .save-banner {
+    background-color: var(--button-color);
+}
+
+.team-card .save-banner {
+    background-color: #343a40;
 }
 
 /* --- Card Header & Price --- */
 .card-header {
-    margin-bottom: 10px;
-    /* Space below header */
+    text-align: center;
+    margin-bottom: 25px;
 }
 
 .card-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 600;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     color: #212529;
 }
 
 .card-header span {
-    /* Subtitle like 'Free service' */
-    font-size: 0.95rem;
-    color: #6c757d;
-}
-
-.price {
-    text-align: right;
-    margin-top: -35px;
-    /* Adjust to align with title */
-}
-
-.main-price {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #212529;
-}
-
-.price span+span {
-    /* '/month' text */
-    font-size: 0.9rem;
-    color: #6c757d;
-}
-
-.price-details {
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-bottom: 20px;
-    /* Space before features */
-    text-align: right;
-}
-
-.price-details del {
-    color: #999;
-    margin-right: 5px;
-}
-
-/* --- Features List --- */
-.features-list {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0 0 0;
-    /* Space above list */
-    flex-grow: 1;
-    /* Allow list to take up space */
-}
-
-.features-list li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    /* Space between icon and text */
-    margin-bottom: 12px;
-    font-size: 0.9rem;
-    color: #333;
-}
-
-.features-list li strong {
-    font-weight: 600;
-}
-
-.features-list li i {
-    width: 18px;
-    /* Ensure icons align */
-    text-align: center;
     font-size: 1rem;
-    /* Adjust icon size */
+    color: #495057;
 }
 
-.text-blue {
-    color: var(--background);
-    /* Checkmark color */
-}
-
-.text-muted {
-    color: #adb5bd;
-    /* Cross/disabled color */
-}
-
-.fa-user-check,
-.fa-check {
-    /* Assuming these are your icons */
-    color: var(--background);
-}
-
-.fa-times {
-    color: #adb5bd;
-}
-
-.fa-user {
-    color: #333;
-    /* Default user icon color */
-}
-
-/* Specific overrides if needed based on FontAwesome classes used */
-.features-list .fa-microsoft,
-.features-list .fa-chrome {
-    color: #adb5bd;
-    /* Muted by default */
-}
-
-.premium-card .features-list .fa-microsoft,
-.premium-card .features-list .fa-chrome {
-    color: var(--background);
-    /* Blue for included features */
-}
-
-
-/* --- Action Buttons within Card --- */
+/* --- Action Button --- */
 .card-action {
-    display: flex;
-    flex-direction: column;
-    /* Stack buttons in premium */
-    gap: 10px;
-    margin: 25px 0 0 0;
-    /* Remove bottom margin, add top */
-    border-top: 1px solid #eee;
-    /* Separator line */
-    padding-top: 25px;
-    margin-top: auto;
-    /* Push to bottom */
+    margin-bottom: 20px;
 }
 
 .card-action .btn {
     width: 100%;
-    padding: 10px 15px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border-radius: 6px;
-    /* cursor: pointer; */
+    padding: 12px 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 5px;
     text-align: center;
     text-decoration: none;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    transition: all 0.2s;
 }
 
+/* --- Button Styles --- */
 .btn-outline-primary {
     color: var(--button-color);
-    border: 1px solid var(--button-color);
+    border: 2px solid var(--button-color);
     background-color: transparent;
 }
 
@@ -287,60 +176,140 @@
     color: var(--button-color);
 }
 
-.btn-danger {
-    background-color: #f16a78;
-    color: white;
-    border: 1px solid #f16a78;
+.btn-pro {
+    background-color: var(--button-color);
+    color: var(--white-color);
+    border: 2px solid var(--button-color);
 }
 
-.btn-danger:hover {
-    background-color: #e15261;
-    border-color: #d94857;
+.btn-pro:hover {
+    background-color: var(--button-hover);
+    border-color: var(--button-hover);
 }
 
-.btn-outline-danger {
-    color: #f16a78;
-    border: 1px solid #f16a78;
-    background-color: transparent;
+.btn-team {
+    background-color: #343a40;
+    color: var(--white-color);
+    border: 2px solid #343a40;
 }
 
-.btn-outline-danger:hover {
-    background-color: #f16a78;
-    color: white;
+.btn-team:hover {
+    background-color: #23272b;
+    border-color: #23272b;
+}
+
+.btn-enterprise {
+    background-color: #343a40;
+    color: var(--white-color);
+    border: 2px solid #343a40;
+    border-radius: 50px;
+}
+
+.btn-enterprise:hover {
+    background-color: #23272b;
+    border-color: #23272b;
+}
+
+/* --- Price Details (Below button) --- */
+.price-details {
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    min-height: 60px;
+    margin-bottom: 25px;
+}
+
+.price-details p {
+    margin: 5px 0;
+}
+
+.price-details del {
+    color: #aab0b6;
+    margin-right: 5px;
+}
+
+/* --- Features Wrapper & Divider --- */
+.features-wrapper {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.card-divider {
+    height: 1px;
+    background-color: #e9ecef;
+    margin-bottom: 25px;
+}
+
+/* --- Features List --- */
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.features-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.features-list li i {
+    width: 18px;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 2px;
+    color: #28a745;
+}
+
+.features-list li .text-muted {
+    color: #adb5bd !important;
+}
+
+.features-list li strong {
+    font-weight: 700;
+}
+
+.features-list li .fa-microsoft {
+    color: #0078D4;
+}
+
+.features-list li .fa-cloud {
+    color: #8c4dff;
+}
+
+.features-list li .fa-microsoft.text-muted,
+.features-list li .fa-cloud.text-muted {
+    color: #adb5bd !important;
 }
 
 /* ============================= */
-/* --- Info Cards Section --- */
+/* --- Info Cards Section etc. --- */
 /* ============================= */
 .info-cards-section {
     padding: 40px 20px;
     background-color: var(--white-color);
 }
 
-/* --- Grid Layout for Cards --- */
 .info-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    /* Responsive grid */
     gap: 30px;
-    /* Space between cards */
     margin: 0 auto;
 }
 
-/* --- Individual Card Styling --- */
 .info-card {
     background-color: var(--white-color);
     border: 1px solid rgba(63, 81, 181, 0.1);
-    /* Light border */
     border-radius: 8px;
     border-left: 5px solid rgba(63, 81, 181, 0.1);
-    ;
-    /* Blue accent on the left */
     padding: 30px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    /* Stack content vertically */
 }
 
 .info-card h3 {
@@ -357,57 +326,39 @@
     line-height: 1.6;
     margin-bottom: 15px;
     flex-grow: 1;
-    /* Allow paragraphs to push buttons down */
 }
 
 .info-card p:last-of-type {
     margin-bottom: 25px;
-    /* More space before actions */
     flex-grow: 0;
-    /* Stop the last paragraph from growing excessively */
 }
 
 .info-card strong {
     color: #343a40;
-    /* Slightly darker for emphasis */
     font-weight: 600;
 }
 
-
-/* --- Card Actions (Buttons) --- */
 .card-actions {
     display: flex;
     flex-wrap: wrap;
-    /* Allow buttons to wrap */
     gap: 10px;
-    /* Space between buttons */
     margin-top: auto;
-    /* Push actions to the bottom */
 }
 
 .card-actions .btn {
     padding: 8px 18px;
     font-size: 0.9rem;
     font-weight: 500;
-    border-radius: 6px;
-    /* cursor: pointer; */
+    border-radius: 5px;
     text-align: center;
     text-decoration: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-    /* Using btn-outline-primary styles defined earlier */
 }
 
-
-/* ============================== */
-/* --- Customers Section (SCROLLING LOGOS) --- */
-/* ============================== */
 .customers-section {
-    /* background: linear-gradient(90deg, rgb(43, 58, 145), rgb(26, 38, 108)); */
     background: var(--button-color);
-    /* Simpler dark blue background */
     padding: 60px 0;
     color: var(--white-color);
-    /* White text */
     overflow: hidden;
 }
 
@@ -417,77 +368,55 @@
     text-align: center;
     margin-bottom: 40px;
     padding: 0 20px;
-    /* Padding for smaller screens */
 }
 
-/* --- Logo Carousel (Viewport) --- */
 .logo-carousel {
     width: 100%;
     overflow: hidden;
-    /* CRUCIAL: Hides the logos outside the viewport */
     position: relative;
     margin-bottom: 40px;
-    /* Optional: Add gradient fade effect at edges */
     -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
-/* --- Logo Track (Contains all logos, gets animated) --- */
 .logo-track {
     display: flex;
-    /* Arrange logo cards horizontally */
     width: max-content;
-    /* Calculate width based on content (doubled logos) */
-    /* Animation applied */
     animation: scrollLogos 30s linear infinite;
-    /* Adjust time (30s) for speed */
 }
 
-/* --- Scrolling Animation (Right-to-Left) --- */
 @keyframes scrollLogos {
     0% {
         transform: translateX(0%);
-        /* Start at the beginning */
     }
 
     100% {
-        /* Move left by the width of ONE set of logos (50% of total track width) */
         transform: translateX(-50%);
     }
 }
 
-/* --- Pause Animation on Hover --- */
 .logo-carousel:hover .logo-track {
     animation-play-state: paused;
-    /* Pause the animation when carousel is hovered */
 }
 
-
-/* --- Individual Logo Card --- */
 .logo-card {
     background-color: var(--white-color);
     border-radius: 8px;
     padding: 15px;
     margin: 0 15px;
-    /* Space between cards */
     width: 180px;
-    /* Fixed width for each card */
     height: 110px;
-    /* Fixed height for each card */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* Pushes industry label down */
     align-items: center;
     text-align: center;
     flex-shrink: 0;
-    /* CRUCIAL: Prevent cards from shrinking */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .logo-image-wrapper {
     height: 70px;
-    /* Allocate space for the logo image */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -496,223 +425,93 @@
 
 .logo-image-wrapper img {
     max-width: 100%;
-    /* Ensure logo fits */
     max-height: 60px;
-    /* Limit logo height */
     object-fit: contain;
-    /* Scale nicely */
     display: block;
 }
 
 .logo-industry {
     font-size: 0.7rem;
     color: #a1a9cb;
-    /* Muted text color for industry */
     text-transform: uppercase;
     font-weight: 500;
     margin-top: 8px;
-    /* Space above label */
     line-height: 1.2;
 }
 
-/* --- Conclusion Text --- */
 .section-conclusion {
     text-align: center;
     font-size: 1rem;
     color: #e0e0ff;
-    /* Lighter text color for conclusion */
     max-width: 800px;
-    /* Limit width */
     margin: 0 auto;
     line-height: 1.6;
     padding: 0 20px;
-    /* Padding for smaller screens */
 }
 
-/* --- Other Sections --- */
 .section-5 {
     padding: 40px 20px;
 }
 
 .faq {
     background-color: #f8f9fa;
-    /* Light background for FAQ */
 }
 
+/* ========================================= */
+/* --- Responsive Adjustments Section --- */
+/* ========================================= */
 
-/* ============================== */
-/* --- Responsive Adjustments --- */
-/* ============================== */
+/* For large tablets and smaller desktops (2x2 grid) */
+@media (max-width: 1350px) {
+    .pricing-card {
+        flex-basis: 40%;
+        /* Allows two cards to fit per row */
+        max-width: 420px;
+        /* Give them more room when there are only two */
+    }
+}
 
 @media (max-width: 992px) {
+    .pricing-cards {
+        flex-wrap: wrap;
+    }
+}
+
+/* For mobile phones (1x4 stack) */
+@media (max-width: 767px) {
+    .pricing-cards {
+        flex-direction: column;
+        /* Stack them vertically */
+        align-items: center;
+        /* Center the stack */
+        gap: 30px;
+    }
+
     .pricing-card {
-        width: 45%;
-        /* Allow two cards side-by-side */
-        max-width: 400px;
-    }
-
-    .info-card h3 {
-        font-size: 1.25rem;
-    }
-
-    .info-card p {
-        font-size: 0.9rem;
+        flex-basis: auto;
+        /* Reset flex-basis in a column layout */
+        width: 100%;
+        /* Let the card take the full width of the centered container */
+        max-width: 450px;
+        /* But cap its width so it's not too wide on landscape phones */
     }
 
     .section-title {
         font-size: 40px;
-        /* Slightly smaller title */
-    }
-
-    .logo-card {
-        width: 160px;
-        /* Slightly smaller cards */
-        height: 100px;
-        margin: 0 12px;
-    }
-
-    .logo-image-wrapper {
-        height: 60px;
-    }
-
-    .logo-image-wrapper img {
-        max-height: 55px;
-    }
-
-    .logo-track {
-        animation-duration: 28s;
-        /* Adjust speed */
-    }
-
-    .section-5 {
-        padding: 0px;
-    }
-
-    .pricing-section {
-        padding: 30px 20px;
-    }
-
-}
-
-@media (max-width: 767px) {
-    .pricing-cards {
-        flex-direction: column;
-        /* Stack pricing cards */
-        align-items: center;
-    }
-
-    .pricing-card {
-        width: 90%;
-        /* Take more width when stacked */
-        max-width: 450px;
-        /* Max width for single card */
-    }
-
-    .pricing-header p {
-        font-size: 0.95rem;
     }
 
     .info-cards-grid {
         grid-template-columns: 1fr;
-        /* Stack info cards */
-    }
-
-    .logo-card {
-        width: 140px;
-        /* Smaller cards on mobile */
-        height: 90px;
-        margin: 0 10px;
-    }
-
-    .logo-image-wrapper {
-        height: 55px;
-    }
-
-    .logo-image-wrapper img {
-        max-height: 50px;
-    }
-
-    .logo-track {
-        animation-duration: 25s;
-        /* Slightly faster scroll maybe */
-    }
-
-    .section-conclusion {
-        font-size: 0.95rem;
     }
 }
 
+/* For very small phones, adjust typography */
 @media (max-width: 480px) {
     .pricing-header h2 {
         font-size: 35px;
     }
 
-    .pricing-header p {
-        font-size: 0.9rem;
-    }
-
-    .toggle-btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-    }
-
-    .card-header h3 {
-        font-size: 1.3rem;
-    }
-
-    .main-price {
-        font-size: 1.6rem;
-    }
-
-    .features-list li {
-        font-size: 0.85rem;
-    }
-
     .section-title {
         font-size: 35px;
-    }
-
-    .logo-card {
-        width: 120px;
-        /* Even smaller cards */
-        height: 80px;
-        margin: 0 8px;
-        padding: 10px;
-    }
-
-    .logo-image-wrapper {
-        height: 45px;
-    }
-
-    .logo-image-wrapper img {
-        max-height: 40px;
-    }
-
-    .logo-industry {
-        font-size: 0.65rem;
-        margin-top: 5px;
-    }
-
-    .logo-track {
-        animation-duration: 20s;
-        /* Faster scroll on small screens */
-    }
-
-    .section-conclusion {
-        font-size: 0.9rem;
-    }
-
-    .info-card h3 {
-        font-size: 1.2rem;
-    }
-
-    .info-card p {
-        font-size: 0.85rem;
-    }
-
-    .card-actions .btn {
-        font-size: 0.85rem;
-        padding: 7px 15px;
-        width: 100%;
     }
 }

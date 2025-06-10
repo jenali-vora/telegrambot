@@ -7,7 +7,6 @@ interface Plan {
   name: string;           // Display Name: "Free", "Premium", etc.
   buttonText: string;
   buttonStyle: 'btn-outline-primary' | 'btn-primary'; // Use your button style classes
-  highlightClass?: string; // Optional class for highlighting a column
 }
 
 interface FeatureValue {
@@ -36,8 +35,8 @@ export class ComparisonTableComponent {
 
   plans: Plan[] = [
     { id: 'free', name: 'Free', buttonText: 'Send files', buttonStyle: 'btn-outline-primary' },
-    { id: 'premium', name: 'Premium', buttonText: 'Register', buttonStyle: 'btn-primary' },
-    { id: 'team', name: 'Team', buttonText: 'Register', buttonStyle: 'btn-primary', highlightClass: 'highlight-col' }, // Example highlight
+    { id: 'premium', name: 'Pro', buttonText: 'Register', buttonStyle: 'btn-primary' },
+    { id: 'team', name: 'Team', buttonText: 'Register', buttonStyle: 'btn-primary' }, // Example highlight
     { id: 'enterprise', name: 'Enterprise', buttonText: 'Contact us', buttonStyle: 'btn-outline-primary' },
   ];
 
@@ -63,7 +62,7 @@ export class ComparisonTableComponent {
     },
     {
       id: 'availability', name: 'File availability', values: new Map([
-        ['free', { text: '7 days' }],
+        ['free', { text: '5 days' }],
         ['premium', { text: 'Up to 365 days' }],
         ['team', { text: 'Up to 365 days' }],
         ['enterprise', { text: 'Customized' }]
@@ -72,8 +71,8 @@ export class ComparisonTableComponent {
     {
       id: 'max_storage', name: 'Max. storage', values: new Map([
         ['free', { text: 'No storage' }],
-        ['premium', { text: '500 GB' }],
-        ['team', { text: '2000 GB shared' }],
+        ['premium', { text: '1 TB' }],
+        ['team', { text: '2 TB' }],
         ['enterprise', { text: 'Customized' }]
       ])
     },
