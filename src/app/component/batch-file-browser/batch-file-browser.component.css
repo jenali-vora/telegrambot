@@ -1,3 +1,4 @@
+/* batch-file-browser.component.css */
 /* General Body/Page Styles (Apply to a higher level container if needed, or scope to component) */
 :host {
     display: block;
@@ -70,8 +71,16 @@ hr {
     align-items: center;
     gap: 10px;
     flex-grow: 1;
-    overflow: hidden;
+    overflow: hidden; 
 } */
+
+/* MODIFICATION START: Ensure .file-info constrains its children */
+.file-info {
+    overflow: hidden;
+    /* This helps contain .file-name if it tries to overflow */
+}
+
+/* MODIFICATION END */
 
 .file-length .sharedby {
     font-size: 12px;
@@ -103,12 +112,21 @@ hr {
     justify-content: center;
 }
 
+/* MODIFICATION START: CSS for .file-name to handle overflow */
 .file-name {
     font-weight: 500;
-    /* white-space: nowrap; */
+    display: block;
+    /* Or inline-block. Block is usually better for text-overflow. */
+    white-space: nowrap;
+    /* Prevent the text from wrapping to a new line */
     overflow: hidden;
+    /* Hide the text that overflows the container's width */
     text-overflow: ellipsis;
+    /* Display an ellipsis (...) to indicate hidden text */
+    /* The [title] attribute on the span in HTML will show the full name on hover. */
 }
+
+/* MODIFICATION END */
 
 .file-size {
     font-size: 0.85em;
@@ -116,6 +134,7 @@ hr {
     /* white-space: nowrap; */
     margin-right: 15px;
     padding-left: 15px;
+    /* This padding might push it if space is tight. Consider adjusting. */
     /* flex-shrink: 0; */
 }
 
@@ -340,17 +359,23 @@ hr {
 .main-file-name {
     flex-grow: 1;
     min-width: 0;
-    margin-right: 15px;
+    /* This is crucial for allowing the container to shrink and apply text-overflow */
+    /* margin-right: 15px; */
+    /* Consider removing this if `gap: 20px` on `li` is sufficient.
+                                If kept, it adds to the space defined by `gap`. */
 }
 
 .file-actions {
     margin-left: 10px;
+    /* This provides space if .main-file-name's margin-right is removed */
     flex-shrink: 0;
 }
 
 @media (max-width: 480px) {
     .file-list li {
         flex-direction: column;
+        align-items: flex-start;
+        /* Align items to start when stacked */
         padding: 8px;
     }
 
@@ -359,7 +384,24 @@ hr {
     }
 
     .main-file-name {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+        /* Reduced margin for stacked view */
+        width: 100%;
+        /* Ensure it takes full width in stacked view */
+    }
+
+    .file-controls-area {
+        width: 100%;
+        /* Make controls area take full width */
+        display: flex;
+        justify-content: space-between;
+        /* Space out size and buttons */
+        align-items: center;
+    }
+
+    .file-actions {
+        margin-left: 0;
+        /* Reset margin as layout changed */
     }
 
     .download-all-btn {
@@ -368,17 +410,17 @@ hr {
     }
 
     .all-file-list-wrapper {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .all-file-list-wrapper {
+        /* width: 100%; */
+        /* Already effectively 100% due to no fixed width and auto margins */
+        /* max-width: 100%; */
+        /* Already default */
         padding: 10px;
     }
 
     .file-size {
         margin-right: 0;
+        /* Remove margin when stacked */
         padding-left: 0;
-
+        /* Remove padding when stacked */
     }
 }
