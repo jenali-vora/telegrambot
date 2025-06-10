@@ -18,9 +18,9 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
 
-  @Input() uploadProgressPercentage: number = 0;
-  @Input() bytesSent: number = 0;
-  @Input() totalBytes: number = 0;
+  @Input() uploadProgressPercentage: number = 0; // This might be current file's individual progress from parent
+  @Input() bytesSent: number = 0; // Assume this is overall cumulative bytes sent for the batch
+  @Input() totalBytes: number = 0; // Assume this is overall total bytes for the batch
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
   @Input() generalUploadStatusMessage: string = '';
@@ -54,37 +54,11 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     return this.circumference;
   }
 
-  // Getter for the most accurate progress percentage to display
-  get effectiveUploadProgressPercentage(): number {
-    if (this.isUploading && this.totalBytes > 0) {
-      const calculatedPercentage = (this.bytesSent / this.totalBytes) * 100;
-      return Math.min(100, Math.max(0, calculatedPercentage));
-    }
-    // Fallback to the direct input if not uploading, totalBytes is 0, or parent signals completion
-    return Math.min(100, Math.max(0, this.uploadProgressPercentage));
-  }
-
-  // Getter to determine if upload is effectively complete
-  get isEffectivelyUploadComplete(): boolean {
-    if (this.uploadProgressPercentage >= 100) { // Parent explicitly signals 100%
-      return true;
-    }
-    if (this.isUploading && this.totalBytes > 0 && this.bytesSent >= this.totalBytes) { // Bytes match or exceed total
-      return true;
-    }
-    return false;
-  }
-
-  // Getter to determine if upload is at 0% for spinning dot logic
-  get isEffectivelyAtZeroProgressAndUploading(): boolean {
-    return this.isUploading && !this.isEffectivelyUploadComplete && this.effectiveUploadProgressPercentage === 0;
-  }
-
   constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnChanges(changes: SimpleChanges): void {
     let triggerChangeDetection = false;
-    // Add bytesSent and totalBytes to trigger change detection if they change, as they affect effective progress
+    // Include bytesSent and totalBytes for change detection if they affect _actualOverallProgressPercentage
     if (changes['uploadProgressPercentage'] || changes['isUploading'] || changes['batchShareableLink'] || changes['items'] || changes['bytesSent'] || changes['totalBytes']) {
       triggerChangeDetection = true;
     }
@@ -94,17 +68,34 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  // NEW: Getter for the actual overall progress percentage
+  get _actualOverallProgressPercentage(): number {
+    if (this.batchShareableLink) { // If a shareable link exists, upload is 100% complete
+      return 100;
+    }
+    if (this.isUploading && this.totalBytes > 0 && this.bytesSent >= 0) {
+      const progress = (this.bytesSent / this.totalBytes) * 100;
+      return Math.min(Math.max(progress, 0), 100); // Clamp between 0 and 100
+    }
+    // If not uploading, but items were present and parent signaled 100% (covers post-upload completion)
+    if (!this.isUploading && this.items.length > 0 && this.uploadProgressPercentage >= 100) {
+      return 100;
+    }
+    // Default: Pre-upload, initial state, or error state where calculation isn't possible
+    return 0;
+  }
+
   ngOnInit(): void {
     this.waveAnimationInterval = setInterval(() => {
-      // Animate wave if uploading and progress is between 0 and 100 (exclusive)
-      if (this.isUploading && this.effectiveUploadProgressPercentage > 0 && this.effectiveUploadProgressPercentage < 100) {
+      // MODIFIED: Use _actualOverallProgressPercentage for wave animation condition
+      if (this.isUploading && this._actualOverallProgressPercentage > 0 && this._actualOverallProgressPercentage < 100 && !this.isAtZeroProgressAndUploading && !this.isUploadComplete) {
         this.waveAnimationPhase += 0.04;
         if (this.waveAnimationPhase > Math.PI * 4) {
           this.waveAnimationPhase -= Math.PI * 4;
         }
-        this.cdr.detectChanges(); // Necessary as waveAnimationPhase is updated outside Angular's zone
+        this.cdr.detectChanges();
       }
-    }, 50); // Interval for wave animation
+    }, 50);
   }
 
   ngOnDestroy(): void {
@@ -118,15 +109,19 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private get _normalProgressStrokeDashoffset(): number {
-    // Use effective percentage; if complete, ensure it's 100% for full circle
-    const percentage = this.isEffectivelyUploadComplete ? 100 : this.effectiveUploadProgressPercentage;
-    const offset = this.circumference - (percentage / 100) * this.circumference;
+    // MODIFIED: Use _actualOverallProgressPercentage
+    const offset = this.circumference - (this._actualOverallProgressPercentage / 100) * this.circumference;
     return Math.max(0, Math.min(offset, this.circumference));
   }
 
+  get isAtZeroProgressAndUploading(): boolean {
+    // MODIFIED: Use _actualOverallProgressPercentage
+    return this.isUploading && this.items.length > 0 && this._actualOverallProgressPercentage === 0;
+  }
+
   get dynamicStrokeDasharray(): string {
-    if (this.isEffectivelyAtZeroProgressAndUploading) {
-      const dotLength = 0.1; // A very small dash for the spinning dot
+    if (this.isAtZeroProgressAndUploading) {
+      const dotLength = 0.1;
       return `${dotLength}, ${this.circumference - dotLength}`;
     } else {
       return this.circumference.toString();
@@ -134,50 +129,50 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get dynamicStrokeDashoffset(): string {
-    if (this.isEffectivelyAtZeroProgressAndUploading) {
-      return '0'; // Offset for spinning dot animation start
+    if (this.isAtZeroProgressAndUploading) {
+      return '0';
     } else {
       return this._normalProgressStrokeDashoffset.toString();
     }
   }
 
+  get isUploadComplete(): boolean {
+    // MODIFIED: Use _actualOverallProgressPercentage
+    if (this.batchShareableLink) return true;
+    return this._actualOverallProgressPercentage >= 100 && !this.isUploading && this.items.length > 0;
+  }
+
   getWaterPathD(): string {
+    // MODIFIED: Use _actualOverallProgressPercentage
+    const currentProgress = this._actualOverallProgressPercentage;
     const vbCenter = this.viewBoxSize / 2;
     const r_for_wave = this.clipRadius;
-    const padding = 5; // Padding for drawing area of water, can be 0 if clip handles edges well
+    const padding = 5;
 
-    // Use effective percentage, capped at 100 for water level calculation
-    const displayPercentageForWater = Math.min(100, this.effectiveUploadProgressPercentage);
+    const waterEdgeXBase = (vbCenter - r_for_wave) + (currentProgress / 100) * (2 * r_for_wave);
+    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15; // isUploadComplete now uses _actualOverallProgressPercentage
 
-    // Water fills from left (X_min) to right (X_max) in SVG coords, which appears bottom-to-top after -90deg rotation
-    const waterEdgeXBase = (vbCenter - r_for_wave) + (displayPercentageForWater / 100) * (2 * r_for_wave);
-    // Wave amplitude is 0 if complete (flat water surface), otherwise a fraction of radius
-    const waveAmplitude = this.isEffectivelyUploadComplete ? 0 : r_for_wave * 0.15;
+    const yTopBoundary_wave = vbCenter - r_for_wave;
+    const yBottomBoundary_wave = vbCenter + r_for_wave;
 
-    const yTopBoundary_wave = vbCenter - r_for_wave;    // Min Y of the clipping circle
-    const yBottomBoundary_wave = vbCenter + r_for_wave; // Max Y of the clipping circle
-
-    // Calculate X positions for the start and end of the wave curve, incorporating animation phase
     const xAtWaveStart = waterEdgeXBase + (waveAmplitude * Math.sin(this.waveAnimationPhase + Math.PI * 0.3));
     const xAtWaveEnd = waterEdgeXBase + (waveAmplitude * Math.sin(this.waveAnimationPhase * 0.9 + Math.PI * 1.1));
 
-    // Control points for the Bezier curve forming the wave
     const cp1y = vbCenter - r_for_wave * 0.5;
     const cp1x = waterEdgeXBase + waveAmplitude * 1.2 * Math.sin(this.waveAnimationPhase * 0.7 + Math.PI * 0.6);
     const cp2y = vbCenter + r_for_wave * 0.5;
     const cp2x = waterEdgeXBase - waveAmplitude * 1.2 * Math.sin(this.waveAnimationPhase * 1.1 + Math.PI * 0.1);
 
-    // Construct the SVG path data string for the water
-    // Path starts from padded top-left, goes to water edge, draws wave, then to padded bottom-left, and closes.
-    let d = `M ${0 - padding},${0 - padding}`; // Start at top-left (of padded area)
-    d += ` L ${xAtWaveStart},${0 - padding}`; // Line to where wave starts at top
-    d += ` L ${xAtWaveStart},${yTopBoundary_wave}`; // Line down to top of clipping circle
-    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${xAtWaveEnd},${yBottomBoundary_wave}`; // Bezier curve for wave
-    d += ` L ${xAtWaveEnd},${this.viewBoxSize + padding}`; // Line from wave end to bottom (of padded area)
-    d += ` L ${0 - padding},${this.viewBoxSize + padding}`; // Line to bottom-left (of padded area)
-    d += ` Z`; // Close path
+    let d = `M ${0 - padding}, ${0 - padding}`;
+    d += ` L ${xAtWaveStart}, ${0 - padding}`;
+    d += ` L ${xAtWaveStart}, ${yTopBoundary_wave}`;
+    d += ` C ${cp1x}, ${cp1y}, ${cp2x}, ${cp2y}, ${xAtWaveEnd}, ${yBottomBoundary_wave}`;
+    d += ` L ${xAtWaveEnd}, ${this.viewBoxSize + padding}`;
+    d += ` L ${0 - padding}, ${this.viewBoxSize + padding}`;
+    d += ` Z`;
     return d;
   }
+
   onSelectFolderClick(event: MouseEvent): void {
     event.stopPropagation();
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
