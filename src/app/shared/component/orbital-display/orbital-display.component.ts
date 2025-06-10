@@ -1,3 +1,4 @@
+// src/app/shared/component/orbital-display/orbital-display.component.ts
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef, HostBinding, OnDestroy, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SelectedItem, TransferPanelComponent } from '../../../component/transfer-panel/transfer-panel.component'; // Ensure SelectedItem is exported and has 'progress'
@@ -14,13 +15,13 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   public isDragActiveLocal: boolean = false;
 
   @Input() centralButtonIconClass: string = 'fas fa-plus';
-  @Input() items: SelectedItem[] = [];
+  @Input() items: SelectedItem[] = []; // Assuming SelectedItem has a 'progress: number' property (0-100) for individual file progress
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
 
-  @Input() uploadProgressPercentage: number = 0; // This might be current file's individual progress from parent
-  @Input() bytesSent: number = 0; // Assume this is overall cumulative bytes sent for the batch
-  @Input() totalBytes: number = 0; // Assume this is overall total bytes for the batch
+  @Input() uploadProgressPercentage: number = 0;
+  @Input() bytesSent: number = 0;
+  @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
   @Input() generalUploadStatusMessage: string = '';
@@ -58,8 +59,7 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     let triggerChangeDetection = false;
-    // Include bytesSent and totalBytes for change detection if they affect _actualOverallProgressPercentage
-    if (changes['uploadProgressPercentage'] || changes['isUploading'] || changes['batchShareableLink'] || changes['items'] || changes['bytesSent'] || changes['totalBytes']) {
+    if (changes['uploadProgressPercentage'] || changes['isUploading'] || changes['batchShareableLink'] || changes['items']) {
       triggerChangeDetection = true;
     }
 
@@ -68,27 +68,9 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  // NEW: Getter for the actual overall progress percentage
-  get _actualOverallProgressPercentage(): number {
-    if (this.batchShareableLink) { // If a shareable link exists, upload is 100% complete
-      return 100;
-    }
-    if (this.isUploading && this.totalBytes > 0 && this.bytesSent >= 0) {
-      const progress = (this.bytesSent / this.totalBytes) * 100;
-      return Math.min(Math.max(progress, 0), 100); // Clamp between 0 and 100
-    }
-    // If not uploading, but items were present and parent signaled 100% (covers post-upload completion)
-    if (!this.isUploading && this.items.length > 0 && this.uploadProgressPercentage >= 100) {
-      return 100;
-    }
-    // Default: Pre-upload, initial state, or error state where calculation isn't possible
-    return 0;
-  }
-
   ngOnInit(): void {
     this.waveAnimationInterval = setInterval(() => {
-      // MODIFIED: Use _actualOverallProgressPercentage for wave animation condition
-      if (this.isUploading && this._actualOverallProgressPercentage > 0 && this._actualOverallProgressPercentage < 100 && !this.isAtZeroProgressAndUploading && !this.isUploadComplete) {
+      if (this.isUploading && this.uploadProgressPercentage > 0 && this.uploadProgressPercentage < 100 && !this.isAtZeroProgressAndUploading && !this.isUploadComplete) {
         this.waveAnimationPhase += 0.04;
         if (this.waveAnimationPhase > Math.PI * 4) {
           this.waveAnimationPhase -= Math.PI * 4;
@@ -109,14 +91,12 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private get _normalProgressStrokeDashoffset(): number {
-    // MODIFIED: Use _actualOverallProgressPercentage
-    const offset = this.circumference - (this._actualOverallProgressPercentage / 100) * this.circumference;
+    const offset = this.circumference - (this.uploadProgressPercentage / 100) * this.circumference;
     return Math.max(0, Math.min(offset, this.circumference));
   }
 
   get isAtZeroProgressAndUploading(): boolean {
-    // MODIFIED: Use _actualOverallProgressPercentage
-    return this.isUploading && this.items.length > 0 && this._actualOverallProgressPercentage === 0;
+    return this.isUploading && this.uploadProgressPercentage === 0;
   }
 
   get dynamicStrokeDasharray(): string {
@@ -137,20 +117,16 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get isUploadComplete(): boolean {
-    // MODIFIED: Use _actualOverallProgressPercentage
-    if (this.batchShareableLink) return true;
-    return this._actualOverallProgressPercentage >= 100 && !this.isUploading && this.items.length > 0;
+    return this.uploadProgressPercentage >= 100;
   }
 
   getWaterPathD(): string {
-    // MODIFIED: Use _actualOverallProgressPercentage
-    const currentProgress = this._actualOverallProgressPercentage;
     const vbCenter = this.viewBoxSize / 2;
     const r_for_wave = this.clipRadius;
     const padding = 5;
 
-    const waterEdgeXBase = (vbCenter - r_for_wave) + (currentProgress / 100) * (2 * r_for_wave);
-    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15; // isUploadComplete now uses _actualOverallProgressPercentage
+    const waterEdgeXBase = (vbCenter - r_for_wave) + (this.uploadProgressPercentage / 100) * (2 * r_for_wave);
+    const waveAmplitude = this.isUploadComplete ? 0 : r_for_wave * 0.15;
 
     const yTopBoundary_wave = vbCenter - r_for_wave;
     const yBottomBoundary_wave = vbCenter + r_for_wave;
@@ -172,7 +148,6 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     d += ` Z`;
     return d;
   }
-
   onSelectFolderClick(event: MouseEvent): void {
     event.stopPropagation();
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {

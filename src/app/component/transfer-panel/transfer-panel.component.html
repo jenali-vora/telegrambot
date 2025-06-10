@@ -16,6 +16,8 @@
         <div class="file-summary">
             <span class="count">
                 {{ totalCount }} file{{ totalCount !== 1 ? 's' : '' }}
+                <!-- Show total batch size ONLY when batchShareableLink is present (upload complete) -->
+                <!-- Or when not uploading AND no link yet (pre-upload) -->
                 <ng-container *ngIf="(!isUploading && !batchShareableLink) || batchShareableLink">
                     ({{ totalSize | byteFormat }})
                 </ng-container>
@@ -34,30 +36,31 @@
             <ul class="file-list">
                 @for(item of items; track item.id) {
                 <li class="file-list-item" [class.is-uploading-item]="isUploading && !batchShareableLink"
-                    [class.is-completed-item]="batchShareableLink || item.status === 'complete' || (isUploading && getItemDisplayProgress(item) === 100)">
+                    [class.is-completed-item]="batchShareableLink || (isUploading && uploadPercentage === 100)">
                     <div class="item-icon"><i [ngClass]="item.icon"></i></div>
                     <div class="item-details">
                         <span class="item-name" [title]="item.name">{{ item.name }}</span>
 
                         <!-- Case 1: Batch upload is complete (batchShareableLink is available) -->
-                        <!-- No progress text needed here as it's handled by is-completed-item class -->
+                        <!-- NO size/progress text shown here, only name and icon -->
+                        <!-- The *ngIf="batchShareableLink" for the text was removed -->
+
 
                         <!-- Case 2: Batch upload is active (isUploading, no batchShareableLink yet) -->
-                        <!-- MODIFIED: Use helper methods for individual item progress display -->
                         <ng-container *ngIf="isUploading && !batchShareableLink">
                             <div class="item-progress-text">
-                                {{ getItemDisplayBytesSent(item) | byteFormat }} / {{ item.size | byteFormat }} | {{
-                                getItemDisplayProgress(item).toFixed(0) }}%
-                                <!-- Show ETA for items that are currently uploading and not yet 100% -->
-                                <ng-container *ngIf="item.status === 'uploading' && getItemDisplayProgress(item) < 100">
-                                    • {{ etaFormatted }}
+                                <ng-container *ngIf="uploadPercentage === 100">
+                                    {{ item.size | byteFormat }} / {{ item.size | byteFormat }} | 100%
+                                </ng-container>
+                                <ng-container *ngIf="uploadPercentage < 100">
+                                    {{ bytesSent | byteFormat }} / {{ item.size | byteFormat }} | {{
+                                    uploadPercentage.toFixed(0) }}% • {{ etaFormatted }}
                                 </ng-container>
                             </div>
                             <!-- Progress bar ONLY shown during active upload -->
                             <div class="item-linear-progress-bar-wrapper">
                                 <div class="progress-bar-custom">
-                                    <div class="progress-bar-custom-fill"
-                                        [style.width.%]="getItemDisplayProgress(item)"></div>
+                                    <div class="progress-bar-custom-fill" [style.width.%]="uploadPercentage"></div>
                                 </div>
                             </div>
                         </ng-container>
@@ -74,10 +77,11 @@
                             <i class="fas fa-download"></i>
                         </button>
                         <button class="btn icon-btn btn-remove-item" title="Remove this item"
-                            (click)="requestItemRemoval(item, $event)">
+                            (click)="requestItemRemoval(item, $event)"> <!-- This removes item before upload starts -->
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
+
                 </li>
                 }
                 @empty {
@@ -87,6 +91,7 @@
         </div>
     </div>
 
+    <!-- ... (rest of the HTML remains the same) ... -->
     <div *ngIf="batchShareableLink" class="completed-transfer-actions">
         <div class="share-link-display">
             <label>Your download link:</label>
