@@ -44,10 +44,9 @@
         </div>
 
         <!-- New Circular SVG Progress UI -->
-        <!-- MODIFIED: Conditions use _actualOverallProgressPercentage and related getters -->
         <div *ngIf="(isUploading || isUploadComplete) && items.length > 0 && !batchShareableLink"
             class="circular-progress-wrapper-new" [class.progress-initial-state]="isAtZeroProgressAndUploading"
-            [class.progress-active-state]="_actualOverallProgressPercentage > 0 && !isUploadComplete && !isAtZeroProgressAndUploading"
+            [class.progress-active-state]="uploadProgressPercentage > 0 && !isUploadComplete && !isAtZeroProgressAndUploading"
             [class.progress-complete-state]="isUploadComplete">
 
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
@@ -63,9 +62,8 @@
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
 
                 <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
-                <!-- MODIFIED: Condition uses _actualOverallProgressPercentage -->
                 <g [attr.clip-path]="'url(#waterClipPath)'"
-                    *ngIf="(_actualOverallProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
+                    *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
                     <path class="water-fill" [attr.d]="getWaterPathD()" />
                 </g>
 
@@ -77,9 +75,9 @@
 
             </svg>
             <!-- Percentage Text -->
-            <!-- MODIFIED: Use _actualOverallProgressPercentage for display -->
+            <!-- MODIFIED: Layout changed to flex column to accommodate file count -->
             <div class="progress-percentage-text-new">
-                <span>{{ _actualOverallProgressPercentage.toFixed(0) }}%</span>
+                <span>{{ uploadProgressPercentage.toFixed(0) }}%</span>
                 <!-- Display file upload status (X of Y files) -->
                 <!-- <span class="file-upload-status">
                     {{ completedFilesCount }} of {{ items.length }} file{{ items.length === 1 ? '' : 's' }}
@@ -93,7 +91,7 @@
         </p>
 
         <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
-            [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage" 
+            [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage"
             [bytesSent]="bytesSent" [totalBytes]="totalBytes" [speedMBps]="speedMBps" [etaFormatted]="etaFormatted"
             [generalUploadStatusMessage]="generalUploadStatusMessage" (requestAddFiles)="onRequestAddFilesPanel()"
             (requestAddFolder)="onRequestAddFolderPanel()" (itemRemoved)="onItemRemovedPanel($event)"

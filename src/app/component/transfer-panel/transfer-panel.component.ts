@@ -1,3 +1,4 @@
+// src/app/component/transfer-panel/transfer-panel.component.ts
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
@@ -9,7 +10,7 @@ export interface SelectedItem {
   size: number;
   isFolder?: boolean;
   icon: string;
-  progress?: number; // Percentage progress for this specific item (0-100)
+  progress?: number;
   status?: 'pending' | 'uploading' | 'complete' | 'error';
 }
 
@@ -32,21 +33,20 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() isUploading: boolean = false;
   @Input() batchShareableLink: string | null = null;
 
-  // This input is assumed to be the progress of the *currently uploading* file
   @Input() uploadPercentage: number = 0;
-  @Input() bytesSent: number = 0; // Overall batch bytes sent
-  @Input() totalBytes: number = 0; // Overall batch total size
+  @Input() bytesSent: number = 0;
+  @Input() totalBytes: number = 0;
   @Input() speedMBps: number = 0;
   @Input() etaFormatted: string = '--:--';
 
   @Output() requestAddFiles = new EventEmitter<void>();
   @Output() requestAddFolder = new EventEmitter<void>();
-  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
+  @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>(); // Used for pre-upload removal or clear all
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
-  @Output() cancelUpload = new EventEmitter<void>();
+  @Output() cancelUpload = new EventEmitter<void>(); // For cancelling the entire batch upload
   @Output() newTransferRequested = new EventEmitter<void>();
-  @Output() itemUploadCancellationRequested = new EventEmitter<SelectedItem>();
+  @Output() itemUploadCancellationRequested = new EventEmitter<SelectedItem>(); // **** NEW EVENT ****
 
   @Input() generalUploadStatusMessage: string = '';
 
@@ -57,26 +57,6 @@ export class TransferPanelComponent implements OnDestroy {
 
   get totalSize(): number { return this.items.reduce((acc, item) => acc + (item.size || 0), 0); }
   get totalCount(): number { return this.items.length; }
-
-  // NEW: Helper to get display progress for an individual item
-  getItemDisplayProgress(item: SelectedItem): number {
-    if (item.status === 'complete') {
-      return 100;
-    }
-    if (item.status === 'uploading') {
-      // Prioritize item.progress if available and granular,
-      // otherwise use the component-level uploadPercentage (assumed active file's progress)
-      return item.progress !== undefined ? item.progress : this.uploadPercentage;
-    }
-    // For 'pending', 'error', or if progress isn't set yet
-    return item.progress !== undefined ? item.progress : 0;
-  }
-
-  // NEW: Helper to get display bytes sent for an individual item
-  getItemDisplayBytesSent(item: SelectedItem): number {
-    const progress = this.getItemDisplayProgress(item);
-    return (progress / 100) * item.size;
-  }
 
   get currentUploadProgressSizeDisplay(): string {
     if (this.totalBytes > 0) {
@@ -91,13 +71,13 @@ export class TransferPanelComponent implements OnDestroy {
 
   clearAllItems(): void {
     if (!this.isUploading) {
-      this.itemRemoved.emit(undefined);
+      this.itemRemoved.emit(undefined); // Signals to clear all pre-upload items
     }
   }
 
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void {
     event.stopPropagation();
-    if (!this.isUploading) {
+    if (!this.isUploading) { // This is for removing an item *before* upload starts
       this.itemRemoved.emit(item);
     }
   }
@@ -115,6 +95,7 @@ export class TransferPanelComponent implements OnDestroy {
     }
   }
 
+  // This method remains for cancelling the *entire* batch upload
   handleCancelUpload(): void {
     if (this.isUploading) {
       this.cancelUpload.emit();
