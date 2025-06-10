@@ -3,7 +3,6 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/component/header/header.component';
 import { FooterComponent } from './shared/component/footer/footer.component';
 import { isPlatformBrowser } from '@angular/common';
-import { TawkToChatService } from './shared/services/tawk-to-chat.service';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +23,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   constructor(
     private renderer: Renderer2,
     private elRef: ElementRef,
-    private tawkToChatService: TawkToChatService,
     @Inject(PLATFORM_ID) private platformId: Object,
     private ngZone: NgZone
   ) {
@@ -36,7 +34,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    this.tawkToChatService.loadScript();
   }
 
   ngAfterViewInit(): void {

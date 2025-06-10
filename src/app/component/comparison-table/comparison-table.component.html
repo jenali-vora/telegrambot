@@ -8,7 +8,7 @@
                     <!-- Empty cell above feature names -->
                     <th class="feature-col-header"></th>
                     <!-- Loop through plans for column headers -->
-                    <th *ngFor="let plan of plans" class="plan-col-header" [ngClass]="plan.highlightClass">
+                    <th *ngFor="let plan of plans" class="plan-col-header">
                         <span class="plan-name">{{ plan.name }}</span>
                         <button type="button" class="btn header-btn" [ngClass]="plan.buttonStyle">
                             {{ plan.buttonText }}
@@ -33,7 +33,7 @@
                         <td class="feature-name-cell">{{ feature.name }}</td>
 
                         <!-- Loop through plans for value cells -->
-                        <td *ngFor="let plan of plans" class="feature-value-cell" [ngClass]="plan.highlightClass">
+                        <td *ngFor="let plan of plans" class="feature-value-cell">
                             <!-- Get the value for this specific feature and plan -->
                             <ng-container [ngSwitch]="getFeatureValue(feature, plan.id)?.isCheck">
                                 <!-- Check Mark -->
