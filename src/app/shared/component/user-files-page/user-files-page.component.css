@@ -128,7 +128,7 @@
     font-size: 1.2rem;
     width: 25px;
     text-align: center;
-    color: #888;
+    color: var(--text-color-secondary);
     flex-shrink: 0;
 }
 
@@ -160,13 +160,13 @@
 .user-file-list-panel .item-upload-date-history {
     display: block;
     font-size: 0.75rem;
-    color: #777;
+    color: var(--text-color-secondary);
     margin-top: 2px;
 }
 
 .user-file-list-panel .item-size {
     font-size: 0.8rem;
-    color: #777;
+    color: var(--text-color-secondary);
     flex-shrink: 0;
     white-space: nowrap;
 }
@@ -210,7 +210,7 @@
 .no-files-message {
     padding: 1.5rem;
     text-align: center;
-    color: #555;
+    color: var(--text-color-secondary);
 }
 
 .error-message {

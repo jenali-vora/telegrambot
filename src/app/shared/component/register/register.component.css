@@ -35,7 +35,7 @@
     /* Slightly wider for icon padding */
     background: none;
     border: none;
-    border-left: 1px solid #eee;
+    border-left: 1px solid var(--border-main);
     /* Keep separator */
     /* cursor: pointer; */
     padding: 0;
@@ -52,7 +52,7 @@
 
 .toggle-visibility:hover {
     opacity: 1;
-    color: #555;
+    color: var(--text-color-secondary);
     background-color: #f9f9f9;
 }
 
@@ -160,7 +160,7 @@
     width: 36px;
     background: none;
     border: none;
-    border-left: 1px solid #eee;
+    border-left: 1px solid var(--border-main);
     /* cursor: pointer; */
     padding: 0;
     display: flex;
@@ -175,14 +175,14 @@
 
 .toggle-visibility:hover {
     opacity: 1;
-    color: #555;
+    color: var(--text-color-secondary);
 }
 
 /* Checkboxes & Terms */
 .terms-section {
     margin: 25px 0;
     padding-top: 15px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-main);
 }
 
 .checkbox-group {
@@ -204,7 +204,7 @@
 .checkbox-group label {
     margin: 0;
     font-size: 12px;
-    color: #555;
+    color: var(--text-color-secondary);
     /* cursor: pointer; */
     line-height: 1.4;
 }

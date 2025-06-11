@@ -184,7 +184,7 @@
 
 .btn-pro:hover {
     background-color: var(--button-hover);
-    border-color: var(--button-hover);
+    color: var(--button-color);
 }
 
 .btn-team {
@@ -254,7 +254,7 @@
     gap: 12px;
     margin-bottom: 15px;
     font-size: 0.9rem;
-    color: #333;
+    color: var(--heading-color);
 }
 
 .features-list li i {
