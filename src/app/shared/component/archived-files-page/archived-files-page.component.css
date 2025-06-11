@@ -2,7 +2,7 @@
     text-align: center;
     padding: 20px;
     font-size: 1.2em;
-    color: #777;
+    color: var(--text-color-secondary);
 }
 
 .loading-indicator .fas {
@@ -54,9 +54,9 @@
 .file-summary {
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-main);
     font-size: 0.9em;
-    color: #555;
+    color: var(--text-color-secondary);
 }
 
 @media (max-width: 480px) {

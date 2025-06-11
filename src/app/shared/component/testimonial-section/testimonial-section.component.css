@@ -78,7 +78,7 @@
 
 .quote-text {
     font-size: 0.95em;
-    color: #555;
+    color: var(--text-color-secondary);
     line-height: 1.6;
     margin-bottom: 20px;
     min-height: 100px;

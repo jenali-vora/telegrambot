@@ -160,9 +160,7 @@ a:active {
     --heading-color: #333;
     --text-color-secondary: #555;
     --delete-color: #dc3545;
-    --theme-border-color-r: 227;
-    --theme-border-color-g: 104;
-    --theme-border-color-b: 18;
+    --border-main: #eee;
 }
 
 .text-highlight-gradient {

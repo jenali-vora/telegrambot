@@ -17,7 +17,7 @@
     display: flex;
     gap: 20px;
     /* Space between author and date */
-    color: #777;
+    color: var(--text-color-secondary);
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
 }
@@ -46,7 +46,7 @@
 
 .post-content {
     line-height: 1.7;
-    color: #333;
+    color: var(--heading-color);
     font-size: 1.05rem;
     /* Slightly larger body text */
 }
@@ -133,7 +133,7 @@
 
 .related-date {
     font-size: 0.8em;
-    color: #777;
+    color: var(--text-color-secondary);
     margin-bottom: 5px;
 }
 
@@ -172,7 +172,7 @@
     text-align: center;
     padding: 3rem;
     font-size: 1.2rem;
-    color: #777;
+    color: var(--text-color-secondary);
 }
 
 /* Responsive Adjustments */

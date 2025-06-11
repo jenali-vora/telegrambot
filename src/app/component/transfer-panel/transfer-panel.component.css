@@ -21,7 +21,7 @@
 /* Styles for progress text under item name */
 .item-progress-text {
     font-size: 0.75rem;
-    color: #555;
+    color: var(--text-color-secondary);
     /* Dark grey, similar to screenshot */
     margin-top: 0px;
     /* Adjusted from 3px, as .item-name has margin-bottom */
@@ -138,7 +138,7 @@
 
 .upload-status-message-general {
     font-size: 0.8rem;
-    color: #555;
+    color: var(--text-color-secondary);
     margin-top: 8px;
     text-align: center;
     width: 100%;
@@ -181,7 +181,7 @@
     /* Lighter dashed border */
     background-color: #f8f9fd;
     /* Very light background */
-    color: #555;
+    color: var(--text-color-secondary);
     /* Darker grey text */
     border-radius: 8px;
     /* More rounded */
@@ -258,13 +258,13 @@
 
 .file-summary .size {
     font-size: 0.85rem;
-    color: #777;
+    color: var(--text-color-secondary);
     /* Grey size */
 }
 
 .btn-clear-all {
     /* Style the overall delete button */
-    color: #888;
+    color: var(--text-color-secondary);
     padding: 3px 5px;
     background: none;
     border: none;
@@ -351,7 +351,7 @@
 /* Style for size on the right */
 .item-size {
     font-size: 0.8rem;
-    color: #777;
+    color: var(--text-color-secondary);
     flex-shrink: 0;
     margin-left: auto;
     /* Push to the right */
@@ -383,7 +383,7 @@
 .share-link-display label {
     display: block;
     font-size: 0.8rem;
-    color: #555;
+    color: var(--text-color-secondary);
     margin-bottom: 0.3rem;
     font-weight: 500;
 }
@@ -525,7 +525,7 @@
 
 .item-size {
     font-size: 0.8rem;
-    color: #777;
+    color: var(--text-color-secondary);
     flex-shrink: 0;
     /* margin-left: auto; --- REMOVED to allow buttons next to it --- */
     white-space: nowrap;
@@ -639,7 +639,7 @@
 
 .upload-status-message {
     font-size: 0.8rem;
-    color: #555;
+    color: var(--text-color-secondary);
     margin-top: 5px;
 }
 

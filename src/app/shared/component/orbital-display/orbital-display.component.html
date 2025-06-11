@@ -44,10 +44,11 @@
         </div>
 
         <!-- New Circular SVG Progress UI -->
-        <div *ngIf="(isUploading || isUploadComplete) && items.length > 0 && !batchShareableLink"
-            class="circular-progress-wrapper-new" [class.progress-initial-state]="isAtZeroProgressAndUploading"
-            [class.progress-active-state]="uploadProgressPercentage > 0 && !isUploadComplete && !isAtZeroProgressAndUploading"
-            [class.progress-complete-state]="isUploadComplete">
+        <!-- MODIFIED: Conditions use new getters -->
+        <div *ngIf="(isUploading || isBatchUploadComplete) && items.length > 0 && !batchShareableLink"
+            class="circular-progress-wrapper-new" [class.progress-initial-state]="isDisplayingInitialSpinner"
+            [class.progress-active-state]="overallBatchProgressPercentage > 0 && !isBatchUploadComplete && !isDisplayingInitialSpinner"
+            [class.progress-complete-state]="isBatchUploadComplete">
 
             <svg class="circular-progress-svg-new" [attr.viewBox]="'0 0 ' + viewBoxSize + ' ' + viewBoxSize">
                 <defs>
@@ -62,26 +63,25 @@
                     [attr.r]="radius" [attr.stroke-width]="strokeWidth" />
 
                 <!-- 2. Water Animation Layer (Middle layer, conditionally visible) -->
+                <!-- MODIFIED: Condition uses new getters -->
                 <g [attr.clip-path]="'url(#waterClipPath)'"
-                    *ngIf="(uploadProgressPercentage > 0 || isUploadComplete) && !isAtZeroProgressAndUploading">
+                    *ngIf="(overallBatchProgressPercentage > 0 || isBatchUploadComplete) && !isDisplayingInitialSpinner">
                     <path class="water-fill" [attr.d]="getWaterPathD()" />
                 </g>
 
                 <!-- 3. Progress Value Arc / Spinning Dot (Top layer for progress indication) -->
-                <circle class="circular-progress-value-new" [class.spinning-dot]="isAtZeroProgressAndUploading"
+                <!-- MODIFIED: class.spinning-dot uses new getter -->
+                <circle class="circular-progress-value-new" [class.spinning-dot]="isDisplayingInitialSpinner"
                     [attr.cx]="viewBoxSize / 2" [attr.cy]="viewBoxSize / 2" [attr.r]="radius"
                     [attr.stroke-width]="strokeWidth" [style.strokeDasharray]="dynamicStrokeDasharray"
                     [style.strokeDashoffset]="dynamicStrokeDashoffset" />
+                <!-- These dynamic styles now correctly use overall progress via _normalProgressStrokeDashoffset -->
 
             </svg>
             <!-- Percentage Text -->
-            <!-- MODIFIED: Layout changed to flex column to accommodate file count -->
             <div class="progress-percentage-text-new">
-                <span>{{ uploadProgressPercentage.toFixed(0) }}%</span>
-                <!-- Display file upload status (X of Y files) -->
-                <!-- <span class="file-upload-status">
-                    {{ completedFilesCount }} of {{ items.length }} file{{ items.length === 1 ? '' : 's' }}
-                </span> -->
+                <!-- MODIFIED: Displays overall batch progress -->
+                <span>{{ overallBatchProgressPercentage.toFixed(0) }}%</span>
             </div>
         </div>
 
@@ -90,6 +90,11 @@
             and <a routerLink="/privacy">Privacy Policy</a>.
         </p>
 
+        <!-- The app-transfer-panel still receives the original `uploadProgressPercentage`.
+             If this was intended for overall progress, it's fine. If it was for individual file
+             progress and you want individual progress bars in the list, TransferPanelComponent
+             would need further changes to consume item-specific progress from the `items` array.
+             This solution primarily fixes the main orbital display. -->
         <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
             [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage"
             [bytesSent]="bytesSent" [totalBytes]="totalBytes" [speedMBps]="speedMBps" [etaFormatted]="etaFormatted"

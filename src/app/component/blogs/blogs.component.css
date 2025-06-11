@@ -17,7 +17,7 @@ h1 {
 
 p {
     text-align: center;
-    color: #555;
+    color: var(--text-color-secondary);
     max-width: 800px;
     margin: 0 auto 2.5rem auto;
     /* Center description text */
@@ -40,7 +40,7 @@ p {
     /* Slightly rounded corners */
     overflow: hidden;
     /* Keep image corners rounded */
-    background-color: #fff;
+    background-color: var(--white-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     /* Subtle shadow */
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -79,7 +79,7 @@ p {
 
 .post-meta {
     font-size: 0.85em;
-    color: #777;
+    color: var(--text-color-secondary);
     margin-bottom: 8px;
 }
 
@@ -162,7 +162,7 @@ p {
 
 .pagination span {
     margin: 0 15px;
-    color: #555;
+    color: var(--text-color-secondary);
     font-size: 0.95rem;
     vertical-align: middle;
 }
