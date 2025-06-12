@@ -100,6 +100,9 @@ export interface SseReadyPayload {
 
 @Injectable({ providedIn: 'root' })
 export class FileManagerApiService {
+  streamUploadWithProgress(file: File) {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private authService = inject(AuthService);
