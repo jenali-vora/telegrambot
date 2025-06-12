@@ -2,7 +2,7 @@
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, catchError, concatMap, from, of, tap, throwError } from 'rxjs'; // Added 'of' for potential placeholder in service
+import { Observable, Subscription, catchError, concatMap, from, of, tap, throwError } from 'rxjs'; // Added 'of' for potential placeholder in service
 import { AuthService, User } from '../../shared/services/auth.service';
 import {
   FileManagerApiService,
@@ -457,27 +457,41 @@ export class HomeComponent implements OnInit, OnDestroy {
     let bytesUploadedSoFar = 0;
 
     this.uploadProgressDetails = {
-      percentage: 0, bytesSent: 0, totalBytes: totalBatchSize,
-      speedMBps: 0, etaFormatted: '--:--',
+      percentage: 0,
+      bytesSent: 0,
+      totalBytes: totalBatchSize,
+      speedMBps: 0,
+      etaFormatted: '--:--',
     };
 
     this.currentItemBeingUploaded = {
-      id: -1, name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : this.selectedItems[0].name,
-      size: totalBatchSize, file: null, icon: 'fas fa-archive', isFolder: false
+      id: -1,
+      name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : this.selectedItems[0].name,
+      size: totalBatchSize,
+      file: null,
+      icon: 'fas fa-archive',
+      isFolder: false
     };
-
     this.cdRef.detectChanges();
 
+    // --- 2. CREATE OBSERVABLE CHAIN FOR SEQUENTIAL UPLOADS ---
     this.uploadSubscription = from(this.selectedItems).pipe(
-      concatMap((item: SelectedItem) => { // FIXED [TS7006]: Explicitly type item
+      concatMap((item: SelectedItem) => {
         if (!item.file || item.isFolder) {
+          console.warn(`Skipping item '${item.name}' as it's a folder or has no file object.`);
           bytesUploadedSoFar += item.size;
+          // Update overall progress even for skipped items
+          this.uploadProgressDetails.bytesSent = bytesUploadedSoFar;
+          this.uploadProgressDetails.percentage = (bytesUploadedSoFar / totalBatchSize) * 100;
+          this.uploadProgress = this.uploadProgressDetails.percentage;
+          this.cdRef.detectChanges();
           return of(null);
         }
 
         this.uploadStatusMessage = `Uploading: ${item.name}`;
         this.cdRef.detectChanges();
 
+        // THIS IS THE KEY: We call the existing `streamUpload` method
         return this.apiService.streamUpload(item.file).pipe(
           tap((response: StreamUploadResponse) => {
             bytesUploadedSoFar += item.size;
@@ -516,7 +530,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           if (this.completedUploads.length > 0) {
             const firstResult = this.completedUploads[0];
-            this.shareableLinkForPanel = firstResult.url.replace('/download/stream-download/', '/batch-view/');
+            this.shareableLinkForPanel = firstResult.url; // This will now have the correct frontend URL
             this.completedBatchAccessId = firstResult.access_id;
 
             this.currentItemBeingUploaded!.name = this.selectedItems.length > 1
@@ -525,7 +539,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
 
           if (this.currentUser) this.uploadEventService.notifyUploadComplete();
-
           this.cdRef.detectChanges();
           console.log("Upload sequence complete. All files sent.", this.completedUploads);
         });
@@ -533,6 +546,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  private updateOverallProgress(bytesSent: number, totalBytes: number) {
+    this.uploadProgressDetails.bytesSent = bytesSent;
+    this.uploadProgressDetails.percentage = (bytesSent / totalBytes) * 100;
+    this.uploadProgress = this.uploadProgressDetails.percentage;
+    this.cdRef.detectChanges();
+  }
 
   private handleGDriveComplete(data: any, operationId: string): void {
     this.zone.run(() => {
