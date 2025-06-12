@@ -1,4 +1,3 @@
-<!-- src/app/component/transfer-panel/transfer-panel.component.html -->
 <div class="transfer-panel-wrapper card-style">
 
     <!-- "Add More" Actions: Show if no items AND not uploading -->
@@ -53,14 +52,14 @@
                                     {{ item.size | byteFormat }} / {{ item.size | byteFormat }} | 100%
                                 </ng-container>
                                 <ng-container *ngIf="uploadPercentage < 100">
-                                    {{ bytesSent | byteFormat }} / {{ item.size | byteFormat }} | {{
-                                    uploadPercentage.toFixed(0) }}% • {{ etaFormatted }}
+                                    {{ getItemUploadedBytes(item) | byteFormat }} / {{ item.size | byteFormat }} | {{
+                                    getItemUploadPercentage(item).toFixed(0) }}% • {{ etaFormatted }}
                                 </ng-container>
                             </div>
                             <!-- Progress bar ONLY shown during active upload -->
                             <div class="item-linear-progress-bar-wrapper">
                                 <div class="progress-bar-custom">
-                                    <div class="progress-bar-custom-fill" [style.width.%]="uploadPercentage"></div>
+                                    <div class="progress-bar-custom-fill" [style.width.%]="getItemUploadPercentage(item)"></div>
                                 </div>
                             </div>
                         </ng-container>
