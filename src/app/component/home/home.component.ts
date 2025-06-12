@@ -430,8 +430,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   initiateTransferFromPanel(): void {
     if (this.isUploading || this.selectedItems.length === 0) return;
 
-    // Anonymous user limit checks (remain the same)
+    // Limit checks remain the same
     if (!this.authService.isLoggedIn()) {
+      // ... your existing anonymous limit checks ...
       const totalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
       if (this.selectedItems.length > this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
         this.uploadError = `As you are not logged in, you can upload a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files/folders.`;
@@ -448,53 +449,94 @@ export class HomeComponent implements OnInit, OnDestroy {
     // --- 1. SETUP UI STATE FOR UPLOAD ---
     this.isUploading = true;
     this.uploadError = null;
-    this.uploadSuccessMessage = null;
     this.completedUploads = [];
     this.shareableLinkForPanel = null;
     this.uploadSubscription?.unsubscribe();
 
-    const itemsToUpload = [...this.selectedItems]; // Create a copy to work with
-    const totalBatchSize = itemsToUpload.reduce((sum, item) => sum + item.size, 0);
+    const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
     let bytesUploadedSoFar = 0;
-    this.uploadProgressDetails.totalBytes = totalBatchSize;
-    this.cdRef.detectChanges();
 
-    const uploadNextFile = () => {
-      if (itemsToUpload.length === 0) {
-        // All files are done
-        this.onAllUploadsComplete();
-        return;
-      }
-
-      const currentItem = itemsToUpload.shift()!; // Get the next file
-      if (!currentItem.file || currentItem.isFolder) {
-        bytesUploadedSoFar += currentItem.size;
-        this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
-        uploadNextFile(); // Immediately start the next one
-        return;
-      }
-
-      this.uploadStatusMessage = `Uploading: ${currentItem.name}`;
-      this.cdRef.detectChanges();
-
-      // Phase 1: POST the file data
-      this.apiService.initiateStreamUpload(currentItem.file).subscribe({
-        next: (initResponse) => {
-          // Phase 2: Open EventSource to get progress
-          this.listenToProgress(initResponse.operation_id, currentItem, () => {
-            // This is the callback that runs when this file is complete
-            bytesUploadedSoFar += currentItem.size;
-            this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
-            uploadNextFile(); // Start the next file
-          });
-        },
-        error: (err) => this.handleBatchUploadError(err.message)
-      });
+    this.uploadProgressDetails = {
+      percentage: 0,
+      bytesSent: 0,
+      totalBytes: totalBatchSize,
+      speedMBps: 0,
+      etaFormatted: '--:--',
     };
 
-    uploadNextFile(); // Start the process
-  }
+    this.currentItemBeingUploaded = {
+      id: -1,
+      name: `Uploading ${this.selectedItems.length} item(s)...`,
+      size: totalBatchSize,
+      file: null,
+      icon: 'fas fa-archive',
+      isFolder: false
+    };
+    this.cdRef.detectChanges();
 
+    // --- 2. CREATE OBSERVABLE CHAIN FOR SEQUENTIAL SSE UPLOADS ---
+    this.uploadSubscription = from(this.selectedItems).pipe(
+      concatMap(item =>
+        new Observable<StreamUploadResponse>(observer => {
+          if (!item.file || item.isFolder) {
+            bytesUploadedSoFar += item.size;
+            this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
+            observer.next(undefined as any);
+            observer.complete();
+            return;
+          }
+
+          this.uploadStatusMessage = `Uploading: ${item.name}`;
+          this.cdRef.detectChanges();
+
+          const sseUrl = this.apiService.getStreamUploadUrl(item.file);
+          const eventSource = new EventSource(sseUrl, { withCredentials: this.authService.isLoggedIn() });
+
+          eventSource.onmessage = (e: MessageEvent) => {
+            // This is the key change for real-time progress
+            const data = JSON.parse(e.data);
+            if (data.type === 'progress') {
+              const fileProgressBytes = (item.size * (data.percentage || 0)) / 100;
+              this.updateOverallProgress(bytesUploadedSoFar + fileProgressBytes, totalBatchSize);
+            }
+          };
+
+          eventSource.addEventListener('complete', (e: MessageEvent) => {
+            const data: StreamUploadResponse = JSON.parse(e.data);
+            bytesUploadedSoFar += item.size;
+            this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
+
+            this.completedUploads.push({ name: item.name, url: data.download_url, access_id: data.access_id });
+
+            eventSource.close();
+            observer.next(data);
+            observer.complete();
+          });
+
+          eventSource.addEventListener('error', (e: MessageEvent) => {
+            const data = JSON.parse(e.data);
+            eventSource.close();
+            observer.error(new Error(data.message || 'An unknown error occurred during file stream.'));
+          });
+
+          return () => eventSource.close();
+        })
+      )
+    ).subscribe({
+      next: (response) => {
+        if (response) console.log(`Successfully processed file`, response);
+      },
+      error: (err) => {
+        this.handleBatchUploadError(err.message);
+        console.error("Upload sequence failed.", err);
+      },
+      complete: () => {
+        this.zone.run(() => {
+          this.onAllUploadsComplete();
+        });
+      }
+    });
+  }
   listenToProgress(operationId: string, currentItem: SelectedItem, onComplete: () => void) {
     const sseUrl = this.apiService.getStatusStreamUrl(operationId);
     const eventSource = new EventSource(sseUrl, { withCredentials: this.authService.isLoggedIn() });
@@ -521,27 +563,47 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onAllUploadsComplete() {
-    this.zone.run(() => {
-      this.isUploading = false;
-      this.uploadStatusMessage = "All files processed successfully!";
-      this.uploadSuccessMessage = "Transfer complete!";
-      if (this.completedUploads.length > 0) {
-        const firstResult = this.completedUploads[0];
-        // Here you would ideally link to a "batch" view.
-        // For now, linking to the first file's result is a good placeholder.
-        this.shareableLinkForPanel = firstResult.url;
-        this.completedBatchAccessId = firstResult.access_id;
+    this.isUploading = false;
+    this.uploadStatusMessage = "All files processed successfully!";
+    this.uploadSuccessMessage = "Transfer complete!";
+
+    if (this.completedUploads.length > 0) {
+      // If it was a multi-file upload, we create a "master" record for the batch.
+      if (this.completedUploads.length > 1) {
+        // This is a placeholder for a future enhancement where the backend
+        // could create a single batch ID from multiple file IDs.
+        // For now, we'll link to the first file's view page.
+        this.shareableLinkForPanel = this.completedUploads[0].url;
+        this.completedBatchAccessId = this.completedUploads[0].access_id;
+        this.currentItemBeingUploaded!.name = `${this.completedUploads.length} files uploaded`;
+      } else {
+        // If only one file was uploaded, use its direct link and name.
+        const singleResult = this.completedUploads[0];
+        this.shareableLinkForPanel = singleResult.url;
+        this.completedBatchAccessId = singleResult.access_id;
+        this.currentItemBeingUploaded!.name = singleResult.name;
       }
-      this.cdRef.detectChanges();
-    });
+    }
+
+    if (this.currentUser) {
+      this.uploadEventService.notifyUploadComplete();
+    }
+    this.cdRef.detectChanges();
+    console.log("Upload sequence complete. All files sent:", this.completedUploads);
   }
 
+
   private updateOverallProgress(bytesSent: number, totalBytes: number) {
+    if (totalBytes === 0) {
+      this.uploadProgressDetails.percentage = 100;
+    } else {
+      this.uploadProgressDetails.percentage = (bytesSent / totalBytes) * 100;
+    }
     this.uploadProgressDetails.bytesSent = bytesSent;
-    this.uploadProgressDetails.percentage = (bytesSent / totalBytes) * 100;
     this.uploadProgress = this.uploadProgressDetails.percentage;
     this.cdRef.detectChanges();
   }
+
 
   private handleGDriveComplete(data: any, operationId: string): void {
     this.zone.run(() => {
