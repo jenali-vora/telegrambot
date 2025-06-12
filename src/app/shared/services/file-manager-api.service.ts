@@ -1,7 +1,7 @@
 // src/app/shared/services/file-manager-api.service.ts
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders, HttpEvent } from '@angular/common/http';
 import { Observable, throwError, EMPTY } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -101,6 +101,11 @@ export interface InitiateStreamResponse {
   message: string;
   operation_id: string;
 }
+export interface InitiateBatchResponse {
+  message: string;
+  batch_id: string;
+}
+
 export interface FinalizeBatchResponse {
   message: string;
   access_id: string;
@@ -202,28 +207,30 @@ export class FileManagerApiService {
   initiateUpload(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/initiate-upload`, formData);
   }
-  initiateBatch(batchName: string, totalSize: number, isBatch: boolean): Observable<InitiateStreamResponse> {
+
+  initiateBatch(batchName: string, totalSize: number, isBatch: boolean): Observable<InitiateBatchResponse> {
     const url = `${this.apiUrl}/upload/initiate-batch`;
     const payload = { batch_display_name: batchName, total_original_size: totalSize, is_batch: isBatch };
-    return this.http.post<InitiateStreamResponse>(url, payload)
+    return this.http.post<InitiateBatchResponse>(url, payload)
       .pipe(catchError(this.handleError));
   }
 
-  streamFileToBatch(file: File, batchId: string): Observable<any> {
+  streamFileToBatch(file: File, batchId: string): Observable<HttpEvent<any>> {
     const url = `${this.apiUrl}/upload/stream`;
     const headers = new HttpHeaders({
       'X-Filename': file.name,
       'X-Filesize': file.size.toString(),
       'X-Batch-Id': batchId
     });
-    return this.http.post(url, file, { headers: headers })
-      .pipe(catchError(this.handleError));
+    return this.http.post(url, file, { headers: headers, reportProgress: true, observe: 'events' });
   }
+
   finalizeBatch(batchId: string): Observable<FinalizeBatchResponse> {
     const url = `${this.apiUrl}/upload/finalize-batch/${batchId}`;
     return this.http.post<FinalizeBatchResponse>(url, {})
       .pipe(catchError(this.handleError));
   }
+
   deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
     if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
     const encodedIdentifier = encodeURIComponent(identifier);
