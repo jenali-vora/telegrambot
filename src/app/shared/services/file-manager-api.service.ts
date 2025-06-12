@@ -96,10 +96,18 @@ export interface SseReadyPayload {
   temp_file_id: string;
   final_filename: string;
 }
+
+export interface InitiateStreamResponse {
+  message: string;
+  operation_id: string;
+}
 // --- End of Interfaces ---
 
 @Injectable({ providedIn: 'root' })
 export class FileManagerApiService {
+   getStatusStreamUrl(operationId: string): string {
+    return `${this.apiUrl}/upload/stream-status/${operationId}`;
+  }
   streamUploadWithProgress(file: File) {
     throw new Error('Method not implemented.');
   }
@@ -146,6 +154,27 @@ export class FileManagerApiService {
         tap(res => console.log(`Stream upload successful for ${file.name}:`, res)),
         catchError(this.handleError)
       );
+  }
+
+  getStreamUploadUrl(file: File): string {
+    // We must pass filename and size as query parameters because EventSource does not support custom headers.
+    const filename = encodeURIComponent(file.name);
+    const filesize = file.size;
+
+    const streamUrl = `${this.apiUrl}/upload/stream?X-Filename=${filename}&X-Filesize=${filesize}`;
+    console.log(`[ApiService.getStreamUploadUrl] Generated SSE URL: ${streamUrl}`);
+    return streamUrl;
+  }
+
+  initiateStreamUpload(file: File): Observable<InitiateStreamResponse> {
+    const url = `${this.apiUrl}/upload/stream`;
+    const headers = new HttpHeaders({
+      'X-Filename': file.name,
+      'X-Filesize': file.size.toString()
+    });
+
+    return this.http.post<InitiateStreamResponse>(url, file, { headers: headers })
+      .pipe(catchError(this.handleError));
   }
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++ END OF NEW METHOD +++++++++++++++++++++++++++++++++++++++++++++++++++++++
