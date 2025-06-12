@@ -101,11 +101,16 @@ export interface InitiateStreamResponse {
   message: string;
   operation_id: string;
 }
+export interface FinalizeBatchResponse {
+  message: string;
+  access_id: string;
+  download_url: string;
+}
 // --- End of Interfaces ---
 
 @Injectable({ providedIn: 'root' })
 export class FileManagerApiService {
-   getStatusStreamUrl(operationId: string): string {
+  getStatusStreamUrl(operationId: string): string {
     return `${this.apiUrl}/upload/stream-status/${operationId}`;
   }
   streamUploadWithProgress(file: File) {
@@ -168,6 +173,7 @@ export class FileManagerApiService {
 
   initiateStreamUpload(file: File): Observable<InitiateStreamResponse> {
     const url = `${this.apiUrl}/upload/stream`;
+    // We send headers with the POST request
     const headers = new HttpHeaders({
       'X-Filename': file.name,
       'X-Filesize': file.size.toString()
@@ -176,6 +182,7 @@ export class FileManagerApiService {
     return this.http.post<InitiateStreamResponse>(url, file, { headers: headers })
       .pipe(catchError(this.handleError));
   }
+
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++ END OF NEW METHOD +++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -192,16 +199,31 @@ export class FileManagerApiService {
       );
   }
 
-  initiateUpload(formData: FormData): Observable<InitiateUploadResponse> {
-    // This is the old method that uses FormData and saves to server disk first.
-    // We are keeping it in case you need to switch back for testing.
-    return this.http.post<InitiateUploadResponse>(`${this.apiUrl}/initiate-upload`, formData, { headers: this.getAuthHeaders() })
-      .pipe(
-        tap(res => console.log('Initiate Upload Resp:', res)),
-        catchError(this.handleError)
-      );
+  initiateUpload(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/initiate-upload`, formData);
+  }
+  initiateBatch(batchName: string, totalSize: number, isBatch: boolean): Observable<InitiateStreamResponse> {
+    const url = `${this.apiUrl}/upload/initiate-batch`;
+    const payload = { batch_display_name: batchName, total_original_size: totalSize, is_batch: isBatch };
+    return this.http.post<InitiateStreamResponse>(url, payload)
+      .pipe(catchError(this.handleError));
   }
 
+  streamFileToBatch(file: File, batchId: string): Observable<any> {
+    const url = `${this.apiUrl}/upload/stream`;
+    const headers = new HttpHeaders({
+      'X-Filename': file.name,
+      'X-Filesize': file.size.toString(),
+      'X-Batch-Id': batchId
+    });
+    return this.http.post(url, file, { headers: headers })
+      .pipe(catchError(this.handleError));
+  }
+  finalizeBatch(batchId: string): Observable<FinalizeBatchResponse> {
+    const url = `${this.apiUrl}/upload/finalize-batch/${batchId}`;
+    return this.http.post<FinalizeBatchResponse>(url, {})
+      .pipe(catchError(this.handleError));
+  }
   deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
     if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
     const encodedIdentifier = encodeURIComponent(identifier);
