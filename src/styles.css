@@ -76,7 +76,7 @@ a:active {
     border: 2px solid var(--button-color);
     border-radius: 50%;
     animation: pulse 2.5s linear infinite;
-    box-shadow: 0 0 15px 3px rgba(0, 255, 0, 0.45);
+    /* box-shadow: 0 0 15px 3px rgba(0, 255, 0, 0.45); */
 }
 
 /* Styling for the visual element of the INNER POINTER */

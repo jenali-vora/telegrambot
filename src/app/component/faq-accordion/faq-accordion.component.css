@@ -54,11 +54,6 @@
     border-bottom: 1px solid #E4E6EC;
 }
 
-.faq-question:hover {
-    background-color: #f7fafc;
-    /* Very light grey hover */
-}
-
 .faq-icon {
     margin-right: 0.75rem;
     /* Space between icon and text */

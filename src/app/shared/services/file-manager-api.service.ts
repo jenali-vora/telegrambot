@@ -1,13 +1,23 @@
 // src/app/shared/services/file-manager-api.service.ts
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, EMPTY } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators'; // Added map
+import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { PreviewDetails } from '../../interfaces/batch.interfaces';
 
 // --- Interfaces ---
+
+// MODIFIED: Added StreamUploadResponse interface for the new endpoint
+export interface StreamUploadResponse {
+  message: string;
+  access_id: string;
+  download_url: string;
+  gdrive_file_id: string;
+}
+
 export interface FileInBatch {
   original_filename: string;
   original_size?: number;
@@ -40,11 +50,9 @@ export interface TelegramFileMetadata {
   username?: string;
   is_anonymous?: boolean;
   compressed_size?: number;
-  // Fields for archived items (will only be present when listing archived files)
   archived_timestamp?: string | Date;
   archived_by_username?: string;
-  [key: string]: any; // To allow other dynamic properties
-
+  [key: string]: any;
 }
 
 export interface InitiateUploadResponse {
@@ -56,20 +64,17 @@ export interface InitiateUploadResponse {
   access_id?: string;
 }
 
-// You can use this, or if you have a similar one like `BasicApiResponse` that fits, use that.
-// The restore endpoint returns a similar structure.
-export interface ApiResponse { // Renamed from BasicApiResponse to match my example, or keep yours
-  success?: boolean;
-  message?: string;
-  error?: string;
-}
-// Keep your existing BasicApiResponse if it's used elsewhere and distinct
-export interface BasicApiResponse {
+export interface ApiResponse {
   success?: boolean;
   message?: string;
   error?: string;
 }
 
+export interface BasicApiResponse {
+  success?: boolean;
+  message?: string;
+  error?: string;
+}
 
 export interface SelectedItem {
   id: number;
@@ -103,11 +108,47 @@ export class FileManagerApiService {
     return this.apiUrl;
   }
 
+  // MODIFIED: This is now only used by non-streaming methods.
   private getAuthHeaders(): HttpHeaders {
     const token = this.authService.getToken();
     return token ? new HttpHeaders().set('Authorization', `Bearer ${token}`) : new HttpHeaders();
   }
 
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++ NEW STREAMING UPLOAD METHOD +++++++++++++++++++++++++++++++++++++++++++++
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  /**
+  * Uploads a single file by streaming its raw data directly to the backend.
+  * This is the new, faster method.
+  * @param file The file object to stream.
+  */
+  streamUpload(file: File): Observable<StreamUploadResponse> {
+    const streamUrl = `${this.apiUrl}/upload/stream`;
+
+    // Create custom headers required by the backend.
+    // The auth interceptor will automatically add the Authorization header if a token exists.
+    const headers = new HttpHeaders({
+      'X-Filename': file.name,
+      'X-Filesize': file.size.toString()
+      // We are NOT setting Content-Type. The browser and HttpClient are smart
+      // enough to set the correct `Content-Type: application/octet-stream` (or similar)
+      // when sending a raw File object, which is what our backend expects.
+    });
+
+    console.log(`[ApiService.streamUpload] Streaming file '${file.name}' to ${streamUrl}`);
+
+    // POST the raw file object as the request body.
+    return this.http.post<StreamUploadResponse>(streamUrl, file, { headers: headers })
+      .pipe(
+        tap(res => console.log(`Stream upload successful for ${file.name}:`, res)),
+        catchError(this.handleError)
+      );
+  }
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++ END OF NEW METHOD +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  // --- All your other existing methods remain unchanged ---
   listFiles(username: string): Observable<TelegramFileMetadata[]> {
     if (!username) { return throwError(() => new Error('Username required.')); }
     const endpointUrl = `${this.apiUrl}/api/files/${encodeURIComponent(username)}`;
@@ -120,6 +161,8 @@ export class FileManagerApiService {
   }
 
   initiateUpload(formData: FormData): Observable<InitiateUploadResponse> {
+    // This is the old method that uses FormData and saves to server disk first.
+    // We are keeping it in case you need to switch back for testing.
     return this.http.post<InitiateUploadResponse>(`${this.apiUrl}/initiate-upload`, formData, { headers: this.getAuthHeaders() })
       .pipe(
         tap(res => console.log('Initiate Upload Resp:', res)),
@@ -127,8 +170,6 @@ export class FileManagerApiService {
       );
   }
 
-  // This method now calls the backend endpoint that "archives" the file.
-  // The URL /delete-file/... is correct as per our backend changes.
   deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
     if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
     const encodedIdentifier = encodeURIComponent(identifier);
@@ -140,10 +181,6 @@ export class FileManagerApiService {
         catchError(this.handleError)
       );
   }
-
-  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // +++ ADD THE NEW METHODS HERE ++++++++++++++++++++++++++++++++++++++++++++++++
-  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
     if (!username) { return throwError(() => new Error('Username required for listing archived files.')); }
@@ -167,9 +204,6 @@ export class FileManagerApiService {
       );
   }
 
-  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // +++ END OF NEW METHODS ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   getPreviewDetails(accessId: string, filename?: string | null): Observable<PreviewDetails> {
     if (!accessId) {
       return throwError(() => new Error('Access ID is required.'));
@@ -180,16 +214,15 @@ export class FileManagerApiService {
     }
     return this.http.get<PreviewDetails>(`${this.apiUrl}/api/preview-details/${accessId}`, {
       headers: this.getAuthHeaders(),
-      params: params // Pass HttpParams here
+      params: params
     })
       .pipe(
         tap(details => console.log(`Preview details for ${accessId}${filename ? ' (file: ' + filename + ')' : ''}:`, details)),
         catchError(this.handleError)
       );
   }
+
   getRawTextContent(contentUrl: string): Observable<string> {
-    // contentUrl will be relative like /api/file-content/<access_id>
-    // Ensure it's correctly joined with apiUrl if needed, or that HttpClient handles relative URLs correctly based on base href
     const fullUrl = contentUrl.startsWith('http') ? contentUrl : `${this.apiUrl}${contentUrl}`;
     return this.http.get(fullUrl, { headers: this.getAuthHeaders(), responseType: 'text' })
       .pipe(
@@ -197,16 +230,7 @@ export class FileManagerApiService {
       );
   }
 
-
   public downloadFileBlob(accessId: string, isBatch: boolean): Observable<Blob> {
-    // ... (Your existing downloadFileBlob logic remains unchanged here) ...
-    // This logic is complex and seems to handle SSE for downloads.
-    // We assume that when a file is restored, it appears in the `user_files`
-    // collection and can be downloaded via the existing mechanism that
-    // /stream-download/:accessId or /initiate-download-all/:accessId points to.
-    // No direct changes are needed to this method for the archive/restore feature itself,
-    // unless you wanted to allow downloads *directly* from an "archived" state
-    // without restoring first, which would require different backend endpoints.
     if (!accessId) {
       return throwError(() => new Error('Access ID required for download.'));
     }
@@ -259,7 +283,6 @@ export class FileManagerApiService {
               observer.error(new Error('Download preparation failed: Incomplete server response from "ready" event.'));
               return;
             }
-
             const finalDownloadUrl = `${this.apiUrl}/download/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
             console.log(`[ApiService.downloadFileBlob] Triggering final blob download from: ${finalDownloadUrl}`);
 
@@ -343,7 +366,6 @@ export class FileManagerApiService {
   }
 
   getDownloadUrl(username: string, filename: string): string {
-    // ... (Your existing getDownloadUrl logic remains unchanged) ...
     if (!username || !filename) {
       console.error("Username and filename required to build download URL");
       return '#';
@@ -356,42 +378,39 @@ export class FileManagerApiService {
     let userMessage = 'An unexpected error occurred. Check backend connection/logs.';
     console.error(`API Error: Status ${error.status}, Body: `, error.error, `URL: ${error.url}`);
 
-    if (error.error) {
-      if (error.error instanceof Blob && error.error.type && error.error.type.toLowerCase().includes('json')) {
-        return new Observable(observer => {
-          const reader = new FileReader();
-          reader.onload = (e: any) => {
-            try {
-              const err = JSON.parse(e.target.result);
-              userMessage = err.message || err.error || `Server error (${error.status}).`;
-              if (err.status === 410 && err.preview_type === 'expired') { // Specific for expired preview
-                observer.error({ ...err, status: err.status, message: userMessage });
-                return;
-              }
-              console.error(`Parsed Blob Error: ${userMessage}`);
-            } catch (parseError) {
-              userMessage = `Failed to parse error response from server (${error.status}).`;
-              console.error(`Error parsing blob error: ${parseError}`);
+    if (error.error instanceof Blob && error.error.type && error.error.type.toLowerCase().includes('json')) {
+      return new Observable(observer => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          try {
+            const err = JSON.parse(e.target.result);
+            userMessage = err.message || err.error || `Server error (${error.status}).`;
+            if (err.status === 410 && err.preview_type === 'expired') {
+              observer.error({ ...err, status: err.status, message: userMessage });
+              return;
             }
-            observer.error(new Error(userMessage));
-          };
-          reader.onerror = () => {
-            console.error('FileReader failed to read error blob.');
-            observer.error(new Error(`Failed to read error response from server (${error.status}).`));
-          };
-          reader.readAsText(error.error);
-        });
-      } else if (error.status === 410 && error.error.preview_type === 'expired') { // Handle direct JSON 410 error
-        userMessage = error.error.error || error.error.message || 'File link has expired.';
-        // Propagate the structured error for better handling in component
-        return throwError(() => ({ ...error.error, status: error.status, message: userMessage }));
-      } else if (typeof error.error.error === 'string') {
-        userMessage = error.error.error;
-      } else if (typeof error.error.message === 'string') {
-        userMessage = error.error.message;
-      } else if (typeof error.error === 'string') { // Generic string error from backend
-        userMessage = error.error;
-      }
+            console.error(`Parsed Blob Error: ${userMessage}`);
+          } catch (parseError) {
+            userMessage = `Failed to parse error response from server (${error.status}).`;
+            console.error(`Error parsing blob error: ${parseError}`);
+          }
+          observer.error(new Error(userMessage));
+        };
+        reader.onerror = () => {
+          console.error('FileReader failed to read error blob.');
+          observer.error(new Error(`Failed to read error response from server (${error.status}).`));
+        };
+        reader.readAsText(error.error);
+      });
+    } else if (error.status === 410 && error.error.preview_type === 'expired') {
+      userMessage = error.error.error || error.error.message || 'File link has expired.';
+      return throwError(() => ({ ...error.error, status: error.status, message: userMessage }));
+    } else if (error.error && typeof error.error.error === 'string') {
+      userMessage = error.error.error;
+    } else if (error.error && typeof error.error.message === 'string') {
+      userMessage = error.error.message;
+    } else if (typeof error.error === 'string') {
+      userMessage = error.error;
     } else if (error.status === 0) {
       userMessage = 'Cannot connect to the backend server. Please check your network connection and ensure the server is running.';
     } else if (error.status === 400) {
@@ -402,7 +421,7 @@ export class FileManagerApiService {
       userMessage = `Forbidden (${error.status}). You do not have permission to access this resource.`;
     } else if (error.status === 404) {
       userMessage = `Requested resource not found on the server (${error.status}).`;
-    } else if (error.status === 410) { // General 410 without specific preview_type in error body
+    } else if (error.status === 410) {
       userMessage = 'The requested resource is no longer available (Expired or Removed).';
     } else if (error.status === 500) {
       userMessage = `Internal server error (${error.status}). Please try again later or contact support.`;

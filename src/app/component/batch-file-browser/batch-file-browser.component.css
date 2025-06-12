@@ -312,7 +312,7 @@ hr {
 }
 
 .progress-bar-wrapper {
-    background-color: #e4e4e4;
+    background-color: var(--border-color);
     border-radius: 20px;
     height: 13px;
     overflow: hidden;

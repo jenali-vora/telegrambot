@@ -6,6 +6,8 @@
 .pricing-section {
     padding: 60px 20px;
     background-color: #f8f9fa;
+    margin-top: 40px;
+    border-radius: 6px;
 }
 
 /* --- Header --- */
@@ -98,6 +100,7 @@
 .free-card,
 .enterprise-card {
     padding-top: 60px;
+    border-width: 2px;
 }
 
 .pro-card {
@@ -451,10 +454,6 @@
 
 .section-5 {
     padding: 40px 20px;
-}
-
-.faq {
-    background-color: #f8f9fa;
 }
 
 /* ========================================= */

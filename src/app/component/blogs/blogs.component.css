@@ -34,7 +34,7 @@ p {
 }
 
 .blog-post-card {
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     /* Light border */
     border-radius: 8px;
     /* Slightly rounded corners */
@@ -64,7 +64,7 @@ p {
     /* Fixed height for uniform look */
     object-fit: cover;
     /* Scale image nicely without distortion */
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
     /* Separator line */
 }
 
@@ -152,7 +152,7 @@ p {
 }
 
 .pagination button:hover:not(:disabled) {
-    background-color: #e0e0e0;
+    background-color: var(--border-color);
 }
 
 .pagination button:disabled {
