@@ -1,4 +1,3 @@
-// src/app/component/transfer-panel/transfer-panel.component.ts
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
@@ -143,4 +142,52 @@ export class TransferPanelComponent implements OnDestroy {
 
   trackTooltipById(index: number, tooltip: TooltipMessage): number { return tooltip.id; }
   trackItemById(index: number, item: SelectedItem): number { return item.id; }
+
+  // +++ NEW METHODS TO FIX INDIVIDUAL ITEM PROGRESS +++
+
+  /**
+   * Calculates the number of bytes uploaded for a specific item within the batch.
+   * @param currentItem The item for which to calculate progress.
+   * @returns The number of bytes uploaded for the given item.
+   */
+  public getItemUploadedBytes(currentItem: SelectedItem): number {
+    const itemIndex = this.items.findIndex(i => i.id === currentItem.id);
+    if (itemIndex === -1) {
+      return 0;
+    }
+
+    const sizeOfPreviousItems = this.items.slice(0, itemIndex).reduce((acc, i) => acc + i.size, 0);
+    const itemStartBytes = sizeOfPreviousItems;
+    const itemEndBytes = sizeOfPreviousItems + currentItem.size;
+
+    if (this.bytesSent >= itemEndBytes) {
+      return currentItem.size; // This item is fully completed.
+    }
+
+    if (this.bytesSent > itemStartBytes) {
+      // This item is currently in progress.
+      return this.bytesSent - itemStartBytes;
+    }
+
+    return 0; // This item is pending.
+  }
+
+  /**
+   * Calculates the upload percentage for a specific item within the batch.
+   * @param currentItem The item for which to calculate the percentage.
+   * @returns The upload percentage (0-100) for the given item.
+   */
+  public getItemUploadPercentage(currentItem: SelectedItem): number {
+    if (currentItem.size === 0) {
+      // For zero-byte files (e.g., empty folders), they are either 0% or 100% complete.
+      const itemIndex = this.items.findIndex(i => i.id === currentItem.id);
+      if (itemIndex === -1) return 0;
+
+      const sizeOfAllItemsThroughCurrent = this.items.slice(0, itemIndex + 1).reduce((acc, i) => acc + i.size, 0);
+      return this.bytesSent >= sizeOfAllItemsThroughCurrent ? 100 : 0;
+    }
+
+    const uploadedBytes = this.getItemUploadedBytes(currentItem);
+    return (uploadedBytes / currentItem.size) * 100;
+  }
 }

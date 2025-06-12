@@ -480,7 +480,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               return of({ type: HttpEventType.Response, body: { isSkipped: true } });
             }
 
-            this.uploadStatusMessage = `Uploading: ${item.name}`;
+            this.uploadStatusMessage = this.genericUploadMessage;
             this.cdRef.detectChanges();
 
             return this.apiService.streamFileToBatch(item.file, batchId).pipe(
@@ -531,7 +531,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
           return of({ type: HttpEventType.Response, body: { isSkipped: true } });
         }
-        this.uploadStatusMessage = `Uploading: ${item.name}`;
+        this.uploadStatusMessage = this.genericUploadMessage;
         this.cdRef.detectChanges();
         return this.apiService.streamFileToBatch(item.file, batchId).pipe(
           tap((event: HttpEvent<any>) => {
