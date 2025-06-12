@@ -2,11 +2,11 @@
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, of } from 'rxjs'; // Added 'of' for potential placeholder in service
+import { Subscription, catchError, concatMap, from, of, tap, throwError } from 'rxjs'; // Added 'of' for potential placeholder in service
 import { AuthService, User } from '../../shared/services/auth.service';
 import {
   FileManagerApiService,
-  InitiateUploadResponse,
+  StreamUploadResponse,
 } from '../../shared/services/file-manager-api.service';
 import { TransferPanelComponent, SelectedItem } from '../transfer-panel/transfer-panel.component';
 import { FaqAccordionComponent } from '../faq-accordion/faq-accordion.component';
@@ -28,9 +28,10 @@ interface UploadProgressDetails {
   etaFormatted: string;
 }
 
-interface CompletedUploadLink {
+interface CompletedUploadResult {
   name: string;
   url: string;
+  access_id: string;
 }
 
 @Component({
@@ -90,8 +91,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private nextItemId = 0;
   private authSubscription: Subscription | null = null;
+  private uploadSubscription: Subscription | null = null;
 
-  public batchUploadLinks: CompletedUploadLink[] = [];
+  public completedUploads: CompletedUploadResult[] = [];
   public batchShareableLinkForPanel: string | null = null;
 
   public isDraggingOverWindow: boolean = false;
@@ -178,30 +180,29 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.shareableLinkForPanel = null;
     this.completedBatchAccessId = null;
     this.currentItemBeingUploaded = null;
-    this.currentUploadId = null;
     this.uploadStatusMessage = '';
-    this.uploadProgressDetails = {
-      percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--',
-    };
+    this.uploadProgressDetails = { percentage: 0, bytesSent: 0, totalBytes: 0, speedMBps: 0, etaFormatted: '--:--' };
     this.uploadProgress = 0;
     this.nextItemId = 0;
-    this.batchUploadLinks = [];
+    // MODIFIED: Reset the new completedUploads array
+    this.completedUploads = [];
     this.anonymousUploadLimitMessage = null;
-    this.anonymousFolderUploadsCount = 0; // Reset this as well
+    this.anonymousFolderUploadsCount = 0;
     this.isGamePanelVisible = false;
     this.updatePlayGamesButtonVisibility();
     this.dragEnterCounter = 0;
     this.closeAllEventSources();
+    if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
+    if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
 
-    if (this.fileInputRef?.nativeElement) {
-      this.fileInputRef.nativeElement.value = '';
-    }
-    if (this.folderInputRef?.nativeElement) {
-      this.folderInputRef.nativeElement.value = '';
-    }
+    // NEW: Ensure any in-progress upload chain is stopped.
+    this.uploadSubscription?.unsubscribe();
+    this.uploadSubscription = null;
+
     console.log('HomeComponent: Upload state has been reset.');
     this.updatePlayGamesButtonVisibility();
   }
+
   private updatePlayGamesButtonVisibility(): void {
     const totalSelectedSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
     const newShowPlayGamesButtonState = totalSelectedSize >= this.ONE_GIGABYTE_IN_BYTES;
@@ -226,6 +227,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.authSubscription?.unsubscribe();
+    this.uploadSubscription?.unsubscribe();
     this.closeAllEventSources();
   }
 
@@ -320,65 +322,45 @@ export class HomeComponent implements OnInit, OnDestroy {
       alert("Wait for current upload or cancel it.");
       return;
     }
-    if (this.shareableLinkForPanel || this.batchUploadLinks.length > 0) {
+    // FIXED [TS2339]: Replaced `batchUploadLinks` with `completedUploads`
+    if (this.shareableLinkForPanel || this.completedUploads.length > 0) {
       this.selectedItems = [];
       this.nextItemId = 0;
       this.shareableLinkForPanel = null;
-      this.batchUploadLinks = [];
-      this.anonymousFolderUploadsCount = 0; // Reset for new selection batch
+      // FIXED [TS2339]: Use the correct property
+      this.completedUploads = [];
+      this.anonymousFolderUploadsCount = 0;
     }
+    // ... (rest of this method is fine)
     this.uploadError = null;
     this.uploadSuccessMessage = null;
     this.anonymousUploadLimitMessage = null;
-
     const isLoggedIn = this.authService.isLoggedIn();
-    const MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS = this.MAX_ANONYMOUS_FOLDER_UPLOADS; // This is 5
-
-    // --- Message Definitions ---
+    const MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS = this.MAX_ANONYMOUS_FOLDER_UPLOADS;
     let totalItemCountLimitErrorMessage: string;
-    if (isFolderSelection) {
-      totalItemCountLimitErrorMessage = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder. Please login to upload more than ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder.`;
-    } else {
-      totalItemCountLimitErrorMessage = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files. Please login to upload more than ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files.`;
-    }
-
+    if (isFolderSelection) { totalItemCountLimitErrorMessage = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder. Please login to upload more than ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder.`; }
+    else { totalItemCountLimitErrorMessage = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files. Please login to upload more than ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files.`; }
     const FOLDER_ADDITION_LIMIT_ERROR_MESSAGE = `As you are not logged in, you can add a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folders. You have reached this limit. Please log in to add more folders.`;
     const FOLDER_ADDITION_LIMIT_INFO_MESSAGE = `As you are not logged in, you can select a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder. Please login to upload more than ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} folder.`;
     const ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE = `As you are not logged in, your total selection cannot exceed 5 GB. Please log in for larger uploads or reduce your selection.`;
-
-
-    // Handle empty fileList (e.g., empty folder selected)
     if (!fileList || fileList.length === 0) {
       if (isFolderSelection && !isLoggedIn) {
-        if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-          this.uploadError = FOLDER_ADDITION_LIMIT_ERROR_MESSAGE;
-        } else {
-          this.anonymousFolderUploadsCount++;
-          console.log(`Anonymous folder selection count incremented (empty folder): ${this.anonymousFolderUploadsCount}`);
-          if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-            this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE;
-          }
-        }
+        if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) { this.uploadError = FOLDER_ADDITION_LIMIT_ERROR_MESSAGE; }
+        else { this.anonymousFolderUploadsCount++; if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) { this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE; } }
         if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
         this.cdRef.detectChanges();
       }
       return;
     }
-
-    // --- Pre-checks for anonymous users before processing the new fileList ---
     if (!isLoggedIn) {
-      // 1. Check folder *addition* limit (if this is a folder selection)
       if (isFolderSelection && this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
         this.uploadError = FOLDER_ADDITION_LIMIT_ERROR_MESSAGE;
         if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
         this.cdRef.detectChanges();
         return;
       }
-
       const currentItemCount = this.selectedItems.length;
       const currentTotalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-
-      // 2. Check if *already* at total item count limit (before adding anything from fileList)
       if (currentItemCount >= MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS && fileList.length > 0) {
         this.uploadError = totalItemCountLimitErrorMessage;
         if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
@@ -386,8 +368,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
         return;
       }
-
-      // 3. Check if *already* at total size limit (before adding anything from fileList)
       if (currentTotalSize >= this.FIVE_GIGABYTES_IN_BYTES && fileList.length > 0) {
         this.uploadError = ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE;
         if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
@@ -396,97 +376,39 @@ export class HomeComponent implements OnInit, OnDestroy {
         return;
       }
     }
-
-
     const newItems: SelectedItem[] = [];
-    let filesAddedInThisOperation = 0; // How many files from fileList were actually processed into SelectedItem
-    let sizeAddedInThisOperation = 0;   // Total size of files successfully added to newItems in *this* call
-
+    let filesAddedInThisOperation = 0;
+    let sizeAddedInThisOperation = 0;
     const currentItemCountBeforeThisBatch = this.selectedItems.length;
     const currentTotalSizeBeforeThisBatch = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-
-
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
-
-      // For anonymous users, check limits before processing each file from fileList
       if (!isLoggedIn) {
-        // Check total item count limit (selectedItems + newItems so far)
-        if ((currentItemCountBeforeThisBatch + newItems.length) >= MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS) {
-          if (!this.uploadError) this.uploadError = totalItemCountLimitErrorMessage;
-          break; // Stop processing more files from fileList
-        }
-        // Check total size limit (selectedItems + newItems so far + current file)
-        if ((currentTotalSizeBeforeThisBatch + sizeAddedInThisOperation + file.size) > this.FIVE_GIGABYTES_IN_BYTES) {
-          if (!this.uploadError) this.uploadError = ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE;
-          break; // Stop processing more files from fileList
-        }
+        if ((currentItemCountBeforeThisBatch + newItems.length) >= MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS) { if (!this.uploadError) this.uploadError = totalItemCountLimitErrorMessage; break; }
+        if ((currentTotalSizeBeforeThisBatch + sizeAddedInThisOperation + file.size) > this.FIVE_GIGABYTES_IN_BYTES) { if (!this.uploadError) this.uploadError = ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE; break; }
       }
-
       let itemName = file.name;
-      if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) {
-        itemName = file.webkitRelativePath;
-      }
-      if (file.size === 0 && !isFolderSelection && !itemName.includes('/')) {
-        console.log(`Skipping empty file: ${itemName}`);
-        continue;
-      }
-      if (file.name.toLowerCase().endsWith('.ds_store')) {
-        console.log(`Skipping .DS_Store file: ${itemName} (original: ${file.name})`);
-        continue;
-      }
+      if (file.webkitRelativePath && (file.webkitRelativePath !== file.name || isFolderSelection)) { itemName = file.webkitRelativePath; }
+      if (file.size === 0 && !isFolderSelection && !itemName.includes('/')) { continue; }
+      if (file.name.toLowerCase().endsWith('.ds_store')) { continue; }
       const isActualFolderEntry = (isFolderSelection && !file.type && file.size === 0 && file.webkitRelativePath.endsWith(file.name)) || (itemName.includes('/') && !itemName.split('/').pop()?.includes('.'));
-
-      newItems.push({
-        id: this.nextItemId++,
-        file: file,
-        name: itemName,
-        size: file.size,
-        icon: this.getFileIcon(itemName),
-        isFolder: isActualFolderEntry
-      });
+      newItems.push({ id: this.nextItemId++, file: file, name: itemName, size: file.size, icon: this.getFileIcon(itemName), isFolder: isActualFolderEntry });
       filesAddedInThisOperation++;
       sizeAddedInThisOperation += file.size;
     }
-
-    if (newItems.length > 0) {
-      this.selectedItems = [...this.selectedItems, ...newItems];
-      console.log('Items added:', newItems.length, 'Total selectedItems:', this.selectedItems.length);
-    }
-
-    // Handle folder selection count increment and informational message for anonymous users
+    if (newItems.length > 0) { this.selectedItems = [...this.selectedItems, ...newItems]; }
     if (isFolderSelection && !isLoggedIn && (filesAddedInThisOperation > 0 || (fileList.length > 0 && newItems.length === 0 && !this.uploadError))) {
-      if (this.anonymousFolderUploadsCount < this.MAX_ANONYMOUS_FOLDER_UPLOADS) { // Only increment if current count is less than max
-        this.anonymousFolderUploadsCount++;
-        console.log(`Anonymous folder selection count incremented (processed folder): ${this.anonymousFolderUploadsCount}`);
-        if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS && !this.uploadError) {
-          this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE;
-        }
-      } else if (!this.uploadError && !this.anonymousUploadLimitMessage) {
-        // If already at limit, and no other error/info message shown, show the info message
-        this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE;
-      }
+      if (this.anonymousFolderUploadsCount < this.MAX_ANONYMOUS_FOLDER_UPLOADS) { this.anonymousFolderUploadsCount++; if (this.anonymousFolderUploadsCount >= this.MAX_ANONYMOUS_FOLDER_UPLOADS && !this.uploadError) { this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE; } }
+      else if (!this.uploadError && !this.anonymousUploadLimitMessage) { this.anonymousUploadLimitMessage = FOLDER_ADDITION_LIMIT_INFO_MESSAGE; }
     }
-
-    // If not all files from fileList were added due to hitting a limit (and error not already set by pre-checks)
     if (!isLoggedIn && filesAddedInThisOperation < fileList.length && !this.uploadError) {
-      // The error should have been set inside the loop. This is a fallback.
-      // Prioritize the error message based on which limit was likely hit.
       const finalItemCount = this.selectedItems.length;
       const finalTotalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-
-      if (finalTotalSize > this.FIVE_GIGABYTES_IN_BYTES) {
-        this.uploadError = ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE;
-      } else if (finalItemCount >= MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS) {
-        this.uploadError = totalItemCountLimitErrorMessage;
-      }
-      // If FOLDER_ADDITION_LIMIT_ERROR_MESSAGE was set earlier, it should persist.
+      if (finalTotalSize > this.FIVE_GIGABYTES_IN_BYTES) { this.uploadError = ANONYMOUS_SIZE_LIMIT_ERROR_MESSAGE; }
+      else if (finalItemCount >= MAX_TOTAL_ITEMS_OR_FILES_LIMIT_ANONYMOUS) { this.uploadError = totalItemCountLimitErrorMessage; }
     }
-
-
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
     if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
-
     this.cdRef.detectChanges();
     this.updatePlayGamesButtonVisibility();
   }
@@ -508,96 +430,110 @@ export class HomeComponent implements OnInit, OnDestroy {
   initiateTransferFromPanel(): void {
     if (this.isUploading || this.selectedItems.length === 0) return;
 
-    // Additional check for anonymous user limits before initiating transfer
+    // Anonymous user limit checks (remain the same)
     if (!this.authService.isLoggedIn()) {
       const totalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
       if (this.selectedItems.length > this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-        this.uploadError = `As you are not logged in, you can upload a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files/folders. Please login to upload more than 5 files/folder.
-
-.`;
+        this.uploadError = `As you are not logged in, you can upload a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files/folders.`;
         this.cdRef.detectChanges();
         return;
       }
       if (totalSize > this.FIVE_GIGABYTES_IN_BYTES) {
-        this.uploadError = `As you are not logged in, your total selection cannot exceed 5 GB. Please reduce your selection or log in.`;
+        this.uploadError = `As you are not logged in, your total selection cannot exceed 5 GB.`;
         this.cdRef.detectChanges();
         return;
       }
     }
 
-
+    // --- 1. SETUP UI STATE FOR UPLOAD ---
     this.isUploading = true;
     this.uploadError = null;
     this.uploadSuccessMessage = null;
-    this.anonymousUploadLimitMessage = null;
+    this.completedUploads = [];
     this.shareableLinkForPanel = null;
-    this.batchUploadLinks = [];
-    this.closeAllEventSources();
+    this.uploadSubscription?.unsubscribe();
 
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-
-    this.currentItemBeingUploaded = {
-      id: -1,
-      name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : `Uploading ${this.selectedItems[0].name}...`,
-      size: totalBatchSize,
-      file: null,
-      icon: this.selectedItems.length === 1 ? (this.selectedItems[0].isFolder ? 'fas fa-folder' : this.selectedItems[0].icon) : 'fas fa-archive',
-      isFolder: this.selectedItems.length === 1 ? (this.selectedItems[0].isFolder ?? false) : false
-    };
+    let bytesUploadedSoFar = 0;
 
     this.uploadProgressDetails = {
-      percentage: 0,
-      bytesSent: 0,
-      totalBytes: totalBatchSize,
-      speedMBps: 0,
-      etaFormatted: '--:--',
+      percentage: 0, bytesSent: 0, totalBytes: totalBatchSize,
+      speedMBps: 0, etaFormatted: '--:--',
     };
-    this.uploadProgress = 0;
-    this.uploadStatusMessage = 'Initializing upload...';
-    this.currentUploadId = null;
+
+    this.currentItemBeingUploaded = {
+      id: -1, name: this.selectedItems.length > 1 ? `Uploading ${this.selectedItems.length} items...` : this.selectedItems[0].name,
+      size: totalBatchSize, file: null, icon: 'fas fa-archive', isFolder: false
+    };
+
     this.cdRef.detectChanges();
 
-    const formData = new FormData();
-
-    if (this.authService.isLoggedIn()) {
-      if (this.username) {
-        console.log('HomeComponent: Logged in user initiating transfer.');
-      }
-    } else {
-      const anonymousId = this.authService.getOrGenerateAnonymousUploadId();
-      if (anonymousId) {
-        formData.append('anonymous_upload_id', anonymousId);
-        console.log('HomeComponent: Anonymous user initiating transfer with ID:', anonymousId);
-      } else {
-        this.handleBatchUploadError('Could not generate an identifier for anonymous upload. Please enable cookies/localStorage or try logging in.');
-        return;
-      }
-    }
-
-    for (const item of this.selectedItems) {
-      if (item.file) {
-        formData.append('files[]', item.file, item.name);
-      } else {
-        console.warn(`Skipping item with null file: ${item.name}`);
-      }
-    }
-
-    this.apiService.initiateUpload(formData).subscribe({
-      next: (res: InitiateUploadResponse) => {
-        if (!this.isUploading) return;
-        if (res.upload_id && res.sse_gdrive_upload_url) {
-          this.currentUploadId = res.upload_id;
-          this.listenToGDriveUploadProgress(res.upload_id, res.sse_gdrive_upload_url, this.currentItemBeingUploaded);
-        } else {
-          this.handleBatchUploadError('Server did not return a valid upload ID or GDrive SSE URL.');
+    this.uploadSubscription = from(this.selectedItems).pipe(
+      concatMap((item: SelectedItem) => { // FIXED [TS7006]: Explicitly type item
+        if (!item.file || item.isFolder) {
+          bytesUploadedSoFar += item.size;
+          return of(null);
         }
+
+        this.uploadStatusMessage = `Uploading: ${item.name}`;
+        this.cdRef.detectChanges();
+
+        return this.apiService.streamUpload(item.file).pipe(
+          tap((response: StreamUploadResponse) => {
+            bytesUploadedSoFar += item.size;
+            this.uploadProgressDetails.bytesSent = bytesUploadedSoFar;
+            this.uploadProgressDetails.percentage = (bytesUploadedSoFar / totalBatchSize) * 100;
+            this.uploadProgress = this.uploadProgressDetails.percentage;
+
+            this.completedUploads.push({
+              name: item.name,
+              url: response.download_url,
+              access_id: response.access_id
+            });
+
+            this.cdRef.detectChanges();
+          }),
+          catchError((err: Error) => {
+            this.handleBatchUploadError(`Failed to upload ${item.name}: ${err.message}`);
+            return throwError(() => new Error(`Upload failed for ${item.name}`));
+          })
+        );
+      })
+    ).subscribe({
+      next: (response: StreamUploadResponse | null) => {
+        if (response) console.log(`Successfully processed file`, response);
       },
       error: (err: Error) => {
-        if (!this.isUploading) return;
-        this.handleBatchUploadError(`Failed to initiate batch upload: ${err.message}`);
+        console.error("Upload sequence failed due to an error.", err);
+      },
+      complete: () => {
+        this.zone.run(() => {
+          this.isUploading = false;
+          this.uploadStatusMessage = "All files uploaded successfully!";
+          this.uploadSuccessMessage = "Transfer complete!";
+          this.uploadProgressDetails.percentage = 100;
+          this.uploadProgress = 100;
+
+          if (this.completedUploads.length > 0) {
+            const firstResult = this.completedUploads[0];
+            this.shareableLinkForPanel = firstResult.url.replace('/download/stream-download/', '/batch-view/');
+            this.completedBatchAccessId = firstResult.access_id;
+
+            this.currentItemBeingUploaded!.name = this.selectedItems.length > 1
+              ? `${this.completedUploads.length} files uploaded`
+              : firstResult.name;
+          }
+
+          if (this.currentUser) this.uploadEventService.notifyUploadComplete();
+
+          this.cdRef.detectChanges();
+          console.log("Upload sequence complete. All files sent.", this.completedUploads);
+        });
       }
     });
   }
+
+
   private handleGDriveComplete(data: any, operationId: string): void {
     this.zone.run(() => {
       if (operationId !== this.currentUploadId || !this.isUploading) {
@@ -915,9 +851,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private closeAllEventSources(): void {
-    this.closeGDriveEventSource();
-    this.closeTelegramEventSource();
-    this.closeEventSource();
+    this.gdriveEventSource?.close();
+    this.telegramEventSource?.close();
+    this.gdriveEventSource = null;
+    this.telegramEventSource = null;
   }
 
   handleNewTransferRequest(): void {
@@ -983,49 +920,31 @@ export class HomeComponent implements OnInit, OnDestroy {
   private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
     if (errorEvent) console.error("Error during batch upload:", errorMessage, errorEvent);
     else console.error("Error during batch upload:", errorMessage);
-    let displayMessage = errorMessage;
-
-    if (errorMessage &&
-      (errorMessage.toLowerCase().includes("storage quota has been exceeded") ||
-        errorMessage.toLowerCase().includes("storagequotaexceeded"))) {
-      displayMessage = "Upload failed: The Google Drive storage is full. Please free up space in the designated Google Drive account or contact support.";
-    }
 
     this.zone.run(() => {
-      this.uploadError = displayMessage;
-      this.uploadSuccessMessage = null;
+      this.uploadError = errorMessage;
       this.isUploading = false;
-      this.uploadProgressDetails = {
-        ...this.uploadProgressDetails,
-        speedMBps: 0,
-        etaFormatted: 'Error',
-      };
       this.uploadStatusMessage = 'Upload Failed';
+      this.uploadSubscription?.unsubscribe();
+      this.uploadSubscription = null;
       this.closeAllEventSources();
       this.cdRef.detectChanges();
     });
   }
 
+
+
   handleCancelUpload(): void {
-    if (!this.isUploading && !this.currentUploadId) {
-      console.log('HomeComponent: No active upload to cancel or already cancelled.');
+    if (!this.isUploading) {
+      console.log('HomeComponent: No active upload to cancel.');
       return;
     }
-    const uploadIdToCancel = this.currentUploadId;
-    console.log('HomeComponent: User cancelled upload for ID:', uploadIdToCancel || 'ID not yet established');
-
+    console.log('HomeComponent: User cancelled upload.');
+    this.uploadSubscription?.unsubscribe();
+    this.uploadSubscription = null;
     this.isUploading = false;
-    this.closeAllEventSources();
-
     this.uploadStatusMessage = `Upload cancelled.`;
     this.uploadError = null;
-    this.uploadSuccessMessage = null;
-
-    if (uploadIdToCancel) {
-      console.log(`HomeComponent: Frontend cancellation for ${uploadIdToCancel}. Backend cancellation not currently invoked.`);
-    }
-
-    this.currentUploadId = null;
     this.cdRef.detectChanges();
   }
 
