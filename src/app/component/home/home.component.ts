@@ -2,7 +2,7 @@
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { Observable, Subscription, catchError, concatMap, from, of, tap, throwError } from 'rxjs'; // Added 'of' for potential placeholder in service
+import { Observable, Subscription, catchError, concatMap, firstValueFrom, from, of, tap, throwError } from 'rxjs'; // Added 'of' for potential placeholder in service
 import { AuthService, User } from '../../shared/services/auth.service';
 import {
   FileManagerApiService,
@@ -431,44 +431,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  initiateTransferFromPanel(): void {
+  async initiateTransferFromPanel(): Promise<void> {
     if (this.isUploading || this.selectedItems.length === 0) {
       return;
     }
 
-    // --- FIX: SET THE FLAG IMMEDIATELY TO PREVENT RACE CONDITIONS ---
     this.isUploading = true;
-    // -----------------------------------------------------------------
-
-    if (!this.authService.isLoggedIn()) {
-      // ... (rest of your existing anonymous limit checks) ...
-      const totalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-      if (this.selectedItems.length > this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
-        this.uploadError = `As you are not logged in, you can upload a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files/folders.`;
-        this.isUploading = false; // <<< IMPORTANT: Reset flag on early exit
-        this.cdRef.detectChanges();
-        return;
-      }
-      if (totalSize > this.FIVE_GIGABYTES_IN_BYTES) {
-        this.uploadError = `As you are not logged in, your total selection cannot exceed 5 GB.`;
-        this.isUploading = false; // <<< IMPORTANT: Reset flag on early exit
-        this.cdRef.detectChanges();
-        return;
-      }
-    }
-
-    // The line below was here before, we moved it to the top of the method.
-    // this.isUploading = true; 
     this.uploadError = null;
-    this.uploadSubscription?.unsubscribe();
+    this.cdRef.detectChanges();
 
-    const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
-    let bytesUploadedSoFar = 0;
-
-    // ... (the rest of the function remains exactly the same) ...
-    // ... from this.uploadProgressDetails.totalBytes = totalBatchSize; onwards ...
+    const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + (item.file?.size ?? 0), 0);
     this.uploadProgressDetails.totalBytes = totalBatchSize;
-    this.updateOverallProgress(0, totalBatchSize);
+    this.updateOverallProgress(0, 0); // Reset progress
 
     const isSingleFile = this.selectedItems.length === 1;
     const batchDisplayName = isSingleFile ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`;
@@ -476,47 +450,112 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentItemBeingUploaded = {
       id: -1, name: batchDisplayName, size: totalBatchSize, file: null, icon: 'fas fa-archive', isFolder: false
     };
-    this.uploadStatusMessage = 'Initializing batch...';
+    this.uploadStatusMessage = 'Initializing transfer...';
     this.cdRef.detectChanges();
 
-    let batchId: string;
-    this.uploadSubscription = this.apiService.initiateBatch(batchDisplayName, totalBatchSize, !isSingleFile).pipe(
-      tap(initResponse => batchId = initResponse.batch_id),
-      concatMap(() => from(this.selectedItems)),
-      concatMap(item => {
+    try {
+      // 1. Initiate the batch on the backend to get a batch_id
+      const initResponse = await firstValueFrom(this.apiService.initiateBatch(batchDisplayName, totalBatchSize, !isSingleFile));
+      const batchId = initResponse.batch_id;
+      let bytesUploadedSoFar = 0;
+
+      // 2. Loop through each file and upload it sequentially using the new fetch-based method
+      for (const item of this.selectedItems) {
         if (!item.file || item.isFolder) {
-          bytesUploadedSoFar += item.size;
-          this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
-          return of({ type: HttpEventType.Response, body: { isSkipped: true } });
+          // Skip folders or items without a file object
+          continue;
         }
-        this.uploadStatusMessage = this.genericUploadMessage;
+
+        this.uploadStatusMessage = `Uploading: ${item.name}...`;
         this.cdRef.detectChanges();
-        return this.apiService.streamFileToBatch(item.file, batchId).pipe(
-          tap((event: HttpEvent<any>) => {
-            if (event.type === HttpEventType.UploadProgress && event.total) {
-              this.updateOverallProgress(bytesUploadedSoFar + event.loaded, totalBatchSize);
-            } else if (event.type === HttpEventType.Response) {
-              bytesUploadedSoFar += item.size;
-            }
-          })
-        );
-      })
-    ).subscribe({
-      next: () => { /* Each successful file upload will trigger this */ },
-      error: (err) => {
-        this.handleBatchUploadError(err.message);
-      },
-      complete: () => {
-        this.uploadStatusMessage = 'Finalizing transfer...';
-        this.cdRef.detectChanges();
-        this.apiService.finalizeBatch(batchId).subscribe({
-          next: (finalResponse) => this.onAllUploadsComplete(finalResponse),
-          error: (err) => this.handleBatchUploadError(err.message)
-        });
+
+        // This is the core change: Call the fetch-based streaming upload
+        await this.streamFileWithFetch(item, batchId, bytesUploadedSoFar);
+
+        // After a file is successfully processed, update the baseline for the next one
+        bytesUploadedSoFar += item.file.size;
       }
-    });
+
+      // 3. Finalize the batch
+      this.uploadStatusMessage = 'Finalizing transfer...';
+      this.cdRef.detectChanges();
+      const finalResponse = await firstValueFrom(this.apiService.finalizeBatch(batchId));
+      this.onAllUploadsComplete(finalResponse);
+
+    } catch (error: any) {
+      this.handleBatchUploadError(error.message || 'An unknown error occurred during the upload process.');
+    }
   }
 
+  // +++ ADD THIS NEW HELPER METHOD INSIDE THE HomeComponent CLASS +++
+  private async streamFileWithFetch(item: SelectedItem, batchId: string, bytesUploadedSoFar: number): Promise<void> {
+    const apiUrl = this.apiService.getApiBaseUrl();
+
+    // VVVV  THIS IS THE FIX  VVVV
+    // Get the token. It can be null for anonymous users, which is now expected.
+    const authToken = this.authService.getToken();
+
+    // We pass the token (or null) to the URL. The backend will handle it.
+    const url = `${apiUrl}/upload/stream?batch_id=${batchId}&filename=${encodeURIComponent(item.name)}&auth_token=${authToken}`;
+    // ^^^^ THIS IS THE FIX ^^^^
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: item.file,
+        headers: {
+          // No changes needed here
+        },
+      });
+
+      if (!response.ok) {
+        // ... (rest of the method remains exactly the same) ...
+        const errorText = await response.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || `Server responded with status ${response.status}`);
+        } catch {
+          throw new Error(errorText || `Server responded with status ${response.status}`);
+        }
+      }
+
+      // ... (the rest of the method remains exactly the same) ...
+      if (!response.body) {
+        throw new Error('Response body is empty, cannot process stream.');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let boundary = buffer.indexOf('\n\n');
+        while (boundary !== -1) {
+          const message = buffer.substring(0, boundary);
+          buffer = buffer.substring(boundary + 2);
+          if (message.startsWith('data: ')) {
+            const jsonString = message.substring(6);
+            const data = JSON.parse(jsonString);
+            this.zone.run(() => {
+              if (data.type === 'progress') {
+                const fileProgressBytes = (item.size * (data.percentage || 0)) / 100;
+                this.updateOverallProgress(bytesUploadedSoFar + fileProgressBytes, this.uploadProgressDetails.totalBytes);
+              } else if (data.type === 'error') {
+                throw new Error(data.message || 'An error occurred on the server during upload.');
+              }
+            });
+          }
+          boundary = buffer.indexOf('\n\n');
+        }
+      }
+      this.updateOverallProgress(bytesUploadedSoFar + item.size, this.uploadProgressDetails.totalBytes);
+    } catch (error) {
+      console.error(`Error streaming file ${item.name}:`, error);
+      throw error;
+    }
+  }
 
   listenToProgress(operationId: string, currentItem: SelectedItem, onComplete: () => void): void {
     const sseUrl = this.apiService.getStatusStreamUrl(operationId);
