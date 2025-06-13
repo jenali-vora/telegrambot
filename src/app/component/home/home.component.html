@@ -49,7 +49,7 @@
                     <input type="file" #fileInputForStart style="display: none;" (change)="onFileSelected($event)"
                         multiple>
                     <input type="file" #folderInputForStart style="display: none;" (change)="onFolderSelected($event)"
-                        webkitdirectory>
+                        webkitdirectory multiple>
 
                     <ng-container *ngIf="currentUser">
                         <section class="section-my-files-link container">
