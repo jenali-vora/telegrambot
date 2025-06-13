@@ -432,30 +432,41 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   initiateTransferFromPanel(): void {
-    if (this.isUploading || this.selectedItems.length === 0) return;
+    if (this.isUploading || this.selectedItems.length === 0) {
+      return;
+    }
+
+    // --- FIX: SET THE FLAG IMMEDIATELY TO PREVENT RACE CONDITIONS ---
+    this.isUploading = true;
+    // -----------------------------------------------------------------
 
     if (!this.authService.isLoggedIn()) {
-      // ... your existing anonymous limit checks ...
+      // ... (rest of your existing anonymous limit checks) ...
       const totalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
       if (this.selectedItems.length > this.MAX_ANONYMOUS_FOLDER_UPLOADS) {
         this.uploadError = `As you are not logged in, you can upload a maximum of ${this.MAX_ANONYMOUS_FOLDER_UPLOADS} files/folders.`;
+        this.isUploading = false; // <<< IMPORTANT: Reset flag on early exit
         this.cdRef.detectChanges();
         return;
       }
       if (totalSize > this.FIVE_GIGABYTES_IN_BYTES) {
         this.uploadError = `As you are not logged in, your total selection cannot exceed 5 GB.`;
+        this.isUploading = false; // <<< IMPORTANT: Reset flag on early exit
         this.cdRef.detectChanges();
         return;
       }
     }
 
-    this.isUploading = true;
+    // The line below was here before, we moved it to the top of the method.
+    // this.isUploading = true; 
     this.uploadError = null;
     this.uploadSubscription?.unsubscribe();
 
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
     let bytesUploadedSoFar = 0;
 
+    // ... (the rest of the function remains exactly the same) ...
+    // ... from this.uploadProgressDetails.totalBytes = totalBatchSize; onwards ...
     this.uploadProgressDetails.totalBytes = totalBatchSize;
     this.updateOverallProgress(0, totalBatchSize);
 
@@ -468,59 +479,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadStatusMessage = 'Initializing batch...';
     this.cdRef.detectChanges();
 
-    this.uploadSubscription = this.apiService.initiateBatch(batchDisplayName, totalBatchSize, !isSingleFile).pipe(
-      concatMap((initResponse: InitiateBatchResponse) => {
-        const batchId = initResponse.batch_id;
-
-        return from(this.selectedItems).pipe(
-          concatMap(item => {
-            if (!item.file || item.isFolder) {
-              bytesUploadedSoFar += item.size;
-              this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
-              return of({ type: HttpEventType.Response, body: { isSkipped: true } });
-            }
-
-            this.uploadStatusMessage = this.genericUploadMessage;
-            this.cdRef.detectChanges();
-
-            return this.apiService.streamFileToBatch(item.file, batchId).pipe(
-              tap((event: HttpEvent<any>) => {
-                if (event.type === HttpEventType.UploadProgress && event.total) {
-                  const fileBytesSent = event.loaded;
-                  const totalProgressBytes = bytesUploadedSoFar + fileBytesSent;
-                  this.updateOverallProgress(totalProgressBytes, totalBatchSize);
-                } else if (event.type === HttpEventType.Response) {
-                  bytesUploadedSoFar += item.size;
-                  this.updateOverallProgress(bytesUploadedSoFar, totalBatchSize);
-                }
-              })
-            );
-          }),
-          // This allows us to pass the batchId to the final step
-          // We use `last` from rxjs/operators to ensure this only emits after all files are done.
-          // Since the inner observable completes for each file, this is tricky.
-          // A better way is to use the `complete` callback of the main subscription.
-          // Let's remove the inner map and finalize in the `complete` handler.
-        );
-      }),
-    ).subscribe({
-      next: () => {
-        // This is hit after each file completes. We don't need to do anything here.
-      },
-      error: (err) => {
-        this.handleBatchUploadError(err.message);
-        console.error("Upload sequence failed.", err);
-      },
-      complete: () => {
-        // This is called after ALL files are uploaded successfully. Now we finalize.
-        // We need to get the batchId from the initial response. This requires a small refactor.
-        // Let's handle it by storing the batchId in the component.
-        // The current implementation is flawed. Let's fix it right here.
-        // The code below is a better implementation for the whole method.
-      }
-    });
-
-    // --- Let's replace the above with a cleaner, more correct implementation ---
     let batchId: string;
     this.uploadSubscription = this.apiService.initiateBatch(batchDisplayName, totalBatchSize, !isSingleFile).pipe(
       tap(initResponse => batchId = initResponse.batch_id),
@@ -558,7 +516,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
+
+
   listenToProgress(operationId: string, currentItem: SelectedItem, onComplete: () => void): void {
     const sseUrl = this.apiService.getStatusStreamUrl(operationId);
     const eventSource = new EventSource(sseUrl, { withCredentials: this.authService.isLoggedIn() });
@@ -595,28 +554,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
 
-   onAllUploadsComplete(finalData: FinalizeBatchResponse): void {
+  onAllUploadsComplete(finalData: FinalizeBatchResponse): void {
     this.zone.run(() => {
       this.isUploading = false;
       this.uploadStatusMessage = "Transfer complete!";
       this.uploadSuccessMessage = "Your files have been successfully uploaded.";
-      
+
       this.shareableLinkForPanel = finalData.download_url;
       this.completedBatchAccessId = finalData.access_id;
-      
+
       if (this.currentItemBeingUploaded) {
-          this.currentItemBeingUploaded.name = this.selectedItems.length > 1 
-            ? `${this.selectedItems.length} files uploaded` 
-            : this.selectedItems[0].name;
+        this.currentItemBeingUploaded.name = this.selectedItems.length > 1
+          ? `${this.selectedItems.length} files uploaded`
+          : this.selectedItems[0].name;
       }
-      
+
       if (this.currentUser) this.uploadEventService.notifyUploadComplete();
       this.cdRef.detectChanges();
     });
   }
 
 
- private updateOverallProgress(bytesSent: number, totalBytes: number): void {
+  private updateOverallProgress(bytesSent: number, totalBytes: number): void {
     if (totalBytes === 0) {
       this.uploadProgressDetails.percentage = 100;
     } else {
