@@ -148,12 +148,14 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     d += ` Z`;
     return d;
   }
+
   onSelectFolderClick(event: MouseEvent): void {
     event.stopPropagation();
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
       this.requestFolderUpload.emit();
     }
   }
+  
   onNewTransferPanel(): void { this.newTransferFromPanel.emit(); }
   onCentralButtonClick(): void {
     if (this.items.length === 0 && !this.isUploading && !this.batchShareableLink) {
