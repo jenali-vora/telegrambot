@@ -193,15 +193,10 @@ export class FileManagerApiService {
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   // --- All your other existing methods remain unchanged ---
-  listFiles(username: string): Observable<TelegramFileMetadata[]> {
-    if (!username) { return throwError(() => new Error('Username required.')); }
-    const endpointUrl = `${this.apiUrl}/api/files/${encodeURIComponent(username)}`;
-    console.log(`[ApiService.listFiles] Calling endpoint: ${endpointUrl}`);
-    return this.http.get<TelegramFileMetadata[]>(endpointUrl, { headers: this.getAuthHeaders() })
-      .pipe(
-        tap(files => console.log(`Fetched ${files?.length ?? 0} files for ${username}`)),
-        catchError(this.handleError)
-      );
+ listFiles(username: string): Observable<TelegramFileMetadata[]> {
+    const endpointUrl = `${this.apiUrl}/files/${encodeURIComponent(username)}`;
+    return this.http.get<TelegramFileMetadata[]>(endpointUrl)
+      .pipe(catchError(this.handleError));
   }
 
   initiateUpload(formData: FormData): Observable<any> {
@@ -231,56 +226,32 @@ export class FileManagerApiService {
       .pipe(catchError(this.handleError));
   }
 
-  deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
-    if (!username || !identifier) { return throwError(() => new Error('Username and identifier required for deletion.')); }
-    const encodedIdentifier = encodeURIComponent(identifier);
-    const endpointUrl = `${this.apiUrl}/api/delete-file/${encodeURIComponent(username)}/${encodedIdentifier}`;
-    console.log(`[ApiService.deleteFileRecord] Calling endpoint: ${endpointUrl}`);
-    return this.http.delete<BasicApiResponse>(endpointUrl, { headers: this.getAuthHeaders() })
-      .pipe(
-        tap(res => console.log(`Archive (delete) response for ${identifier}:`, res)),
-        catchError(this.handleError)
-      );
+   deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
+    const endpointUrl = `${this.apiUrl}/files/delete-file/${encodeURIComponent(username)}/${encodeURIComponent(identifier)}`;
+    return this.http.delete<BasicApiResponse>(endpointUrl)
+      .pipe(catchError(this.handleError));
   }
 
-  listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
-    if (!username) { return throwError(() => new Error('Username required for listing archived files.')); }
-    const endpointUrl = `${this.apiUrl}/api/archive/list-files/${encodeURIComponent(username)}`;
-    console.log(`[ApiService.listArchivedFiles] Calling endpoint: ${endpointUrl}`);
-    return this.http.get<TelegramFileMetadata[]>(endpointUrl, { headers: this.getAuthHeaders() })
-      .pipe(
-        tap(files => console.log(`Fetched ${files?.length ?? 0} archived files for ${username}`)),
-        catchError(this.handleError)
-      );
+ listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
+    const endpointUrl = `${this.apiUrl}/archive/list-files/${encodeURIComponent(username)}`;
+    return this.http.get<TelegramFileMetadata[]>(endpointUrl)
+      .pipe(catchError(this.handleError));
   }
 
-  restoreFile(accessId: string): Observable<ApiResponse> {
-    if (!accessId) { return throwError(() => new Error('Access ID required for restoring file.')); }
-    const endpointUrl = `${this.apiUrl}/api/archive/restore-file/${encodeURIComponent(accessId)}`;
-    console.log(`[ApiService.restoreFile] Calling endpoint: ${endpointUrl}`);
-    return this.http.post<ApiResponse>(endpointUrl, {}, { headers: this.getAuthHeaders() })
-      .pipe(
-        tap(res => console.log(`Restore response for ${accessId}:`, res)),
-        catchError(this.handleError)
-      );
+ restoreFile(accessId: string): Observable<ApiResponse> {
+    const endpointUrl = `${this.apiUrl}/archive/restore-file/${encodeURIComponent(accessId)}`;
+    return this.http.post<ApiResponse>(endpointUrl, {})
+      .pipe(catchError(this.handleError));
   }
 
-  getPreviewDetails(accessId: string, filename?: string | null): Observable<PreviewDetails> {
-    if (!accessId) {
-      return throwError(() => new Error('Access ID is required.'));
-    }
+   getPreviewDetails(accessId: string, filename?: string | null): Observable<PreviewDetails> {
     let params = new HttpParams();
     if (filename) {
       params = params.set('filename', filename);
     }
-    return this.http.get<PreviewDetails>(`${this.apiUrl}/api/preview-details/${accessId}`, {
-      headers: this.getAuthHeaders(),
-      params: params
-    })
-      .pipe(
-        tap(details => console.log(`Preview details for ${accessId}${filename ? ' (file: ' + filename + ')' : ''}:`, details)),
-        catchError(this.handleError)
-      );
+    const url = `${this.apiUrl}/files/preview-details/${accessId}`;
+    return this.http.get<PreviewDetails>(url, { params })
+      .pipe(catchError(this.handleError));
   }
 
   getRawTextContent(contentUrl: string): Observable<string> {
