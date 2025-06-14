@@ -442,41 +442,56 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const totalBatchSize = this.selectedItems.reduce((sum, item) => sum + (item.file?.size ?? 0), 0);
     this.uploadProgressDetails.totalBytes = totalBatchSize;
-    this.updateOverallProgress(0, 0); // Reset progress
-
-    const isSingleFile = this.selectedItems.length === 1;
-    const batchDisplayName = isSingleFile ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`;
+    // MODIFIED: Call updateOverallProgress with the actual totalBatchSize
+    // OLD: this.updateOverallProgress(0, 0); 
+    this.updateOverallProgress(0, totalBatchSize); // Correctly initializes progress to 0%
 
     this.currentItemBeingUploaded = {
-      id: -1, name: batchDisplayName, size: totalBatchSize, file: null, icon: 'fas fa-archive', isFolder: false
+      id: -1, name: totalBatchSize > 0 ? (this.selectedItems.length === 1 ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`) : 'Processing files...', // Adjusted name for 0 size
+      size: totalBatchSize, file: null, icon: 'fas fa-archive', isFolder: false
     };
     this.uploadStatusMessage = 'Initializing transfer...';
     this.cdRef.detectChanges();
 
     try {
-      // 1. Initiate the batch on the backend to get a batch_id
-      const initResponse = await firstValueFrom(this.apiService.initiateBatch(batchDisplayName, totalBatchSize, !isSingleFile));
+      const initResponse = await firstValueFrom(this.apiService.initiateBatch(this.currentItemBeingUploaded.name, totalBatchSize, this.selectedItems.length > 1 || totalBatchSize === 0));
       const batchId = initResponse.batch_id;
       let bytesUploadedSoFar = 0;
 
-      // 2. Loop through each file and upload it sequentially using the new fetch-based method
       for (const item of this.selectedItems) {
         if (!item.file || item.isFolder) {
-          // Skip folders or items without a file object
-          continue;
+          if (item.isFolder || (item.file && item.file.size === 0 && !item.name.includes('/'))) { // Handle empty files or folders explicitly
+            // Potentially skip or log empty files/folders if not handled by streamFileWithFetch
+            // For now, streamFileWithFetch will be called, and if item.file is null or size 0, it should handle it.
+          } else {
+            continue;
+          }
         }
 
-        this.uploadStatusMessage = `Uploading: ${item.name}...`;
+        // Ensure item.file is valid before proceeding
+        if (!item.file) {
+          // If it's an empty "file" entry from a folder, or something went wrong
+          if (totalBatchSize === 0 && this.selectedItems.every(si => (si.file?.size ?? 0) === 0)) {
+            // This case is for when all files are empty. streamFileWithFetch might still be called with a 0-size file.
+          } else {
+            console.warn(`Skipping item ${item.name} due to missing file object, though it has size or is not explicitly empty.`);
+            if (item.size > 0) bytesUploadedSoFar += item.size; // Account for its size if it was part of total
+            this.updateOverallProgress(bytesUploadedSoFar, this.uploadProgressDetails.totalBytes);
+            continue;
+          }
+        }
+
+
+        this.uploadStatusMessage = this.genericUploadMessage;
         this.cdRef.detectChanges();
 
-        // This is the core change: Call the fetch-based streaming upload
         await this.streamFileWithFetch(item, batchId, bytesUploadedSoFar);
 
-        // After a file is successfully processed, update the baseline for the next one
-        bytesUploadedSoFar += item.file.size;
+        if (item.file) { // Add size only if file existed
+          bytesUploadedSoFar += item.file.size;
+        }
       }
 
-      // 3. Finalize the batch
       this.uploadStatusMessage = 'Finalizing transfer...';
       this.cdRef.detectChanges();
       const finalResponse = await firstValueFrom(this.apiService.finalizeBatch(batchId));
@@ -602,10 +617,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.shareableLinkForPanel = finalData.download_url;
       this.completedBatchAccessId = finalData.access_id;
 
+      // MODIFIED: Explicitly set progress to 100% on completion
+      this.uploadProgressDetails.percentage = 100;
+      this.uploadProgressDetails.bytesSent = this.uploadProgressDetails.totalBytes; // Ensure bytesSent matches totalBytes
+      this.uploadProgress = 100;
+
       if (this.currentItemBeingUploaded) {
         this.currentItemBeingUploaded.name = this.selectedItems.length > 1
           ? `${this.selectedItems.length} files uploaded`
-          : this.selectedItems[0].name;
+          : (this.selectedItems.length === 1 ? this.selectedItems[0].name : 'Upload complete');
       }
 
       if (this.currentUser) this.uploadEventService.notifyUploadComplete();
@@ -616,15 +636,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private updateOverallProgress(bytesSent: number, totalBytes: number): void {
     if (totalBytes === 0) {
-      this.uploadProgressDetails.percentage = 100;
+      // MODIFIED: If totalBytes is 0, progress should be 0% unless it's explicitly completed.
+      // Completion handlers will set it to 100%. During ongoing (even if 0-byte) upload, it's 0% or based on file count if that was the logic.
+      // For byte-based progress, if total is 0, then 0 bytes sent means 0% progress.
+      this.uploadProgressDetails.percentage = 0;
     } else {
       this.uploadProgressDetails.percentage = Math.min((bytesSent / totalBytes) * 100, 100);
     }
     this.uploadProgressDetails.bytesSent = bytesSent;
+    // this.uploadProgressDetails.totalBytes is assumed to be correctly set elsewhere before this call
     this.uploadProgress = this.uploadProgressDetails.percentage;
     this.cdRef.detectChanges();
   }
-
+  
   private handleGDriveComplete(data: any, operationId: string): void {
     this.zone.run(() => {
       if (operationId !== this.currentUploadId || !this.isUploading) {
