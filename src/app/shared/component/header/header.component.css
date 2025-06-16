@@ -95,6 +95,9 @@
         background-color: var(--white-color);
     }
 }
+.fixed-header .btn-login:hover {
+    background-color: var(--button-hover);
+}
 
 .auth-nav .btn-register {
     background-color: var(--button-color);
@@ -111,6 +114,10 @@
         color: var(--button-color);
         border: 2px solid var(--button-color);
     }
+}
+
+.fixed-header .auth-nav .btn-register:hover{
+    background-color: var(--button-hover);
 }
 
 /* login after css */

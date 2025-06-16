@@ -222,7 +222,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       event.dataTransfer.dropEffect = 'none';
     } else {
       if (event.dataTransfer.dropEffect !== 'copy') {
-         event.dataTransfer.dropEffect = 'none';
+        event.dataTransfer.dropEffect = 'none';
       }
     }
   }
@@ -237,7 +237,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       event.dataTransfer.dropEffect = 'none';
     } else {
       if (event.dataTransfer.dropEffect !== 'copy') {
-         event.dataTransfer.dropEffect = 'none';
+        event.dataTransfer.dropEffect = 'none';
       }
     }
   }
@@ -392,9 +392,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.uploadProgressDetails.totalBytes = this.selectedItems.reduce((sum, item) => sum + (item.file?.size ?? 0), 0);
     this.updateOverallProgress(0); // Start progress at 0
 
-    const batchName = this.uploadProgressDetails.totalBytes > 0 
-        ? (this.selectedItems.length === 1 ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`) 
-        : 'Processing files...';
+    const batchName = this.uploadProgressDetails.totalBytes > 0
+      ? (this.selectedItems.length === 1 ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`)
+      : 'Processing files...';
 
     this.currentItemBeingUploaded = {
       id: -1, name: batchName, size: this.uploadProgressDetails.totalBytes, file: null as any, icon: 'fas fa-archive'
@@ -457,14 +457,28 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private handleProgressEvent(event: any, bytesAlreadyUploaded: number): void {
     if (event.type === 'progress') {
-      this.uploadStatusMessage = `Uploading: ${event.filename || '...'}`;
-      // Calculate total progress: (bytes of completed files) + (bytes of current file)
-      const newTotalBytesSent = bytesAlreadyUploaded + (event.bytes_sent || 0);
-      this.updateOverallProgress(newTotalBytesSent);
-    } else if (event.type === 'status' || event.type === 'finalized') {
+      // <<< MODIFICATION 2: Change to "Your files are being uploaded..." when progress starts >>>
+      // We check if filename exists, otherwise use a more generic message.
+      // This message will override "Initializing transfer..." once actual upload feedback is received.
+      if (event.filename) {
+        this.uploadStatusMessage = `Your files are being uploaded, wait a few minutes. (Current: ${event.filename})`;
+      } else if (this.uploadStatusMessage === 'Initializing transfer...') { // Only change if still initializing
+        this.uploadStatusMessage = `Your files are being uploaded, wait a few minutes.`;
+      } // Else, keep the more specific message if one was set by a previous event.
+
+
+      const currentFileBytesSent = event.bytes_sent || 0;
+      const totalBatchSent = event.total_batch_bytes_sent !== undefined ? event.total_batch_bytes_sent : (bytesAlreadyUploaded + currentFileBytesSent);
+      this.updateOverallProgress(totalBatchSent);
+
+    } else if (event.type === 'status' && event.message) {
+      // Backend status messages might be more specific than our generic "Your files are being uploaded..."
+      // We can let these override if they are more informative.
       this.uploadStatusMessage = event.message;
-    } else if (event.type === 'error') {
-      this.handleBatchUploadError(event.message || 'Server reported an error during upload.');
+    } else if (event.type === 'finalized' && event.message) {
+      this.uploadStatusMessage = event.message;
+    } else if (event.type === 'error' && event.message) {
+      this.handleBatchUploadError(event.message);
     }
     this.cdRef.detectChanges();
   }
@@ -519,11 +533,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.zone.run(() => {
       this.isUploading = false;
       this.uploadStatusMessage = "Transfer complete!";
-      this.uploadSuccessMessage = "Your files have been successfully uploaded.";
+      if (!this.authService.isLoggedIn()) {
+        this.anonymousUploadLimitMessage = "Your file has been uploaded. It will be available for 5 days. Please log in or sign up for longer storage and more features.";
+        this.uploadSuccessMessage = null; // Ensure only one success-type message is shown
+      } else {
+        this.uploadSuccessMessage = "Your files have been successfully uploaded.";
+        this.anonymousUploadLimitMessage = null; // Clear any previous anonymous message
+      }
 
       this.shareableLinkForPanel = finalData.download_url;
       this.completedBatchAccessId = finalData.access_id;
-      
+
       this.updateOverallProgress(this.uploadProgressDetails.totalBytes); // Set to 100%
 
       if (this.currentItemBeingUploaded) {
@@ -571,6 +591,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentItemBeingUploaded = null;
     this.cdRef.detectChanges();
   }
+  
   handleItemRemovedFromPanel(itemOrUndefined: SelectedItem | undefined): void {
     if (this.isUploading) {
       alert("Cannot remove items during upload. Please cancel the upload first.");
@@ -587,6 +608,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.updatePlayGamesButtonVisibility();
     this.cdRef.detectChanges();
   }
+
   toggleGamePanel(): void {
     this.isGamePanelVisible = !this.isGamePanelVisible;
   }
@@ -627,7 +649,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.selectedItems.length > 0 || this.shareableLinkForPanel) {
-        this.resetUploadState();
+      this.resetUploadState();
     }
     console.log('HomeComponent: DataTransferItems dropped.', items);
     this.uploadError = null; // Clear previous errors
@@ -685,12 +707,12 @@ export class HomeComponent implements OnInit, OnDestroy {
             }
           }
         } else { // If webkitGetAsEntry is not available at all
-            const file = item.getAsFile();
-            if (file) {
-              if (!file.name.toLowerCase().endsWith('.ds_store') && (file.size > 0 || (file.size === 0 && file.type !== ''))) {
-                 filesAccumulator.push(file);
-              }
+          const file = item.getAsFile();
+          if (file) {
+            if (!file.name.toLowerCase().endsWith('.ds_store') && (file.size > 0 || (file.size === 0 && file.type !== ''))) {
+              filesAccumulator.push(file);
             }
+          }
         }
       }
     }
@@ -698,6 +720,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     await Promise.all(promises);
     return filesAccumulator.filter(file => file instanceof File); // Ensure all are actual File objects
   }
+
   private async traverseFileSystemEntry(entry: FileSystemEntry, filesAccumulator: File[]): Promise<void> {
     return new Promise<void>((resolve, reject) => { // Added reject for clarity, though current logic resolves on error
       if (entry.isFile) {
@@ -709,13 +732,13 @@ export class HomeComponent implements OnInit, OnDestroy {
               return;
             }
             if (entry.fullPath && !Object.prototype.hasOwnProperty.call(file, 'webkitRelativePath')) {
-                try {
-                    Object.defineProperty(file, 'webkitRelativePath', {
-                        value: entry.fullPath.startsWith('/') ? entry.fullPath.substring(1) : entry.fullPath,
-                        writable: false,
-                        enumerable: true
-                    });
-                } catch (e) { console.warn("Could not set webkitRelativePath on file", e); }
+              try {
+                Object.defineProperty(file, 'webkitRelativePath', {
+                  value: entry.fullPath.startsWith('/') ? entry.fullPath.substring(1) : entry.fullPath,
+                  writable: false,
+                  enumerable: true
+                });
+              } catch (e) { console.warn("Could not set webkitRelativePath on file", e); }
             }
             filesAccumulator.push(file);
             resolve();
@@ -776,6 +799,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     return dataTransfer.files;
   }
+
   getFileIcon(filename: string | undefined): string {
     if (!filename) return 'fas fa-question-circle'; // Default for undefined
     const isPath = filename.includes('/');
@@ -784,10 +808,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       return 'fas fa-folder';
     }
     if (!baseNameForIcon.includes('.') && !isPath) {
-        return 'fas fa-file';
+      return 'fas fa-file';
     }
     if (isPath && !baseNameForIcon.includes('.')) {
-        return 'fas fa-folder';
+      return 'fas fa-folder';
     }
     const extension = baseNameForIcon.split('.').pop()?.toLowerCase();
     switch (extension) {
