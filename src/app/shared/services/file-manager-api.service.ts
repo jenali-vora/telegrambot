@@ -200,12 +200,12 @@ export class FileManagerApiService {
       .pipe(catchError(this.handleError));
   }
   listArchivedFiles(username: string): Observable<TelegramFileMetadata[]> {
-    const endpointUrl = `${this.apiUrl}/archive/list-files/${encodeURIComponent(username)}`;
+   const endpointUrl = `${this.apiUrl}/api/archive/list-files/${encodeURIComponent(username)}`;
     return this.http.get<TelegramFileMetadata[]>(endpointUrl)
       .pipe(catchError(this.handleError));
   }
   restoreFile(accessId: string): Observable<ApiResponse> {
-    const endpointUrl = `${this.apiUrl}/archive/restore-file/${encodeURIComponent(accessId)}`;
+    const endpointUrl = `${this.apiUrl}/api/archive/restore-file/${encodeURIComponent(accessId)}`;
     return this.http.post<ApiResponse>(endpointUrl, {})
       .pipe(catchError(this.handleError));
   }
