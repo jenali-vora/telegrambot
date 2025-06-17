@@ -192,8 +192,10 @@ hr {
 }
 
 .download-all-btn:disabled {
-    background-color: #a0c7e8;
+       background-color: var(--button-color);
     cursor: not-allowed;
+    opacity: .45;
+    color: var(--white-color);
 }
 
 .download-all-center {

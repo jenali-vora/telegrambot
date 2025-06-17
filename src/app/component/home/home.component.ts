@@ -326,10 +326,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   private handleProgressEvent(event: any, bytesAlreadyUploadedForPreviousFiles: number): void {
     console.log('[HomeComponent] SSE Progress Event Received:', JSON.stringify(event));
 
-    if (event.type === 'progress') {
-      if (event.filename) this.uploadStatusMessage = `Your files are being uploaded, wait a few minutes.`;
-      else if (this.uploadStatusMessage === 'Initializing transfer...') this.uploadStatusMessage = `Your files are being uploaded, wait a few minutes.`;
+    // Determine the new status message based on event type and content
+    let newUploadStatusMessageToShow = this.uploadStatusMessage; // Default to current status
 
+    if (event.type === 'progress') {
+      if (event.filename || this.uploadStatusMessage === 'Initializing transfer...') {
+        newUploadStatusMessageToShow = `Your files are being uploaded, wait a few minutes.`;
+      }
+      // ... (progress bar, ETA, speed calculations remain here)
       const currentFileBytesInEvent = event.bytes_sent || 0;
       const totalBatchSent = event.total_batch_bytes_sent !== undefined
         ? Number(event.total_batch_bytes_sent)
@@ -339,13 +343,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       let calculatedEta = '--:--';
       let currentSpeedMbps = this.uploadProgressDetails.speedMBps;
 
-      // 1. Prefer direct ETA from server
       if (event.eta_seconds !== undefined) {
         const etaSec = Number(event.eta_seconds);
         if (!isNaN(etaSec) && etaSec >= 0) {
           calculatedEta = this.formatEta(etaSec);
         }
-        // 2. If no direct ETA, try calculating from server-provided speed
       } else if (event.speed_mbps !== undefined) {
         const speedFromServer = parseFloat(event.speed_mbps);
         if (!isNaN(speedFromServer) && speedFromServer > 0) {
@@ -359,42 +361,67 @@ export class HomeComponent implements OnInit, OnDestroy {
             calculatedEta = '00:00';
           }
         } else {
-          currentSpeedMbps = 0; // Invalid or zero speed from server, will trigger client fallback if applicable
+          currentSpeedMbps = 0; 
         }
-        // 3. Client-side fallback if server provides neither ETA nor valid speed
       } else if (this.uploadStartTime > 0 && totalBatchSent > 0 && this.uploadProgressDetails.totalBytes > 0) {
         const elapsedTimeInSeconds = (Date.now() - this.uploadStartTime) / 1000;
-        if (elapsedTimeInSeconds > 1) { // Wait for a second to get a somewhat stable reading
+        if (elapsedTimeInSeconds > 1) { 
           const clientSpeedBps = totalBatchSent / elapsedTimeInSeconds;
           if (clientSpeedBps > 0) {
-            currentSpeedMbps = clientSpeedBps / (1024 * 1024); // Store client calculated speed in MBps
+            currentSpeedMbps = clientSpeedBps / (1024 * 1024); 
             const remainingBytes = this.uploadProgressDetails.totalBytes - totalBatchSent;
             if (remainingBytes > 0) {
               const remainingSec = remainingBytes / clientSpeedBps;
               calculatedEta = this.formatEta(remainingSec);
             } else {
-              calculatedEta = '00:00'; // Should be caught by percentage check anyway
+              calculatedEta = '00:00'; 
             }
           }
         }
       }
 
-      if (this.uploadProgressDetails.percentage >= 99.9 && calculatedEta !== '00:00') { // Use a threshold for "almost complete"
-        calculatedEta = '00:00'; // Finalizing or practically done
+      if (this.uploadProgressDetails.percentage >= 99.9 && calculatedEta !== '00:00') {
+        calculatedEta = '00:00'; 
       }
 
       this.uploadProgressDetails.etaFormatted = calculatedEta;
       this.uploadProgressDetails.speedMBps = currentSpeedMbps;
 
     } else if (event.type === 'status' && event.message) {
-      this.uploadStatusMessage = event.message;
+      const messageStr = String(event.message);
+      // Heuristic for "Completed: [long_filename]"
+      const isUndesiredFileCompletionMsg = messageStr.startsWith('Completed: ') && messageStr.length > 25;
+
+      if (isUndesiredFileCompletionMsg) {
+        // If it's the specific "Completed: [filename]" message and the upload is still active
+        // (not finalizing, not complete, not failed, not cancelled), then override it.
+        if (this.isUploading &&
+            this.uploadStatusMessage !== 'Finalizing transfer...' &&
+            this.uploadStatusMessage !== 'Transfer complete!' &&
+            !this.uploadStatusMessage.startsWith('Upload Failed') &&
+            !this.uploadStatusMessage.startsWith('Upload cancelled')) {
+          newUploadStatusMessageToShow = `Your files are being uploaded, wait a few minutes.`;
+        }
+        // If upload is already in a terminal state, newUploadStatusMessageToShow remains as current this.uploadStatusMessage,
+        // effectively ignoring this specific "Completed: [filename]" status update.
+      } else {
+        // For other status messages, allow them.
+        newUploadStatusMessageToShow = messageStr;
+      }
     } else if (event.type === 'finalized' && event.message) {
-      this.uploadStatusMessage = event.message;
+      newUploadStatusMessageToShow = String(event.message); // e.g., "Batch finalized successfully."
       this.uploadProgressDetails.etaFormatted = '00:00';
       this.uploadProgressDetails.speedMBps = 0;
     } else if (event.type === 'error' && event.message) {
-      this.handleBatchUploadError(event.message);
+      this.handleBatchUploadError(String(event.message));
+      return; // handleBatchUploadError calls cdRef.detectChanges()
     }
+
+    // Only update the class property if the determined message is different
+    if (this.uploadStatusMessage !== newUploadStatusMessageToShow) {
+        this.uploadStatusMessage = newUploadStatusMessageToShow;
+    }
+
     this.cdRef.detectChanges();
   }
 
