@@ -193,7 +193,7 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
       this.downloadProgress = { ...this.downloadProgress, percentage: 100 };
       this.downloadStatusMessage = `Download ready: ${data.final_filename}. Starting...`;
       this.downloadStatusType = 'success';
-      window.location.href = `${this.API_BASE_URL}/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
+      window.location.href = `${this.API_BASE_URL}/download/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
       setTimeout(() => {
         this.isPreparingDownload = false;
         this.downloadStatusMessage = null; // Clear status after a bit

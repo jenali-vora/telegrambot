@@ -107,35 +107,37 @@
         <app-faq-accordion></app-faq-accordion>
     </section>
 
-    <div class="millions-peopel-section section-8 container">
-        <div class="row g-5">
-            <div class="col-12 col-lg-6 col-md-6" appScrollAnimation="slide-in-left" [animationThreshold]="0.5">
-                <div class="millions-heading transfer-content">
-                    <h2 class="text-left"><span class="text-highlight-gradient">Millions</span> of people trust us</h2>
-                    <p>Join the millions of individuals and businesses who trust Transfer to store and protect their
-                        data in
-                        the cloud.</p>
-                    <a routerLink="/register">
-                        <button class="btn-signup">Sign up for free</button>
-                    </a>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6 col-md-6 right-section" appScrollAnimation="slide-in-right"
-                [animationThreshold]="0.5" animationDelay="0.5s">
-                @for (item of redisterdUser; track $index) {
-                <div class="registerd-wrapper">
-                    <div class="img-box">
-                        <img [src]="item.icon" alt="">
-                    </div>
-                    <div class="registerd-user-heading">
-                        <h5>{{item.title}}</h5>
-                        <span>{{item.count}}</span>
+    <section class="section-7 overflow-hidden">
+        <div class="millions-peopel-section section-8 container">
+            <div class="row g-5">
+                <div class="col-12 col-lg-6 col-md-6" appScrollAnimation="slide-in-left" [animationThreshold]="0.5">
+                    <div class="millions-heading transfer-content">
+                        <h2 class="text-left"><span class="text-highlight-gradient">Millions</span> of people trust us</h2>
+                        <p>Join the millions of individuals and businesses who trust Transfer to store and protect their
+                            data in
+                            the cloud.</p>
+                        <a routerLink="/register">
+                            <button class="btn-signup">Sign up for free</button>
+                        </a>
                     </div>
                 </div>
-                }
+                <div class="col-12 col-lg-6 col-md-6 right-section" appScrollAnimation="slide-in-right"
+                    [animationThreshold]="0.5" animationDelay="0.5s">
+                    @for (item of redisterdUser; track $index) {
+                    <div class="registerd-wrapper">
+                        <div class="img-box">
+                            <img [src]="item.icon" alt="">
+                        </div>
+                        <div class="registerd-user-heading">
+                            <h5>{{item.title}}</h5>
+                            <span>{{item.count}}</span>
+                        </div>
+                    </div>
+                    }
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Upload Progress Overlay (remains unchanged) -->
     <!-- <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">

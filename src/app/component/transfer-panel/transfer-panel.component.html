@@ -1,3 +1,5 @@
+<!-- frontend/src/app/component/transfer-panel/transfer-panel.component.html -->
+
 <div class="transfer-panel-wrapper card-style">
 
     <!-- "Add More" Actions: Show if no items AND not uploading -->
@@ -15,8 +17,6 @@
         <div class="file-summary">
             <span class="count">
                 {{ totalCount }} file{{ totalCount !== 1 ? 's' : '' }}
-                <!-- Show total batch size ONLY when batchShareableLink is present (upload complete) -->
-                <!-- Or when not uploading AND no link yet (pre-upload) -->
                 <ng-container *ngIf="(!isUploading && !batchShareableLink) || batchShareableLink">
                     ({{ totalSize | byteFormat }})
                 </ng-container>
@@ -34,29 +34,17 @@
         <div class="file-list-scroll">
             <ul class="file-list">
                 @for(item of items; track item.id) {
-                <li class="file-list-item" [class.is-uploading-item]="isUploading && !batchShareableLink"
-                    [class.is-completed-item]="batchShareableLink || (isUploading && uploadPercentage === 100)">
+                <li class="file-list-item"
+                    [class.is-uploading-item]="isUploading && !batchShareableLink && getItemUploadPercentage(item) < 99.99"
+                    [class.is-completed-item]="batchShareableLink || (isUploading && getItemUploadPercentage(item) >= 99.99)">
                     <div class="item-icon"><i [ngClass]="item.icon"></i></div>
                     <div class="item-details">
                         <span class="item-name" [title]="item.name">{{ item.name }}</span>
 
-                        <!-- Case 1: Batch upload is complete (batchShareableLink is available) -->
-                        <!-- NO size/progress text shown here, only name and icon -->
-                        <!-- The *ngIf="batchShareableLink" for the text was removed -->
-
-
-                        <!-- Case 2: Batch upload is active (isUploading, no batchShareableLink yet) -->
                         <ng-container *ngIf="isUploading && !batchShareableLink">
-                            <div class="item-progress-text">
-                                <ng-container *ngIf="uploadPercentage === 100">
-                                    {{ item.size | byteFormat }} / {{ item.size | byteFormat }} | 100%
-                                </ng-container>
-                                <ng-container *ngIf="uploadPercentage < 100">
-                                    {{ getItemUploadedBytes(item) | byteFormat }} / {{ item.size | byteFormat }} | {{
-                                    getItemUploadPercentage(item).toFixed(0) }}% • {{ etaFormatted }}
-                                </ng-container>
+                           <div class="item-progress-text">
+                                {{ getItemUploadedBytes(item) | byteFormat }} / {{ item.size | byteFormat }} | {{ getItemUploadPercentage(item).toFixed(0) }}% <ng-container *ngIf="getItemDisplaySpeed(item) as speed"> • {{ speed }}</ng-container> • {{ getItemDisplayTimeOrEta(item) }}
                             </div>
-                            <!-- Progress bar ONLY shown during active upload -->
                             <div class="item-linear-progress-bar-wrapper">
                                 <div class="progress-bar-custom">
                                     <div class="progress-bar-custom-fill" [style.width.%]="getItemUploadPercentage(item)"></div>
@@ -64,23 +52,20 @@
                             </div>
                         </ng-container>
 
-                        <!-- Case 3: Pre-upload state (!isUploading and no batchShareableLink) -->
                         <div *ngIf="!isUploading && !batchShareableLink" class="item-size">
                             {{ item.size | byteFormat }}
                         </div>
                     </div>
-                    <!-- Item actions (download/remove PRE-UPLOAD) shown when NOT uploading -->
                     <div class="item-actions" *ngIf="!isUploading && !batchShareableLink">
                         <button class="btn icon-btn btn-download-item" title="Download this item (Local)"
                             (click)="requestItemDownload(item, $event)">
                             <i class="fas fa-download"></i>
                         </button>
                         <button class="btn icon-btn btn-remove-item" title="Remove this item"
-                            (click)="requestItemRemoval(item, $event)"> <!-- This removes item before upload starts -->
+                            (click)="requestItemRemoval(item, $event)">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
-
                 </li>
                 }
                 @empty {
@@ -90,7 +75,6 @@
         </div>
     </div>
 
-    <!-- ... (rest of the HTML remains the same) ... -->
     <div *ngIf="batchShareableLink" class="completed-transfer-actions">
         <div class="share-link-display">
             <label>Your download link:</label>
