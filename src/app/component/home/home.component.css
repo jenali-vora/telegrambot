@@ -399,6 +399,9 @@
 /* section-8 css start */
 .millions-peopel-section {
     padding: 30px 20px;
+}
+
+.overflow-hidden{
     overflow: hidden;
 }
 

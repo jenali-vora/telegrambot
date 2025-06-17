@@ -190,12 +190,12 @@ export class FileManagerApiService {
   // The rest of your service methods go here...
   // (listFiles, deleteFileRecord, downloadFileBlob, handleError, etc.)
   listFiles(username: string): Observable<TelegramFileMetadata[]> {
-    const endpointUrl = `${this.apiUrl}/files/${encodeURIComponent(username)}`;
+    const endpointUrl = `${this.apiUrl}/api/files/${encodeURIComponent(username)}`;
     return this.http.get<TelegramFileMetadata[]>(endpointUrl)
       .pipe(catchError(this.handleError));
   }
   deleteFileRecord(username: string, identifier: string): Observable<BasicApiResponse> {
-    const endpointUrl = `${this.apiUrl}/files/delete-file/${encodeURIComponent(username)}/${encodeURIComponent(identifier)}`;
+    const endpointUrl = `${this.apiUrl}/api/delete-file/${encodeURIComponent(username)}/${encodeURIComponent(identifier)}`;
     return this.http.delete<BasicApiResponse>(endpointUrl)
       .pipe(catchError(this.handleError));
   }
@@ -214,7 +214,7 @@ export class FileManagerApiService {
     if (filename) {
       params = params.set('filename', filename);
     }
-    const url = `${this.apiUrl}/files/preview-details/${accessId}`;
+    const url = `${this.apiUrl}/api/preview-details/${accessId}`;
     return this.http.get<PreviewDetails>(url, { params })
       .pipe(catchError(this.handleError));
   }
