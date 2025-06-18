@@ -47,8 +47,8 @@
 
             <!-- Download Progress/Status for the main download button -->
             <div *ngIf="isPreparingDownload && downloadProgress" class="card-body border-top p-3">
-                <div class="progress" style="height: 20px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                <div class="progress" style="height: 15px;">
+                    <div class="progress-bar bg-success" role="progressbar"
                         [style.width.%]="downloadProgress.percentage" [attr.aria-valuenow]="downloadProgress.percentage"
                         aria-valuemin="0" aria-valuemax="100">
                         {{ downloadProgress.percentage | number:'1.0-0' }}%
