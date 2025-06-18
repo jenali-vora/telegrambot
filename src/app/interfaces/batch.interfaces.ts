@@ -5,6 +5,7 @@ export interface FileInBatchInfo {
     failed?: boolean;
     reason?: string | null;
     skipped?: boolean;
+    telegram_send_locations?: any[];
 }
 export interface PreviewDetails {
     access_id: string;

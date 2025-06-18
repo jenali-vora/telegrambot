@@ -11,7 +11,7 @@
 
                 <!-- File Info (Name, sharer, etc.) -->
                 <div class="main-file-name row">
-                    <div class="col-2 file-icon-container"> <!-- Added a container class if needed for styling -->
+                    <div class="col-2 file-icon-container">
                         <span class="file-icon">
                             <i class="fa" [ngClass]="getFileIconClass(file.original_filename)" aria-hidden="true"></i>
                         </span>
@@ -27,8 +27,11 @@
                                     {{ batchDetails.username || 'N/A' }}
                                 </span>
                             </span>
-                            <span class="file-list-length">
-                                <span class="file-dot">•</span> {{ batchDetails.files?.length || 0 }} File(s)
+                                <span class="file-list-length" *ngIf="file.telegram_send_locations">
+                                <span class="file-dot">•</span>
+                                {{ file.telegram_send_locations.length }}
+                                <ng-container *ngIf="file.telegram_send_locations.length === 1; else pluralLocationsText"> Files</ng-container>
+                                <ng-template #pluralLocationsText> Files</ng-template>
                             </span>
                         </div>
                     </div>
@@ -40,8 +43,9 @@
                 <div class="file-controls-area">
                     <div class="file-actions">
                         <span class="file-size">{{ file.original_size | byteFormat }}</span>
-                        <button *ngIf="!isZipFile(file.original_filename) && !isDocxFile(file.original_filename)"
-                            (click)="navigateToPreview(batchDetails.access_id, file.original_filename)"
+                        <!-- MODIFIED LINE BELOW -->
+                        <button *ngIf="isPreviewable(file)" 
+                                                        (click)="navigateToPreview(batchDetails?.access_id ?? null, file.original_filename)"
                             class="btn btn-outline-secondary btn-sm me-1">Preview</button>
                         <button class="individual-download-button" (click)="initiateIndividualDownload(file)"
                             [disabled]="isProcessingDownload"
@@ -56,54 +60,44 @@
                             </ng-container>
                         </button>
                     </div>
-
                 </div>
             </li>
             <!-- INDIVIDUAL File Progress Bar -->
             <div *ngIf="currentDownloadingFile === file.original_filename && individualProgress[file.original_filename] as progressData"
                 class="progress-container individual-progress-container">
+                <!-- ... (rest of the progress bar HTML remains the same) ... -->
                 <div class="progress-bar-wrapper">
                     <div class="progress-bar" [style.width.%]="progressData.percentage || 0">
-                        <!-- {{ (individualProgress[file.original_filename]!.percentage || 0) | number:'1.0-0' }}% -->
                         <span *ngIf="(progressData.percentage || 0) > 5">{{ (progressData.percentage || 0) |
                             number:'1.0-0' }}%</span>
-                        <!-- Or always show it, and ensure CSS handles tiny bar text visibility -->
                         <span *ngIf="(progressData.percentage || 0) <= 5">{{ (progressData.percentage || 0) |
                             number:'1.0-0' }}%</span>
                     </div>
                 </div>
                 <div class="progress-details">
-                    <!-- Bytes Info: Show if totalBytes is known (it will be from initialization) -->
                     <span *ngIf="progressData.totalBytes !== undefined">
                         {{ (progressData.bytesSent ?? progressData.bytesProcessed ?? 0) | byteFormat }} / {{
                         progressData.totalBytes | byteFormat }}
                     </span>
-
-                    <!-- Separator, shown only if bytes info exists AND other details follow -->
                     <span
                         *ngIf="progressData.totalBytes !== undefined && progressData.percentage < 100 && (progressData.speedMBps !== undefined || progressData.etaFormatted)">
                         • </span>
-
-                    <!-- Speed and ETA: Show if not 100% -->
                     <ng-container *ngIf="progressData.percentage < 100">
                         <span *ngIf="progressData.speedMBps !== undefined">
                             {{ progressData.speedMBps | number:'1.1-1' }} MB/s
                         </span>
-                        <!-- Separator, shown only if speed exists AND ETA follows -->
                         <span *ngIf="progressData.speedMBps !== undefined && progressData.etaFormatted"> • </span>
                         <span *ngIf="progressData.etaFormatted">
                             ETA: {{ progressData.etaFormatted }}
                         </span>
                     </ng-container>
-
-                    <!-- Completion Message -->
                     <span *ngIf="progressData.percentage === 100">
                         Processing complete!
                     </span>
                 </div>
             </div>
             <li *ngIf="file.skipped || file.failed" style="background-color: #fefefe; opacity: 0.6;">
-                <!-- ... existing code for skipped/failed files ... -->
+                <!-- ... (existing code for skipped/failed files remains the same) ... -->
                 <div class="file-info">
                     <div class="row">
                         <div class="col-2 icon-warning">
@@ -123,7 +117,7 @@
         </ng-container>
     </ul>
 
-    <!-- General Status Message Area (remains) -->
+    <!-- ... (rest of the HTML like #noFiles, #loadingOrError, Download All section, etc. remains the same) ... -->
     <div *ngIf="downloadStatusMessage && !(isDownloadingAll && downloadAllProgress) && !currentDownloadingFile"
         class="status-message" [ngClass]="{
             'info': downloadStatusType === 'info',
@@ -132,11 +126,7 @@
         }">
         {{ downloadStatusMessage }}
     </div>
-
-
-    <!-- MODIFIED "Download All" button section -->
     <div class="download-all-section">
-        <!-- GLOBAL "Download All" Progress - MOVED BEFORE THE BUTTON DIV -->
         <div *ngIf="isDownloadingAll && downloadAllProgress" class="progress-container global-progress-container">
             <h4>Overall Progress (Zip):</h4>
             <div class="progress-bar-wrapper">
@@ -164,8 +154,6 @@
                 <span>Zipping complete! Preparing download...</span>
             </div>
         </div>
-
-        <!-- Download All Button container -->
         <div class="download-all-center">
             <button *ngIf="batchDetails && batchDetails.files && batchDetails.files.length > 1" class="download-all-btn"
                 (click)="initiateDownloadAll()" [disabled]="isProcessingDownload">
@@ -180,8 +168,6 @@
             </button>
         </div>
     </div>
-    <!-- End of MODIFIED "Download All" button section -->
-
     <ng-template #noFiles>
         <p>No files found in this batch record.</p>
     </ng-template>

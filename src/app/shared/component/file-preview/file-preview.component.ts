@@ -154,11 +154,11 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
     this.setupSseForDownload(sseUrlForDownload);
   }
 
-  private setupSseForDownload(streamUrl: string): void {
+ private setupSseForDownload(streamUrl: string): void {
     if (this.currentSse) {
       this.currentSse.close();
     }
-    this.currentSse = new EventSource(streamUrl); // Assuming withCredentials is not needed or handled globally
+    this.currentSse = new EventSource(streamUrl);
 
     this.currentSse.onopen = () => {
       console.log("Download SSE connection opened:", streamUrl);
@@ -172,10 +172,19 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
 
     this.currentSse.addEventListener('progress', (event: MessageEvent) => {
       const data = JSON.parse(event.data);
+      const percentage = Number(data.percentage) || 0;
+      const totalBytes = Number(data.totalBytes ?? this.previewDetails?.size) || 0;
+      let bytesProcessed = Number(data.bytesProcessed ?? data.bytesSent) || 0;
+
+      // Ensure bytesProcessed matches totalBytes when percentage is 100%
+      if (percentage >= 100 && totalBytes > 0) {
+        bytesProcessed = totalBytes;
+      }
+
       this.downloadProgress = {
-        percentage: Number(data.percentage) || 0,
-        bytesProcessed: Number(data.bytesProcessed ?? data.bytesSent) || 0,
-        totalBytes: Number(data.totalBytes ?? this.previewDetails?.size) || 0,
+        percentage: percentage,
+        bytesProcessed: bytesProcessed,
+        totalBytes: totalBytes,
         speedMBps: Number(data.speedMBps) || 0,
         etaFormatted: data.etaFormatted || this.formatTime(NaN),
       };
@@ -190,31 +199,42 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
         this.isPreparingDownload = false;
         return;
       }
-      this.downloadProgress = { ...this.downloadProgress, percentage: 100 };
+
+      const finalTotalBytes = this.downloadProgress?.totalBytes || this.previewDetails?.size || 0;
+
+      this.downloadProgress = {
+        // Spread existing properties like speed/eta if you want to keep them briefly
+        // ...this.downloadProgress, 
+        percentage: 100,
+        bytesProcessed: finalTotalBytes, // Set to total bytes
+        totalBytes: finalTotalBytes
+      };
       this.downloadStatusMessage = `Download ready: ${data.final_filename}. Starting...`;
       this.downloadStatusType = 'success';
       window.location.href = `${this.API_BASE_URL}/download/serve-temp-file/${data.temp_file_id}/${encodeURIComponent(data.final_filename)}`;
+      
       setTimeout(() => {
         this.isPreparingDownload = false;
-        this.downloadStatusMessage = null; // Clear status after a bit
+        this.downloadStatusMessage = null; 
         this.downloadProgress = null;
       }, 5000);
     });
 
+    // ... 'error' and onerror listeners remain the same ...
     this.currentSse.addEventListener('error', (event: MessageEvent | Event) => {
       if (this.currentSse) this.currentSse.close();
       let errorMsg = 'Error during download preparation stream.';
-      if ((event as MessageEvent).data) { try { errorMsg = `Error: ${JSON.parse((event as MessageEvent).data).message}`; } catch (e) { } }
+      if ((event as MessageEvent).data) { try { errorMsg = `Error: ${JSON.parse((event as MessageEvent).data).message}`; } catch (e) { /* ignore parse error if data is not JSON */ } }
       this.downloadStatusMessage = errorMsg;
       this.downloadStatusType = 'error';
       this.isPreparingDownload = false;
       this.downloadProgress = null;
     });
 
-    this.currentSse.onerror = (err: Event) => { // General SSE connection error
+    this.currentSse.onerror = (err: Event) => { 
       if (this.currentSse) {
         this.currentSse.close();
-        if (this.isPreparingDownload) { // If we were actually in the middle of something
+        if (this.isPreparingDownload) { 
           this.downloadStatusMessage = 'Connection lost during download preparation.';
           this.downloadStatusType = 'error';
         }

@@ -3,21 +3,21 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, NgZone, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subscription, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 import {
   BatchDetails,
-  FileInBatchInfo,
+  FileInBatchInfo, // Ensure this is imported
   DownloadAllInitiationResponse,
   SseReadyPayload,
   SseProgressPayload,
   SseStatusPayload
-} from '../../interfaces/batch.interfaces'; // Adjusted path based on common structures
+} from '../../interfaces/batch.interfaces';
 
-import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjusted path
+import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe';
 
 @Component({
   selector: 'app-batch-file-browser',
@@ -28,12 +28,13 @@ import { ByteFormatPipe } from '../../shared/pipes/byte-format.pipe'; // Adjuste
   providers: [DatePipe, DecimalPipe]
 })
 export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
+  // ... (all existing properties and methods like private route, http, etc.) ...
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private cdRef = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
   private datePipe = inject(DatePipe);
-  private router = inject(Router); // Inject Router if not already
+  private router = inject(Router);
 
   @Input() batchAccessIdInput: string | null = null;
   public effectiveBatchAccessId: string | null = null;
@@ -57,7 +58,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   private routeSubscription: Subscription | null = null;
   private readonly API_BASE_URL = environment.apiUrl;
 
-  // constructor() {} // Removed router from constructor as it's injected
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchAccessIdInput'] && this.batchAccessIdInput) {
@@ -107,29 +107,79 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  // Existing isZipFile and isDocxFile are no longer directly used by the preview button's *ngIf,
+  // but can be kept if used elsewhere or for reference.
+  // The logic is now encapsulated within isPreviewable.
   isZipFile(filename: string): boolean {
-    if (!filename) {
-      return false;
-    }
+    if (!filename) return false;
     const extension = filename.split('.').pop()?.toLowerCase();
     return extension === 'zip';
   }
 
-  isDocxFile(filename: string): boolean { // <-- NEW METHOD
-    if (!filename) {
-      return false;
-    }
+  isDocxFile(filename: string): boolean {
+    if (!filename) return false;
     const extension = filename.split('.').pop()?.toLowerCase();
     return extension === 'docx';
   }
 
-  navigateToPreview(batchAccessId: string | null, filename: string): void { // Made batchAccessId nullable to match effectiveBatchAccessId
+  /**
+   * Determines if a file is likely previewable based on its extension.
+   * This list should correspond to file types that file-preview.component can handle.
+   * @param file The file information object.
+   * @returns True if the file is likely previewable, false otherwise.
+   */
+  isPreviewable(file: FileInBatchInfo): boolean {
+    if (!file || !file.original_filename) {
+      return false;
+    }
+
+    const filename = file.original_filename.toLowerCase();
+    const extension = filename.split('.').pop();
+
+    if (!extension) {
+      return false; // No extension, assume not previewable by simple extension check
+    }
+
+    const previewableExtensions = [
+      // Image types (from file-preview.component capabilities)
+      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp',
+      // Code/Text types
+      'js', 'jsx', 'ts', 'tsx',       // JavaScript/TypeScript & React
+      'html', 'htm', 'xhtml',          // HTML
+      'css', 'scss', 'less',           // Stylesheets
+      'json', 'xml', 'yaml', 'yml',    // Data formats
+      'py', 'rb', 'php', 'java',       // Scripting/Backend languages
+      'c', 'h', 'cpp', 'cs', 'go',     // Compiled languages
+      'swift', 'kt',                   // Mobile languages
+      'sh', 'bash', 'zsh', 'ps1',      // Shell scripts
+      'log', 'ini', 'cfg', 'conf',     // Config/Log files
+      'txt',                           // Plain text
+      'md', 'markdown',                // Markdown
+      // Video types
+      'mp4', 'mov', 'webm', 'ogv', 'm4v',
+      // Audio types
+      'mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a',
+      // PDF type
+      'pdf'
+      // Note: 'directory_listing' is a special preview_type handled by file-preview.component,
+      // but it's hard to identify from filename alone in this context.
+      // Excluded: 'zip', 'rar', 'docx', 'xlsx', 'pptx', 'exe', 'dmg' etc.,
+      // as they are either not typically previewed directly in a browser or require complex backend processing.
+    ];
+
+    return previewableExtensions.includes(extension);
+  }
+
+
+  navigateToPreview(batchAccessId: string | null, filename: string): void {
     if (!batchAccessId || !filename) {
       console.error('Batch Access ID and filename are required for preview.');
       this.setDownloadStatus('Cannot navigate to preview: Missing batch ID or filename.', 'error');
       return;
     }
-    this.router.navigate(['/preview', batchAccessId], {
+    // Ensure effectiveBatchAccessId is used if batchDetails is not yet populated or for consistency
+    const idToUse = this.effectiveBatchAccessId || batchAccessId;
+    this.router.navigate(['/preview', idToUse], {
       queryParams: { filename: filename }
     });
   }
@@ -143,22 +193,18 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.isLoading = true;
     this.error = null;
-    const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`; // Uses file_bp prefix /api/
+    const endpointUrl = `${this.API_BASE_URL}/api/batch-details/${accessId}`;
     this.http.get<BatchDetails>(endpointUrl)
       .pipe(
         tap(details => console.log('Batch details fetched:', details)),
         catchError((err: HttpErrorResponse) => {
           console.error('Error fetching batch details:', err);
           let userFriendlyError: string;
-          // The screenshot shows a 503 Service Unavailable error from the network,
-          // which the browser often masks as a CORS error. This typically results
-          // in a status of 0 in Angular's HttpErrorResponse.
           if (err.status === 0 || err.status === 503) {
             userFriendlyError = 'Failed to connect to the server. The service may be temporarily unavailable. Please try again later.';
           } else if (err.status === 404) {
             userFriendlyError = `The requested batch (${accessId}) was not found. Please check the link.`;
           } else {
-            // For other errors, try to get a specific message from the server response.
             userFriendlyError = `Failed to load batch details: ${err.error?.error || err.statusText || 'An unexpected error occurred.'}`;
           }
           this.error = userFriendlyError;
@@ -172,7 +218,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           this.cdRef.detectChanges();
         },
         error: () => {
-          // The error message is already set in catchError. This block just handles the loading state.
           this.isLoading = false;
           this.cdRef.detectChanges();
         }
@@ -202,7 +247,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.setDownloadStatus('Initiating Download All (.zip)...', 'info');
     this.cdRef.detectChanges();
 
-    // **FIXED URL HERE**
     const initiateUrl = `${this.API_BASE_URL}/download/initiate-download-all/${this.effectiveBatchAccessId}`;
     console.log('Initiating Download All with URL:', initiateUrl);
 
@@ -221,9 +265,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       )
       .subscribe(response => {
         if (response.sse_stream_url) {
-          // sse_stream_url from backend should be absolute or relative to API_BASE_URL
-          // If it's relative like "/download/stream-download-all/...", API_BASE_URL will make it absolute.
-          // The backend already provides a relative URL that should be correct with the /download prefix.
           const sseUrl = response.sse_stream_url.startsWith('http') ? response.sse_stream_url : `${this.API_BASE_URL}${response.sse_stream_url}`;
           this.setupSseConnection(sseUrl);
         } else {
@@ -255,7 +296,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
 
     const encodedFilename = encodeURIComponent(file.original_filename);
-    // The download_sse_bp is registered at the root, so no prefix needed for /download-single/
     const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
 
     console.log(`Connecting to SSE for individual file: ${sseUrl}`);
@@ -269,7 +309,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
 
     console.log(`Connecting to SSE: ${streamUrl}`);
-    this.currentSse = new EventSource(streamUrl); // Removed withCredentials for now, add if needed & CORS configured
+    this.currentSse = new EventSource(streamUrl);
 
     this.currentSse.onopen = () => this.zone.run(() => {
       console.log("SSE connection opened to:", streamUrl);
@@ -283,7 +323,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         const message = data.message || 'Processing...';
         if (this.isDownloadingAll && this.downloadAllProgress) {
           this.downloadAllProgressMessage = message;
-        } else if (this.currentDownloadingFile) { // Only set general status if not for 'Download All'
+        } else if (this.currentDownloadingFile) {
           this.setDownloadStatus(message, 'info');
         }
       } catch (e) {
@@ -312,7 +352,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           this.individualProgress[this.currentDownloadingFile] = progressData;
         }
         if ((this.isDownloadingAll && this.downloadAllProgress) || this.currentDownloadingFile) {
-          this.downloadStatusMessage = null; // Let progress bar show status
+          this.downloadStatusMessage = null;
         }
         this.cdRef.detectChanges();
       } catch (e) {
@@ -336,11 +376,10 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
         }
         this.cdRef.detectChanges();
 
-        // The serve-temp-file endpoint is also under the /download prefix
         const finalDownloadUrl = `${this.API_BASE_URL}/download/serve-temp-file/${sseData.temp_file_id}/${encodeURIComponent(sseData.final_filename)}`;
         this.setDownloadStatus(`Download ready: ${sseData.final_filename}. Starting...`, 'success');
         console.log(`Triggering file download from: ${finalDownloadUrl}`);
-        window.location.href = finalDownloadUrl; // Triggers browser download
+        window.location.href = finalDownloadUrl;
 
         setTimeout(() => {
           this.cleanupPreviousDownloadState();
@@ -365,7 +404,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }));
 
     this.currentSse.onerror = (err: Event) => this.zone.run(() => {
-      if (this.currentSse && this.currentSse.readyState !== EventSource.CLOSED) { // Check if it's not an intentional close
+      if (this.currentSse && this.currentSse.readyState !== EventSource.CLOSED) {
         if (this.isProcessingDownload) {
           console.error("SSE EventSource connection error (onerror):", err, "URL:", streamUrl);
           this.setDownloadStatus('Connection lost or server error during file preparation.', 'error');
@@ -411,13 +450,15 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
       return 'Invalid Date';
     }
   }
+
   getFileIconClass(filename: string): string {
     if (!filename) {
       return 'fa fa-file-o';
     }
     const extension = filename.split('.').pop()?.toLowerCase();
-    let iconClass = 'fa fa-file-o';
+    let iconClass = 'fa fa-file-o'; // Default icon
 
+    // ... (keep your existing getFileIconClass logic as it's useful for icons)
     switch (extension) {
       case 'zip': case 'rar': case '7z': case 'tar': case 'gz':
         iconClass = 'fa fa-file-archive-o';
@@ -440,7 +481,7 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
-    this.cleanupPreviousDownloadState();
+    this.cleanupPreviousDownloadState(); // This already calls cleanupSse()
     this.routeSubscription?.unsubscribe();
   }
 }

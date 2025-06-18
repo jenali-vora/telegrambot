@@ -109,7 +109,7 @@ hr {
     text-align: center;
     align-items: center;
     display: flex;
-    justify-content: center;
+    /* justify-content: center; */
 }
 
 /* MODIFICATION START: CSS for .file-name to handle overflow */
