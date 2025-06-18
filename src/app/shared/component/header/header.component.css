@@ -567,6 +567,7 @@
     padding: 10px 0px;
     margin-bottom: 10px;
     gap: 12px;
+    overflow: hidden;
 }
 
 .sidebar-auth-buttons-container {

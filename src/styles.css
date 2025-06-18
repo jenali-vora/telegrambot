@@ -6,20 +6,6 @@ html {
     scroll-behavior: smooth;
 }
 
-@media (pointer: fine) {
-    html {
-        cursor: none;
-    }
-}
-
-/* For coarse pointers (touch), let the system decide (usually no cursor) or set to auto. */
-@media (pointer: coarse) {
-    html {
-        cursor: auto;
-        /* Or you can remove this block if default behavior is fine */
-    }
-}
-
 body {
     /* font-family:  Poppins, arial, sans-serif; */
     font-family: DM Sans, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
@@ -28,120 +14,13 @@ body {
 
 a {
     text-decoration: none;
-    cursor: none;
 }
 
-[type=button]:not(:disabled),
-[type=reset]:not(:disabled),
-[type=submit]:not(:disabled),
-button:not(:disabled) {
-    cursor: none
-}
-
-.btn {
-    cursor: none;
-}
 
 a:active {
     border: none;
 }
 
-#customCursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 2.5rem;
-    height: 2.5rem;
-    z-index: 9999;
-    pointer-events: none;
-    /* Allows clicks to pass through */
-    display: block;
-    /* Default display for fine pointers */
-}
-
-/* General rule for divs inside .custom-cursor-container (your HTML uses #customCursor ID) */
-#customCursor>div {
-    /* Targeting child divs of #customCursor */
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
-}
-
-/* Styling for the visual element of the OUTER RING */
-#customCursor .ring:nth-child(1)>div {
-    width: 100%;
-    height: 100%;
-    border: 2px solid var(--button-color);
-    border-radius: 50%;
-    animation: pulse 2.5s linear infinite;
-    /* box-shadow: 0 0 15px 3px rgba(0, 255, 0, 0.45); */
-}
-
-/* Styling for the visual element of the INNER POINTER */
-#customCursor .ring:nth-child(2)>div {
-    width: 0.6rem;
-    height: 0.6rem;
-    background-color: var(--button-color);
-    border-radius: 50%;
-}
-
-/* Smooth movement for the rings */
-#customCursor .ring:nth-child(1) {
-    transition: transform 0.2s ease-out;
-}
-
-#customCursor .ring:nth-child(2) {
-    transition: transform 0.1s ease-out;
-}
-
-
-/* --- MEDIA QUERIES FOR CURSOR BEHAVIOR --- */
-
-/* For devices with a FINE pointer (like a mouse) */
-@media (pointer: fine) {
-    html {
-        cursor: none;
-        /* Hide the default system cursor */
-    }
-
-    #customCursor {
-        display: block;
-        /* Ensure custom cursor is visible */
-    }
-}
-
-/* For devices with a COARSE pointer (like touch) */
-@media (pointer: coarse) {
-    html {
-        cursor: auto;
-        /* Restore default system cursor behavior (usually none for touch) */
-    }
-
-    #customCursor {
-        display: none !important;
-        /* Hide the custom cursor completely */
-    }
-}
-
-/* --- Your other styles --- */
-@keyframes pulse {
-    0% {
-        transform: scale(0.9);
-        opacity: 0.7;
-    }
-
-    50% {
-        transform: scale(1.05);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(0.9);
-        opacity: 0.7;
-    }
-}
 
 :root {
     --background: #000080;
