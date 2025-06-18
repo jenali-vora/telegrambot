@@ -265,6 +265,7 @@
     /* Remove image-specific styles if they were in .user-avatar-sm before */
     object-fit: unset;
     border: none;
+    cursor: pointer;
     /* Or '1px solid rgba(255, 255, 255, 0.2);' if you liked the subtle border */
 }
 

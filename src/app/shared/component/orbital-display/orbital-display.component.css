@@ -143,6 +143,7 @@
     box-sizing: border-box;
     position: relative;
     z-index: 1;
+    cursor: pointer;
 }
 
 .dashed-circle-inner.drag-active-highlight {
@@ -178,6 +179,7 @@
     z-index: 1;
     border: 2px solid var(--button-color);
     rotate: 44deg;
+    cursor: pointer;
 }
 
 @keyframes common_shakeElem__bJOpt {
