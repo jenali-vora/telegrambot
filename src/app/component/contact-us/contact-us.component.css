@@ -9,30 +9,21 @@
     margin-bottom: 45px;
     padding: 80px 63px;
     background-color: #f9f9fb;
-    /* Space below the header */
 }
 
 .help-title {
     font-size: 56px;
-    /* Large font size for the title */
     font-weight: 700;
-    /* Bold weight */
     color: var(--heading-color);
-    /* Dark text color */
     margin-bottom: 15px;
-    /* Space below the title */
     line-height: 1.2;
 }
 
 .help-subtitle {
     font-size: 1rem;
-    /* Standard font size */
     color: var(--text-color-secondary);
-    /* Grey text color */
     max-width: 600px;
-    /* Limit width for better readability */
     margin: 0 auto;
-    /* Center the subtitle */
     line-height: 1.6;
 }
 
@@ -40,37 +31,23 @@
 .help-cards-container {
     display: flex;
     flex-wrap: wrap;
-    /* Allow cards to wrap on smaller screens */
     justify-content: center;
-    /* Center cards if they don't fill the space */
     gap: 30px;
-    /* Space between cards */
 }
 
 /* --- Individual Card Styling --- */
 .help-card {
     background-color: var(--white-color);
-    /* White background for cards */
     border: 1px solid var(--border-color);
-    /* Light grey border */
     border-radius: 8px;
-    /* Rounded corners */
     padding: 30px;
-    /* Padding inside the card */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    /* Subtle shadow */
     flex: 1 1 400px;
-    /* Flex properties: grow, shrink, basis (adjust basis as needed) */
     max-width: calc(50% - 15px);
-    /* Max width for 2 columns (adjust based on gap) */
     box-sizing: border-box;
-    /* Include padding and border in width calculation */
     text-align: left;
-    /* Align text to the left inside the card */
     display: flex;
-    /* Use flexbox for internal alignment */
     flex-direction: column;
-    /* Stack elements vertically */
 }
 
 .card-icon {
@@ -84,7 +61,6 @@
 .card-icon .far {
     display: inline-block;
     width: 30px;
-    /* Give icons a consistent width */
     text-align: center;
 }
 
@@ -168,7 +144,6 @@
 /* --- Form Styling --- */
 .contact-form .form-group {
     margin-bottom: 15px;
-    /* Space between form fields */
 }
 
 /* Common styles for input, select, textarea */
@@ -184,15 +159,11 @@
     font-weight: 400;
     line-height: 1.5;
     color: #495057;
-    /* Text color inside input */
     background-color: var(--white-color);
     background-clip: padding-box;
     border: 1px solid #ced4da;
-    /* Border color */
     appearance: none;
-    /* Remove default appearance */
     border-radius: 8px;
-    /* Rounded corners */
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     box-sizing: border-box;
 }
@@ -201,19 +172,15 @@
 .contact-form input::placeholder,
 .contact-form textarea::placeholder {
     color: #6c757d;
-    /* Placeholder text color */
     opacity: 1;
-    /* Firefox */
 }
 
 .contact-form input:-ms-input-placeholder,
-/* IE 10-11 */
 .contact-form textarea:-ms-input-placeholder {
     color: #6c757d;
 }
 
 .contact-form input::-ms-input-placeholder,
-/* Edge */
 .contact-form textarea::-ms-input-placeholder {
     color: #6c757d;
 }
@@ -225,21 +192,17 @@
     color: #495057;
     background-color: var(--white-color);
     border-color: var(--button-hover);
-    /* Light blue border on focus */
     outline: 0;
     box-shadow: rgba(58, 140, 110, 0.36) 0px 0px 0px 4px, rgba(34, 34, 34, 0.16) 0px 0px 0px
-        /* Subtle blue glow */
 }
 
 /* Select dropdown specific styles */
 .contact-form select {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-    /* Arrow */
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 16px 12px;
     padding-right: 2.5rem;
-    /* Make space for the arrow */
 }
 
 /* Style the placeholder option */
@@ -249,20 +212,16 @@
 
 .contact-form select option[value=""][disabled] {
     display: none;
-    /* Hide the placeholder option in the dropdown list */
 }
 
 .contact-form select option {
     color: #212529;
-    /* Color of actual options */
 }
 
 /* Textarea specific styles */
 .contact-form textarea {
     resize: vertical;
-    /* Allow vertical resizing only */
     min-height: 100px;
-    /* Minimum height */
 }
 
 /* Form hint text below textarea */
@@ -270,9 +229,7 @@
     font-size: 0.85rem;
     color: #6c757d;
     margin-top: -5px;
-    /* Reduce space above it slightly */
     margin-bottom: 25px;
-    /* Space before the button */
     line-height: 1.5;
 }
 
@@ -300,9 +257,7 @@
 
 .btn-submit {
     width: 100%;
-    /* Make button full width */
     padding: 12px 20px;
-    /* Slightly larger padding for submit */
     font-size: 1.1rem;
 }
 
@@ -311,36 +266,28 @@
     max-width: 100%;
     height: auto;
     display: block;
-    /* Prevents extra space below image */
     border-radius: 8px;
-    /* Optional: match card radius */
 }
 
 /* --- Responsiveness --- */
 @media (max-width: 991px) {
     .help-card {
         max-width: calc(50% - 15px);
-        /* Still allow 2 columns on medium screens */
     }
 
     .contact-form-column {
         flex-basis: 100%;
-        /* Stack form on top */
         margin-bottom: 30px;
-        /* Add space when stacked */
     }
 
     .contact-image-column {
         flex-basis: 100%;
         margin-bottom: 30px;
-        /* Add space below image if it's first */
     }
 
     .contact-illustration {
         max-width: 70%;
-        /* Don't let illustration be full width */
         margin: 0 auto;
-        /* Center it */
     }
 
     .help-title {
@@ -356,9 +303,7 @@
 @media (max-width: 767px) {
     .help-card {
         flex-basis: 100%;
-        /* Stack cards vertically */
         max-width: 100%;
-        /* Allow cards to take full width */
     }
 
     .contact-illustration {
@@ -377,7 +322,6 @@
 
     .help-card {
         padding: 20px;
-        /* Reduce padding on very small screens */
     }
 
     .card-title {

@@ -93,8 +93,7 @@
         <app-transfer-panel *ngIf="showTransferPanelLogic" [items]="items" [isUploading]="isUploading"
             [batchShareableLink]="batchShareableLink" [uploadPercentage]="uploadProgressPercentage"
             [bytesSent]="bytesSent" [totalBytes]="totalBytes" [speedMBps]="speedMBps" [etaFormatted]="etaFormatted"
-            [generalUploadStatusMessage]="generalUploadStatusMessage" (requestAddFiles)="onRequestAddFilesPanel()"
-            (requestAddFolder)="onRequestAddFolderPanel()" (itemRemoved)="onItemRemovedPanel($event)"
+            [generalUploadStatusMessage]="generalUploadStatusMessage" (itemRemoved)="onItemRemovedPanel($event)"
             (itemDownloadRequested)="onItemDownloadRequestedPanel($event)"
             (transferInitiated)="onTransferInitiatedPanel()" (cancelUpload)="onCancelUploadPanel()"
             (newTransferRequested)="onNewTransferPanel()" class="transfer-panel-container orbital-transfer-panel">

@@ -49,7 +49,6 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
 
     this.uploadEventSubscription = this.uploadEventService.uploadCompleted$.subscribe(() => {
       if (this.currentUser && this.username) {
-        console.log('UserFilesPageComponent: Received upload complete notification. Reloading files.');
         this.loadFilesForLoggedInUser();
       }
     });
@@ -77,7 +76,6 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
 
     this.apiService.listFiles(this.username).subscribe({
       next: (files) => this.zone.run(() => {
-        console.log('UserFilesPageComponent: Raw files from API /listFiles:', JSON.stringify(files, null, 2));
         this.displayedFiles = files.sort((a, b) => {
           const dateA = a.upload_timestamp ? new Date(a.upload_timestamp).getTime() : 0;
           const dateB = b.upload_timestamp ? new Date(b.upload_timestamp).getTime() : 0;
@@ -256,7 +254,6 @@ export class UserFilesPageComponent implements OnInit, OnDestroy {
 
     this.apiService.deleteFileRecord(this.username, identifierForDelete).subscribe({
       next: (response) => this.zone.run(() => {
-        console.log(`Delete successful for item with access_id ${identifierForDelete} (Display Name: "${displayName}"):`, response?.message);
         this.loadFilesForLoggedInUser();
       }),
       error: (err) => this.zone.run(() => {

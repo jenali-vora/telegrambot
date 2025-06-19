@@ -87,8 +87,6 @@ export class LoginComponent implements OnDestroy { // Implement OnDestroy
         // For now, we'll stick to `remember=False` as in your backend code.
       };
 
-      console.log('Login attempt with:', { email: credentials.email }); // Avoid logging password
-
       // --- Call the Actual Authentication Service ---
       // Unsubscribe from previous attempt if any
       this.loginSubscription?.unsubscribe();
@@ -96,9 +94,6 @@ export class LoginComponent implements OnDestroy { // Implement OnDestroy
       this.loginSubscription = this.authService.login(credentials).subscribe({
         next: (response: LoginResponse) => {
           this.isLoading = false;
-          // The authService already stored user data and token
-          console.log('Login successful (from component), navigating to dashboard...');
-          // Use response.message if available and desired
           // this.successMessage = response.message || 'Login successful!';
           this.router.navigate(['/dashboard']); // Navigate on success (adjust route if needed)
         },
@@ -113,7 +108,6 @@ export class LoginComponent implements OnDestroy { // Implement OnDestroy
       // --- End Actual Authentication Call ---
 
     } else {
-      console.log('Form is invalid');
       this.errorMessage = 'Please fill in all required fields correctly.';
       // Focus the first invalid field (often email)
       if (this.email?.invalid) {

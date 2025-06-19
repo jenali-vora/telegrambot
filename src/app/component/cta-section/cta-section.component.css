@@ -15,7 +15,6 @@
     text-align: center;
     /* margin: 0 30px 60px; */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    /* Optional subtle shadow */
 }
 
 /* .cta-container::after {
@@ -37,19 +36,14 @@
     font-weight: 700;
     margin-top: 0;
     margin-bottom: 25px;
-    /* Space below title */
 }
 
 .cta-description {
     font-size: 0.95rem;
-    /* Adjust size as needed (e.g., 15px) */
     line-height: 1.6;
     max-width: 750px;
-    /* Limit width for readability */
     margin: 0 auto 2rem auto;
-    /* Center description and add space below */
     opacity: 0.9;
-    /* Slightly less than pure white */
 }
 
 .cta-buttons {
@@ -57,38 +51,28 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    /* Space between buttons */
     flex-wrap: wrap;
-    /* Allow buttons to wrap on smaller screens */
 }
 
 /* Common button styles */
 .cta-buttons .btn {
     padding: 12px 28px;
-    /* Button padding */
     border-radius: 5px;
-    /* Rounded corners for buttons */
     border: none;
     font-size: 0.9rem;
-    /* Button text size */
     font-weight: 600;
-    /* cursor: pointer; */
     transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
     text-decoration: none;
-    /* Remove underline if using <a> tags */
     display: inline-block;
-    /* Correct display for buttons/links */
 }
 
 .cta-buttons .btn:active {
     transform: translateY(1px);
-    /* Simple press effect */
 }
 
 /* Primary button ("Register") */
 .cta-buttons .btn-primary {
     background-color: var(--button-hover);
-    /* Slightly lighter blue/purple - Adjust as needed */
     color: var(--button-color);
 }
 
@@ -97,15 +81,12 @@
     background-color: transparent;
     color: var(--white-color);
     border: 1px solid var(--white-color);
-    /* White border with some transparency */
 }
 
 .cta-buttons .btn-secondary:hover {
     background-color: var(--button-hover);
-    /* Subtle background on hover */
     border-color: var(--button-hover);
     color: var(--button-color);
-    /* Make border solid white on hover */
 }
 
 /* Responsive adjustments */

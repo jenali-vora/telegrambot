@@ -32,21 +32,17 @@
     top: 1px;
     bottom: 1px;
     width: 40px;
-    /* Slightly wider for icon padding */
     background: none;
     border: none;
     border-left: 1px solid var(--border-main);
-    /* Keep separator */
-    /* cursor: pointer; */
+    cursor: pointer;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #aaa;
-    /* Icon color */
     opacity: 0.8;
     font-size: 14px;
-    /* Control icon size */
     transition: color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -161,7 +157,7 @@
     background: none;
     border: none;
     border-left: 1px solid var(--border-main);
-    /* cursor: pointer; */
+    cursor: pointer;
     padding: 0;
     display: flex;
     align-items: center;
@@ -169,7 +165,6 @@
     color: #aaa;
     opacity: 0.7;
     font-size: 1.1rem;
-    /* Size for text icon */
     line-height: 1;
 }
 
@@ -196,7 +191,7 @@
     margin-top: 3px;
     width: 15px;
     height: 15px;
-    /* cursor: pointer; */
+    cursor: pointer;
     flex-shrink: 0;
     accent-color: var(--button-color);
 }
@@ -205,7 +200,7 @@
     margin: 0;
     font-size: 12px;
     color: var(--text-color-secondary);
-    /* cursor: pointer; */
+    cursor: pointer;
     line-height: 1.4;
 }
 
@@ -226,7 +221,7 @@
     border: none;
     padding: 12px 30px;
     border-radius: 5px;
-    /* cursor: pointer; */
+    cursor: pointer;
     font-weight: 600;
     font-size: 15px;
     transition: background-color 0.2s ease;
@@ -303,8 +298,6 @@
     display: none;
 }
 
-/* Hide link if using feature list */
-
 /* Error/Success Text */
 .form-error {
     margin-top: 4px;
@@ -320,9 +313,7 @@
     color: var(--delete-color);
     font-size: 12px;
     display: block;
-    /* Ensure it takes space */
     min-height: 1.2em;
-    /* Prevent layout shift */
 }
 
 .error-text.small-margin {

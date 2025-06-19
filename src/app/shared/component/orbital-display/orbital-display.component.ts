@@ -27,8 +27,6 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
   @Input() generalUploadStatusMessage: string = '';
 
   @Output() requestFileUpload = new EventEmitter<void>();
-  @Output() requestAddFilesFromPanel = new EventEmitter<void>();
-  @Output() requestAddFolderFromPanel = new EventEmitter<void>();
   @Output() requestFolderUpload = new EventEmitter<void>();
   @Output() itemRemovedFromPanel = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequestedFromPanel = new EventEmitter<SelectedItem>();
@@ -209,8 +207,6 @@ export class OrbitalDisplayComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  onRequestAddFilesPanel(): void { this.requestAddFilesFromPanel.emit(); }
-  onRequestAddFolderPanel(): void { this.requestAddFolderFromPanel.emit(); }
   onItemRemovedPanel(item: SelectedItem | undefined): void { this.itemRemovedFromPanel.emit(item); }
   onItemDownloadRequestedPanel(item: SelectedItem): void { this.itemDownloadRequestedFromPanel.emit(item); }
   onTransferInitiatedPanel(): void { this.transferInitiatedFromPanel.emit(); }

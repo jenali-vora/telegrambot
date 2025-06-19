@@ -9,7 +9,6 @@
 
     --glow-green-color: rgba(0, 147, 75, 0.2);
     --glow-blue-color: rgba(0, 0, 128, 0.2);
-    /* Kept from original if used elsewhere */
     --glow-offset: 4px;
     --glow-blur: 18px;
     --glow-spread: -2px;
@@ -161,7 +160,6 @@
 
 .plus-button {
     background-color: var(--button-color);
-    /* This will be dark green if --button-color is your dark green */
     color: var(--white-color);
     width: 50px;
     height: 50px;
@@ -212,9 +210,7 @@
 
 .plus-button:hover {
     background-color: var(--button-hover);
-    /* This will be light green */
     color: var(--button-color);
-    /* Icon becomes dark green. Change to var(--white-color) to keep icon white */
 }
 
 .plus-button i {
@@ -456,7 +452,6 @@
 /* --- Initial State (0% and uploading) --- */
 .progress-initial-state .circular-progress-value-new {
     stroke: var(--button-color);
-    /* Dark Green for spinner */
 }
 
 .progress-initial-state .circular-progress-value-new.spinning-dot {
@@ -465,36 +460,30 @@
 
 .progress-initial-state .progress-percentage-text-new {
     color: var(--button-color);
-    /* Dark Green text */
 }
 
 /* --- Active Progress State (1-99%) --- */
 .progress-active-state .circular-progress-value-new {
     stroke: var(--button-color);
-    /* Dark Green for arc */
 }
 
 .progress-active-state .progress-percentage-text-new {
     color: var(--button-color);
-    /* Dark Green text */
 }
 
 .progress-active-state .water-fill {
     fill: var(--button-hover);
-    /* Light Green for water */
 }
 
 /* --- Complete State (100%) --- */
 .progress-complete-state .circular-progress-value-new {
     stroke: var(--button-color);
-    /* Dark Green full arc at 100% */
     stroke-dasharray: var(--component-circumference-val, 326.725) !important;
     stroke-dashoffset: 0 !important;
 }
 
 .progress-complete-state .water-fill {
     fill: var(--button-hover);
-    /* Light Green full water at 100% */
 }
 
 @keyframes spin-dot {

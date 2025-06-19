@@ -42,8 +42,6 @@ export class GamesComponent implements OnInit {
   ngOnInit(): void { }
 
   selectGame(game: Game): void {
-    console.log('Selected game object:', game);
-    console.log('Attempting to load URL:', game.gameUrl);
     this.selectedGameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(game.gameUrl);
     this.selectedGameName = game.name;
   }

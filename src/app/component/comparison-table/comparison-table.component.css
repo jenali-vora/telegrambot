@@ -2,7 +2,6 @@
 .comparison-section {
     /* padding: 60px 20px; */
     background-color: var(--white-color);
-    /* White background */
 }
 
 .section-title {
@@ -11,29 +10,24 @@
     color: #212529;
     margin-bottom: 40px;
     text-align: left;
-    /* Or center if preferred */
 }
 
 /* --- Table Styling --- */
 .comparison-table-wrapper {
     width: 100%;
     overflow-x: auto;
-    /* Enable horizontal scroll on small screens */
 }
 
 .comparison-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 800px;
-    /* Prevent excessive squeezing on small screens before scroll activates */
     table-layout: fixed;
-    /* Help keep columns consistent */
 }
 
 /* --- Table Headers (Plans) --- */
 .comparison-table thead th {
     padding: 15px 10px 25px 10px;
-    /* More padding at bottom for button */
     vertical-align: top;
     text-align: center;
     border-bottom: 1px solid #e9ecef;
@@ -44,23 +38,17 @@
 
 .feature-col-header {
     width: 25%;
-    /* Allocate width for the feature names column */
     background-color: var(--white-color) !important;
-    /* Ensure it stays white */
     border: none !important;
-    /* Remove borders */
 }
 
 .plan-col-header {
     width: 18.75%;
-    /* (100 - 25) / 4 plans */
     background-color: #f8f9fa;
-    /* Light background for plan columns */
     border-left: 1px solid var(--border-color);
 }
 
 .plan-col-header:first-of-type {
-    /* First plan column */
     border-left: none;
 }
 
@@ -71,12 +59,10 @@
 
 .header-btn {
     width: 80%;
-    /* Adjust button width */
     padding: 8px 12px;
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: 6px;
-    /* cursor: pointer; */
     text-decoration: none;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
@@ -86,7 +72,6 @@
     color: var(--white-color);
     background-color: var(--button-color);
     border: 1px solid var(--button-color);
-    /* Example purple */
 }
 
 .btn-outline-primary {
@@ -94,7 +79,6 @@
     background-color: transparent;
     border: 1px solid var(--button-color);
     width: max-content;
-    /* Example lighter border */
 }
 
 .btn-primary:hover {
@@ -114,7 +98,6 @@
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
     text-align: center;
-    /* Default for value cells */
     font-size: 0.9rem;
     color: #495057;
 }
@@ -124,26 +107,22 @@
     text-align: left !important;
     font-weight: 500;
     background-color: var(--white-color) !important;
-    /* Ensure it stays white */
     border-right: 1px solid var(--border-color);
 }
 
 /* Feature Value Column */
 .feature-value-cell {
     background-color: var(--white-color);
-    /* Default white */
     border-left: 1px solid var(--border-color);
 }
 
 .feature-value-cell:first-of-type {
-    /* First value cell */
     border-left: none;
 }
 
 /* Highlight Column Style */
 .highlight-col {
     background-color: #f0f1f9 !important;
-    /* Light purple highlight */
 }
 
 
@@ -152,13 +131,10 @@
     text-align: left !important;
     font-weight: 600;
     color: var(--background);
-    /* Theme color for headings */
     font-size: 1rem;
     padding-top: 25px;
-    /* Extra space above */
     padding-bottom: 8px;
     background-color: var(--white-color) !important;
-    /* Ensure it stays white */
     border: none;
     border-bottom: 1px solid var(--border-color);
 }

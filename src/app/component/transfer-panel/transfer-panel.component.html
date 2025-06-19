@@ -2,16 +2,6 @@
 
 <div class="transfer-panel-wrapper card-style">
 
-    <!-- "Add More" Actions: Show if no items AND not uploading -->
-    <div class="add-more-actions" *ngIf="items.length === 0 && !isUploading">
-        <button type="button" class="btn btn-add" (click)="addMoreFiles()">
-            <i class="fas fa-file-circle-plus"></i> Add more files
-        </button>
-        <button type="button" class="btn btn-add" (click)="addFolder()">
-            <i class="fas fa-folder-plus"></i> Add folders
-        </button>
-    </div>
-
     <!-- File Summary & List: Show if items exist -->
     <div class="file-list-section" *ngIf="items.length > 0">
         <div class="file-summary">
@@ -43,7 +33,7 @@
 
                         <ng-container *ngIf="isUploading && !batchShareableLink">
                            <div class="item-progress-text">
-                                {{ getItemUploadedBytes(item) | byteFormat }} / {{ item.size | byteFormat }} | {{ getItemUploadPercentage(item).toFixed(0) }}% <ng-container *ngIf="getItemDisplaySpeed(item) as speed"> • {{ speed }}</ng-container> • {{ getItemDisplayTimeOrEta(item) }}
+                                {{ getItemUploadedBytes(item) | byteFormat }} / {{ item.size | byteFormat }} | {{ getItemUploadPercentage(item).toFixed(0) }}% <ng-container *ngIf="getItemDisplaySpeed(item) as speed"> • {{ speed }}</ng-container><ng-container *ngIf="getItemDisplayTimeOrEta(item) as eta"> • {{ eta }}</ng-container>
                             </div>
                             <div class="item-linear-progress-bar-wrapper">
                                 <div class="progress-bar-custom">

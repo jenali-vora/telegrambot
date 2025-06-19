@@ -23,15 +23,11 @@
     text-align: center;
     padding: 30px 15px;
     color: #6c757d;
-    /* Bootstrap secondary text color */
     font-style: italic;
 }
 
-/* General container styling from user-files-page that might be good to ensure is here too,
-   though likely inherited if class names are the same. */
 .user-files-page-container {
     max-width: 1000px;
-    /* Or your preferred max-width */
     margin: 20px auto;
     padding: 15px;
 }
@@ -39,11 +35,9 @@
 .page-header h1 {
     margin: 0;
     font-size: 1.8em;
-    /* Adjust as needed */
 }
 
 .user-file-list-panel.card-style {
-    /* Assuming card-style provides base card look */
     background-color: #fff;
     border-radius: 8px;
     /* Example */

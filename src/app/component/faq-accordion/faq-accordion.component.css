@@ -7,36 +7,28 @@
 }
 
 .faq-accordion-container {
-    /* Optional container styling */
-
     padding: 50px 30px;
 }
 
 .faq-title {
     font-size: 50px;
-    /* Adjust size */
     font-weight: 700;
     color: #2d3748;
     /* Dark grey */
     margin-bottom: 1.5rem;
     text-align: left;
-    /* Or center if preferred */
 }
 
 .faq-list {
     display: flex;
     flex-direction: column;
     /* gap: 20px; */
-    /* Space between FAQ items */
 }
 
 .faq-item {
     background-color: var(--white-color);
-    /* Light grey border */
     border-radius: 8px;
-    /* Slightly rounded corners */
     overflow: hidden;
-    /* Contain content */
     transition: border-color 0.2s ease-in-out;
     /* box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); */
     ;
@@ -45,7 +37,7 @@
 .faq-question {
     display: flex;
     align-items: center;
-    /* cursor: pointer; */
+    cursor: pointer;
     user-select: none;
     font-size: 22px;
     font-weight: 500;
@@ -56,44 +48,32 @@
 
 .faq-icon {
     margin-right: 0.75rem;
-    /* Space between icon and text */
     width: 1em;
-    /* Ensure icon takes consistent space */
     text-align: center;
     color: #718096;
-    /* Icon color */
     transition: transform 0.2s ease-in-out;
-    /* Smooth icon rotation */
 }
 
 .faq-item.active .faq-icon i.fa-chevron-right {
-    /* This shouldn't happen if ngClass is correct, but as fallback */
     transform: rotate(90deg);
 }
 
 .faq-item.active .faq-icon i.fa-chevron-down {
-    /* Icon is already down when active, no rotation needed */
     transform: rotate(0deg);
 }
 
 .faq-item:not(.active) .faq-icon i.fa-chevron-down {
-    /* If somehow it starts down but isn't active */
     transform: rotate(-90deg);
 }
 
 .faq-item:not(.active) .faq-icon i.fa-chevron-right {
-    /* Default state */
     transform: rotate(0deg);
 }
 
-/* Better approach with ngClass setting the correct initial icon */
 .faq-icon i {
     transition: transform 0.2s ease-in-out;
     font-size: 16px;
 }
-
-/* The rotation is handled by which icon is displayed via [ngClass] */
-
 
 .faq-answer {
     background-color: var(--white-color);
@@ -105,20 +85,17 @@
     margin: 0;
     font-size: 16px;
     color: #4a5568;
-    /* Slightly lighter than question */
     line-height: 1.6;
 }
 
 /* Focus styles for accessibility */
 .faq-question:focus {
     outline: 2px solid #4299e1;
-    /* Example focus ring */
     outline-offset: 2px;
 }
 
 .faq-question:focus:not(:focus-visible) {
     outline: none;
-    /* Remove outline for mouse users */
 }
 
 @media (max-width: 768px) {

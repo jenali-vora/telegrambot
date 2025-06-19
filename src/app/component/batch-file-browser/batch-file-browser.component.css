@@ -3,7 +3,6 @@
 :host {
     display: block;
     padding: 1em 20px;
-    /* Add some padding around the component */
 }
 
 .all-file-list-wrapper {
@@ -77,10 +76,7 @@ hr {
 /* MODIFICATION START: Ensure .file-info constrains its children */
 .file-info {
     overflow: hidden;
-    /* This helps contain .file-name if it tries to overflow */
 }
-
-/* MODIFICATION END */
 
 .file-length .sharedby {
     font-size: 12px;
@@ -101,7 +97,6 @@ hr {
 
 .file-icon {
     font-size: 30px;
-    /* Keep it simple as per template */
     color: var(--text-color-secondary);
 }
 
@@ -116,44 +111,32 @@ hr {
 .file-name {
     font-weight: 500;
     display: block;
-    /* Or inline-block. Block is usually better for text-overflow. */
     white-space: nowrap;
-    /* Prevent the text from wrapping to a new line */
     overflow: hidden;
-    /* Hide the text that overflows the container's width */
     text-overflow: ellipsis;
-    /* Display an ellipsis (...) to indicate hidden text */
-    /* The [title] attribute on the span in HTML will show the full name on hover. */
 }
-
-/* MODIFICATION END */
 
 .file-size {
     font-size: 0.85em;
     color: var(--text-color-secondary);
-    /* white-space: nowrap; */
     margin-right: 15px;
     padding-left: 15px;
-    /* This padding might push it if space is tight. Consider adjusting. */
-    /* flex-shrink: 0; */
 }
 
 .file-controls-area {
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    /* Prevent this whole area from shrinking */
 }
 
 .file-actions button,
 .file-actions a {
-    /* If you use <a> tags as buttons */
     background-color: var(--white-color);
     color: var(--button-color);
     border: none;
     padding: 6px 12px;
     border-radius: 5px;
-    /* cursor: pointer; */
+    cursor: pointer;
     font-size: 0.9em;
     text-decoration: none;
     display: inline-block;
@@ -181,7 +164,7 @@ hr {
     color: var(--white-color);
     padding: 10px 20px;
     border-radius: 5px;
-    /* cursor: pointer; */
+    cursor: pointer;
     font-size: 1.1em;
     /* margin-bottom: 1em; */
 }
@@ -192,7 +175,7 @@ hr {
 }
 
 .download-all-btn:disabled {
-       background-color: var(--button-color);
+    background-color: var(--button-color);
     cursor: not-allowed;
     opacity: .45;
     color: var(--white-color);
@@ -226,7 +209,6 @@ hr {
 }
 
 .error-message {
-    /* For general page errors */
     padding: 1em;
     margin-top: 1em;
 }
@@ -247,7 +229,6 @@ hr {
     font-size: 0.8em;
     margin-left: 10px;
     display: none;
-    /* Initially hidden */
 }
 
 .progress-container {
@@ -288,29 +269,22 @@ hr {
     margin-bottom: 10px;
     font-size: 1.05em;
     font-weight: 600;
-    color: #343a40;
+    color: var(--des-color);
 }
 
 .progress-container.individual-progress-container .progress-bar-wrapper {
     height: 13px;
-    /* Slightly smaller for inline look */
     margin-bottom: 5px;
-    /* Space between bar and details text */
 }
 
 .progress-container.individual-progress-container .progress-bar {
     line-height: 20px;
-    /* Match new height */
     font-size: 0.8em;
-    /* Smaller text inside bar */
 }
 
 .progress-container.individual-progress-container .progress-details {
     font-size: 0.8em;
-    /* Smaller details text */
     gap: 5px;
-    /* Less gap for compact details */
-    /* justify-content: flex-start; /* default */
 }
 
 .progress-bar-wrapper {
@@ -324,12 +298,10 @@ hr {
 
 .progress-bar {
     background-color: var(--button-color);
-    /* Bootstrap primary blue */
     color: var(--white-color);
     text-align: center;
     font-weight: 500;
     line-height: 22px;
-    /* Match height of wrapper */
     height: 100%;
     transition: width .2s ease-out;
     white-space: nowrap;
@@ -342,15 +314,8 @@ hr {
     color: #495057;
     display: flex;
     justify-content: flex-start;
-    /* Align details to the start */
     gap: 10px;
-    /* Space between detail items */
     flex-wrap: wrap;
-    /* Allow details to wrap on smaller screens */
-}
-
-.progress-details span {
-    /* No margin needed due to gap */
 }
 
 .progress-details .progress-stage-message {
@@ -361,15 +326,10 @@ hr {
 .main-file-name {
     flex-grow: 1;
     min-width: 0;
-    /* This is crucial for allowing the container to shrink and apply text-overflow */
-    /* margin-right: 15px; */
-    /* Consider removing this if `gap: 20px` on `li` is sufficient.
-                                If kept, it adds to the space defined by `gap`. */
 }
 
 .file-actions {
     margin-left: 10px;
-    /* This provides space if .main-file-name's margin-right is removed */
     flex-shrink: 0;
 }
 
@@ -377,7 +337,6 @@ hr {
     .file-list li {
         flex-direction: column;
         align-items: flex-start;
-        /* Align items to start when stacked */
         padding: 8px;
     }
 
@@ -387,23 +346,18 @@ hr {
 
     .main-file-name {
         margin-bottom: 10px;
-        /* Reduced margin for stacked view */
         width: 100%;
-        /* Ensure it takes full width in stacked view */
     }
 
     .file-controls-area {
         width: 100%;
-        /* Make controls area take full width */
         display: flex;
         justify-content: space-between;
-        /* Space out size and buttons */
         align-items: center;
     }
 
     .file-actions {
         margin-left: 0;
-        /* Reset margin as layout changed */
     }
 
     .download-all-btn {
@@ -413,16 +367,12 @@ hr {
 
     .all-file-list-wrapper {
         /* width: 100%; */
-        /* Already effectively 100% due to no fixed width and auto margins */
         /* max-width: 100%; */
-        /* Already default */
         padding: 10px;
     }
 
     .file-size {
         margin-right: 0;
-        /* Remove margin when stacked */
         padding-left: 0;
-        /* Remove padding when stacked */
     }
 }
