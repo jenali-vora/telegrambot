@@ -15,9 +15,7 @@
 .directory-preview pre {
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
-    background-color: #fff;
-    font-family: 'Courier New', Courier, monospace;
-    /* Monospaced font */
+    background-color: var(--white-color);
 }
 
 .preview-area img,

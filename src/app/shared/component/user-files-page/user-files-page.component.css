@@ -1,6 +1,5 @@
 .user-files-page-container {
     max-width: 900px;
-    /* Or your preferred page width */
     margin: 2rem auto;
     padding: 1rem;
 }
@@ -21,7 +20,6 @@
 }
 
 .btn-outline-secondary {
-    /* Basic button style */
     padding: 0.4rem 0.8rem;
     border: 1px solid var(--button-color);
     color: var(--button-color);
@@ -52,8 +50,6 @@
 }
 
 .user-file-list-panel.card-style {
-    /* Inherits card-style from global or home.component.css if not scoped */
-    /* Or define specific styles here if needed */
     background-color: var(--white-color);
     color: var(--heading-color);
     border-radius: 5px;
@@ -82,13 +78,8 @@
 
 .user-file-list-panel .user-history-list-scroll {
     flex-grow: 1;
-    /* Allows list to take available space */
     overflow-y: auto;
-    /* Consider a max-height if the page itself isn't scrollable and list can be very long */
-    /* max-height: calc(100vh - 250px); */
-    /* Example */
     padding-right: 5px;
-    /* For scrollbar */
     scrollbar-width: thin;
     scrollbar-color: #ced4da #f1f3f5;
 }

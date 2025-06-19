@@ -138,19 +138,11 @@
             </div>
         </div>
     </section>
-
-    <!-- Upload Progress Overlay (remains unchanged) -->
-    <!-- <div class="upload-progress-overlay" *ngIf="isUploading && currentItemBeingUploaded">
-        <app-upload-progress-item [item]="currentItemBeingUploaded" [percentage]="uploadProgressDetails.percentage"
-            [bytesSent]="uploadProgressDetails.bytesSent" [totalBytes]="uploadProgressDetails.totalBytes"
-            [speedMBps]="uploadProgressDetails.speedMBps" [etaFormatted]="uploadProgressDetails.etaFormatted"
-            [itemsInTransfer]="selectedItems.length" (cancelUpload)="handleCancelUpload()">
-        </app-upload-progress-item>
-    </div> -->
+    
     <div *ngIf="showPlayGamesButton" class="play-games-notification-toast" (click)="toggleGamePanel()" role="button"
         tabindex="0" (keydown.enter)="toggleGamePanel()" (keydown.space)="toggleGamePanel()"
         title="Click to play games while you wait or after your transfer" appScrollAnimation="fade-in"
         [animationThreshold]="0.001" animationDelay="0.3s">
-        <p>You've selected a large batch! How about some games while you wait or after?</p>
+        <p>Large transfer? Try some games!</p>
     </div>
 </div>

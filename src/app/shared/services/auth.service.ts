@@ -60,12 +60,6 @@ export class AuthService {
   private router = inject(Router);
 
   constructor() {
-    console.log('AuthService initialized.');
-    console.log('Register URL configured:', this.registerUrl);
-    console.log('Login URL configured:', this.loginUrl);
-    // --- NEW Console logs for new URLs ---
-    console.log('Request Password Reset URL configured:', this.requestPasswordResetUrl);
-    console.log('Base Reset Password URL configured:', this.resetPasswordUrlBase);
   }
 
   public get currentUserValue(): User | null {
@@ -78,7 +72,6 @@ export class AuthService {
   }
 
   login(credentials: { email: string, password: string }): Observable<LoginResponse> {
-    console.log(`AuthService: Attempting login for ${credentials.email} via ${this.loginUrl}`);
     return this.http.post<LoginResponse>(this.loginUrl, credentials).pipe(
       tap(response => {
         if (response?.user && response?.token) {
@@ -88,7 +81,6 @@ export class AuthService {
           if (typeof localStorage !== 'undefined') {
             localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
           }
-          console.log('AuthService: Login successful for:', response.user.email, '(Username:', response.user.username || 'N/A', ')');
         } else {
           console.error("AuthService: Invalid login response structure received:", response);
           // Propagate a new error that will be caught by catchError
@@ -107,7 +99,6 @@ export class AuthService {
     agreedToTerms: boolean,
     understandPrivacy: boolean
   ): Observable<RegistrationResponse> {
-    console.log(`AuthService: Attempting registration for username ${username}, email ${email} via ${this.registerUrl}`);
     const body = {
       username: username,
       email: email,
@@ -116,17 +107,14 @@ export class AuthService {
       agreeTerms: agreedToTerms,
       understandPrivacy: understandPrivacy
     };
-    console.log('Sending registration body:', body);
     return this.http.post<RegistrationResponse>(this.registerUrl, body).pipe(
       tap(response => {
-        console.log('AuthService: Registration API call successful:', response?.message);
       }),
       catchError(this.handleError)
     );
   }
 
   logout(): void {
-    console.log('AuthService: Logging out user.');
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem(CURRENT_USER_KEY);
@@ -155,7 +143,6 @@ export class AuthService {
       try {
         localStorage.setItem(AUTH_TOKEN_KEY, token);
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-        console.log('AuthService: Stored user data and token.');
       } catch (e) {
         console.error("AuthService: Failed to store user data in localStorage", e);
       }
@@ -169,7 +156,6 @@ export class AuthService {
     if (storedUser && token) {
       try {
         const user: User = JSON.parse(storedUser);
-        console.log('AuthService: Loaded initial user from storage:', user?.email, '(Username:', user?.username || 'N/A', ')');
         // Clear anonymous ID if user is loaded as logged in
         localStorage.removeItem(ANONYMOUS_UPLOAD_ID_KEY);
         return user;
@@ -185,7 +171,6 @@ export class AuthService {
 
   // --- NEW: Method to request password reset link ---
   requestPasswordReset(email: string): Observable<PasswordResetResponse> {
-    console.log(`AuthService: Requesting password reset for ${email} via ${this.requestPasswordResetUrl}`);
     return this.http.post<PasswordResetResponse>(this.requestPasswordResetUrl, { email }).pipe(
       tap(response => console.log('AuthService: Password reset request API call successful:', response?.message)),
       catchError(this.handleError) // Your existing handleError will be used
@@ -205,7 +190,6 @@ export class AuthService {
       confirmPassword,
       logoutAllDevices: logoutAll ?? false // Backend expects 'logoutAllDevices'
     };
-    console.log(`AuthService: Attempting to reset password with token via ${url}. Payload:`, payload);
     return this.http.post<PasswordResetResponse>(url, payload).pipe(
       tap(response => console.log('AuthService: Password reset API call successful:', response?.message)),
       catchError(this.handleError) // Your existing handleError will be used
@@ -284,7 +268,6 @@ export class AuthService {
     if (!anonId) {
       anonId = crypto.randomUUID();
       localStorage.setItem(ANONYMOUS_UPLOAD_ID_KEY, anonId);
-      console.log('AuthService: Generated new anonymous upload ID:', anonId);
     }
     return anonId;
   }

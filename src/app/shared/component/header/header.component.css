@@ -123,11 +123,9 @@
 /* login after css */
 .user-profile-area {
     position: relative;
-    /* For dropdown positioning */
     display: flex;
     align-items: center;
     gap: 12px;
-    /* Adjusted gap */
 }
 
 .logo-link h2.logo-text-typewriter {
@@ -224,7 +222,7 @@
 }
 
 .user-profile-trigger {
-    /* cursor: pointer; */
+    cursor: pointer;
 }
 
 .user-name-display {
@@ -236,33 +234,26 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100px;
-    /* Adjust as needed */
 }
 
 .user-initial-avatar {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Color from your second screenshot (dark magenta/purple) */
     background-color: var(--button-color);
     color: var(--white-color);
     font-weight: 500;
-    /* Or bold if you prefer */
     text-transform: uppercase;
-    /* Ensure initial is uppercase */
 }
 
 .user-initial-avatar span {
     line-height: 1;
-    /* Better vertical alignment for single characters */
 }
 
 .user-avatar-sm.user-initial-avatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    /* Circular */
-    /* Remove image-specific styles if they were in .user-avatar-sm before */
     object-fit: unset;
     border: none;
     cursor: pointer;
@@ -271,22 +262,18 @@
 
 .user-avatar-sm.user-initial-avatar span {
     font-size: 0.9rem;
-    /* Adjust size of the initial character */
 }
 
 .user-avatar-lg.user-initial-avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    /* Rounded square as in screenshot */
     margin-right: 10px;
-    /* Remove image-specific styles if they were in .user-avatar-lg before */
     object-fit: unset;
 }
 
 .user-avatar-lg.user-initial-avatar span {
     font-size: 1.2rem;
-    /* Adjust size of the initial character */
 }
 
 /* .user-avatar-sm {
@@ -326,7 +313,6 @@
     display: flex;
     align-items: center;
     padding: 8px 6px;
-    /* cursor: default; */
 }
 
 /* .user-avatar-lg {
@@ -373,9 +359,7 @@
 .dropdown-divider {
     border: none;
     border-top: 1px solid #e8eaed;
-    /* Lighter divider */
     margin: 8px -10px;
-    /* Extend to edges */
 }
 
 .btn-logout {
@@ -388,7 +372,6 @@
     text-align: left;
     font-size: 0.85rem;
     border-radius: 5px;
-    /* cursor: pointer; */
     transition: background-color 0.15s ease;
     box-sizing: border-box;
     text-align: center;
@@ -414,11 +397,9 @@
     border: none;
     color: var(--button-color);
     font-size: 1.4rem;
-    /* cursor: pointer; */
     padding: 5px;
     margin-left: 10px;
     line-height: 1;
-    /* z-index: 1051; */
 }
 
 .mobile-menu-toggle:hover {
@@ -429,10 +410,8 @@
 /* Add style for the logo image if using one */
 .logo-image {
     height: 30px;
-    /* Adjust size as needed */
     width: auto;
     display: block;
-    /* Prevents extra space below */
 }
 
 /* --- Hamburger Menu Button (Initially Hidden on Desktop) --- */
@@ -445,13 +424,10 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent black */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease-in-out, visibility 0s 0.3s linear;
-    /* Delay visibility change */
     z-index: 1000;
-    /* Below sidebar, above content */
 }
 
 .mobile-menu-overlay.is-open {
@@ -476,7 +452,7 @@
     z-index: 1050;
     transform: translateX(100%);
     transition: transform 0.3s ease-in-out;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     display: flex;
     flex-direction: column;
 }
@@ -489,11 +465,9 @@
 .sidebar-header {
     display: flex;
     justify-content: flex-end;
-    /* Position close button to the right */
     align-items: center;
     margin-bottom: 20px;
     min-height: 40px;
-    /* Ensure space for the button */
 }
 
 /* Optional: Sidebar Logo */
@@ -568,7 +542,6 @@
     padding: 10px 0px;
     margin-bottom: 10px;
     gap: 12px;
-    overflow: hidden;
 }
 
 .sidebar-auth-buttons-container {
@@ -685,9 +658,7 @@
 
     /* Adjust spacing */
     .header-left {
-        /* Keep logo visible */
         flex-grow: 1;
-        /* Allow logo to take space */
     }
 
     .header-main {
@@ -718,15 +689,12 @@
 /* --- Media Query: Mobile Phones (e.g., below 768px) --- */
 @media (max-width: 768px) {
 
-    /* Further reduce gap for auth buttons and hamburger */
     .header-main {
         gap: 15px;
     }
 
-    /* Make auth buttons slightly smaller */
     .auth-nav {
         padding: 0 4px;
-        /* Adjust container padding */
     }
 
     .auth-nav .btn-login,
@@ -734,20 +702,16 @@
         font-size: 0.8rem;
         padding: 0 10px;
         line-height: 28px;
-        /* Adjust line-height */
         margin: 4px 0;
-        /* Adjust vertical margin */
     }
 
     .mobile-menu-toggle {
         font-size: 1.3rem;
         margin-left: auto;
-        /* Adjust icon size */
     }
 
     .mobile-menu-sidebar {
         width: 280px;
-        /* Slightly smaller sidebar */
     }
 
     .sidebar-nav a {
@@ -757,7 +721,6 @@
 
     .user-name-display {
         max-width: 70px;
-        /* Further reduce for smaller screens */
     }
 
     .auth-section {
@@ -768,7 +731,6 @@
         gap: 8px;
     }
 
-    /* If auth section is visible, space out hamburger */
     .header-left+.header-main>.auth-section+.mobile-menu-toggle {
         margin-left: 10px;
     }

@@ -61,7 +61,6 @@
     align-items: center;
     padding: 15px 20px;
     background-color: var(--button-hover, #e9ecef);
-    /* Light header background */
     border-bottom: 1px solid #dee2e6;
 }
 
@@ -77,7 +76,6 @@
     border: none;
     font-size: 1.5rem;
     color: #6c757d;
-    /* cursor: pointer; */
     padding: 5px;
     line-height: 1;
 }
@@ -89,10 +87,8 @@
 .game-panel-content {
     flex-grow: 1;
     overflow-y: auto;
-    /* Allow scrolling if content is too long */
     padding: 20px;
     display: flex;
-    /* Added for iframe container to take full height */
     flex-direction: column;
     /* Added */
 }
@@ -108,6 +104,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    cursor: pointer;
 }
 
 .game-list-item {
@@ -150,20 +147,16 @@
 
 .game-iframe-container {
     flex-grow: 1;
-    /* Make iframe area take remaining space */
     display: flex;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    /* Important for iframe to fill */
 }
 
 .game-iframe-container iframe {
     width: 100%;
     flex-grow: 1;
-    /* Iframe takes most of the space */
     border: 1px solid #ccc;
-    /* Optional border for iframe */
     border-radius: 5px;
 }
 
@@ -174,10 +167,9 @@
     color: white;
     border: none;
     border-radius: 5px;
-    /* cursor: pointer; */
+    cursor: pointer;
     font-size: 0.9rem;
     align-self: flex-start;
-    /* Align to left */
 }
 
 .back-to-games-list:hover {

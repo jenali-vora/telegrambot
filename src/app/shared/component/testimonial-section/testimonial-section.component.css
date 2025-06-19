@@ -7,7 +7,6 @@
 
 .testimonials-carousel-container {
     max-width: 1200px;
-    /* Default for desktop (3 items) */
     margin: 0 auto;
 }
 
@@ -22,24 +21,19 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* Changed to flex-start for potentially varying heights */
 }
 
 .slide-items-container {
     display: flex;
     justify-content: center;
-    /* Center the item(s) in the container */
     gap: 20px;
     width: 100%;
     align-items: stretch;
-    /* Make items in a row (if multiple) same height */
     flex-wrap: wrap;
-    /* Allow wrapping if somehow items overflow (should not with TS logic) */
 }
 
 .testimonial-item {
     background-color: var(--white-color);
-    /* Ensure --white-color is defined */
     text-align: center;
     padding: 20px;
     box-sizing: border-box;
@@ -48,15 +42,11 @@
     align-items: center;
     border: 1px solid #E4E6EC;
     border-radius: 8px;
-
-    /* Default styling for 3 items per slide (desktop) */
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: calc((100% - 2 * 20px) / 3);
-    /* For 3 items with 2 gaps */
     max-width: calc((100% - 2 * 20px) / 3);
     min-width: 270px;
-    /* Minimum width for an item when multiple are shown */
 }
 
 .profile-pic {
@@ -71,7 +61,6 @@
 .name {
     font-size: 1.8em;
     color: var(--button-color);
-    /* Ensure --background is defined */
     margin-bottom: 15px;
     font-weight: 500;
 }
@@ -87,7 +76,6 @@
 .quotation-marks {
     font-size: 3.5em;
     color: var(--button-color);
-    /* Ensure --background is defined */
     line-height: 0.5;
 }
 
@@ -106,7 +94,6 @@
 :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
 :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
     background-color: var(--button-color);
-    /* Ensure --button-color is defined */
     border-radius: 50%;
     width: 2.5rem;
     height: 2.5rem;
@@ -128,29 +115,22 @@
 @media (max-width: 992px) {
     .testimonials-carousel-container {
         max-width: 100%;
-        /* Carousel can span full width */
         /* padding: 0 15px; /* Add side padding if you want space from screen edges */
     }
 
     .testimonial-item {
-        /* When itemsPerSlide is 1, this is the only item in slide-items-container */
         flex-basis: 100%;
-        /* Allow it to take the full width of its parent (slide-items-container) */
         max-width: 500px;
-        /* But cap its width for better readability on tablets */
         min-width: unset;
-        /* Remove desktop min-width constraint */
     }
 
     /* Adjust arrow positioning to be inside or closer */
     :host ::ng-deep .testimonials-carousel-container .carousel-control-prev {
         left: 5px;
-        /* Or 0 if directly on edge */
     }
 
     :host ::ng-deep .testimonials-carousel-container .carousel-control-next {
         right: 5px;
-        /* Or 0 if directly on edge */
     }
 }
 
@@ -168,12 +148,10 @@
     .testimonial-item {
         padding: 15px;
         max-width: 450px;
-        /* Adjust max width for smaller tablets/large phones */
     }
 
     :host ::ng-deep .testimonials-carousel-container .carousel-inner {
         padding: 20px;
-        /* Adjust inner padding */
     }
 }
 
@@ -181,8 +159,6 @@
 @media (max-width: 576px) {
     .testimonial-item {
         max-width: 100%;
-        /* Allow item to fill more of the screen */
-        /* The padding on .carousel-inner will provide spacing from screen edges */
     }
 
     .profile-pic {
@@ -197,18 +173,15 @@
     :host ::ng-deep .testimonials-carousel-container .carousel-control-prev-icon,
     :host ::ng-deep .testimonials-carousel-container .carousel-control-next-icon {
         width: 35px;
-        /* Slightly larger for easier touch on small screens */
         height: 35px;
     }
 
     :host ::ng-deep .testimonials-carousel-container .carousel-inner {
         padding: 15px;
-        /* Reduce padding for very small screens */
     }
 
     .slide-items-container {
         gap: 10px;
-        /* Not really applicable with 1 item, but good for consistency */
     }
 
     /* Ensure arrows are visible and accessible */

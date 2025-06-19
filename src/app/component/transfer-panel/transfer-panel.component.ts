@@ -40,8 +40,8 @@ export class TransferPanelComponent implements OnDestroy {
   @Input() speedMBps: number = 0; // Overall current batch speed
   @Input() etaFormatted: string = '--:--';
 
-  @Output() requestAddFiles = new EventEmitter<void>();
-  @Output() requestAddFolder = new EventEmitter<void>();
+  // @Output() requestAddFiles = new EventEmitter<void>();
+  // @Output() requestAddFolder = new EventEmitter<void>();
   @Output() itemRemoved = new EventEmitter<SelectedItem | undefined>();
   @Output() itemDownloadRequested = new EventEmitter<SelectedItem>();
   @Output() transferInitiated = new EventEmitter<void>();
@@ -60,8 +60,8 @@ export class TransferPanelComponent implements OnDestroy {
   get totalCount(): number { return this.items.length; }
 
   // ... (other methods: addMoreFiles, clearAllItems, requestItemRemoval, etc. remain the same)
-  addMoreFiles(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFiles.emit(); }
-  addFolder(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFolder.emit(); }
+  // addMoreFiles(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFiles.emit(); }
+  // addFolder(): void { if (!this.isUploading && this.items.length === 0) this.requestAddFolder.emit(); }
   clearAllItems(): void { if (!this.isUploading) { this.itemRemoved.emit(undefined); } }
   requestItemRemoval(item: SelectedItem, event: MouseEvent): void { event.stopPropagation(); if (!this.isUploading) { this.itemRemoved.emit(item); } }
   requestItemDownload(item: SelectedItem, event: MouseEvent): void { event.stopPropagation(); if (!this.isUploading && item.file) { this.itemDownloadRequested.emit(item); } }
@@ -111,9 +111,11 @@ export class TransferPanelComponent implements OnDestroy {
     return (uploadedBytes / currentItem.size) * 100;
   }
 
-  public getItemDisplayTimeOrEta(currentItem: SelectedItem): string {
+  public getItemDisplayTimeOrEta(currentItem: SelectedItem): string | null {
     const currentItemProgress = this.getItemUploadPercentage(currentItem);
-    if (currentItemProgress >= 99.99) return '00:00';
+    if (currentItemProgress >= 99.99) {
+      return null; // <--- KEY CHANGE: Return null for completed items
+    }
     if (!this.isUploading || this.speedMBps <= 0) return '--:--';
 
     let firstActiveItem: SelectedItem | undefined = undefined;
@@ -123,7 +125,7 @@ export class TransferPanelComponent implements OnDestroy {
         break;
       }
     }
-    
+
     if (firstActiveItem && currentItem.id === firstActiveItem.id) {
       const uploadedBytesOfCurrent = this.getItemUploadedBytes(currentItem);
       const remainingBytesOfCurrent = currentItem.size - uploadedBytesOfCurrent;

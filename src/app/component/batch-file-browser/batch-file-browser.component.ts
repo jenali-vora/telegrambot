@@ -248,7 +248,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     this.cdRef.detectChanges();
 
     const initiateUrl = `${this.API_BASE_URL}/download/initiate-download-all/${this.effectiveBatchAccessId}`;
-    console.log('Initiating Download All with URL:', initiateUrl);
 
     this.http.get<DownloadAllInitiationResponse>(initiateUrl)
       .pipe(
@@ -298,7 +297,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     const encodedFilename = encodeURIComponent(file.original_filename);
     const sseUrl = `${this.API_BASE_URL}/download-single/${this.effectiveBatchAccessId}/${encodedFilename}`;
 
-    console.log(`Connecting to SSE for individual file: ${sseUrl}`);
     this.setupSseConnection(sseUrl);
   }
 
@@ -308,16 +306,13 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.cdRef.detectChanges();
 
-    console.log(`Connecting to SSE: ${streamUrl}`);
     this.currentSse = new EventSource(streamUrl);
 
     this.currentSse.onopen = () => this.zone.run(() => {
-      console.log("SSE connection opened to:", streamUrl);
       this.setDownloadStatus('Connection established. Preparing file...', 'info');
     });
 
     this.currentSse.addEventListener('status', (event: MessageEvent) => this.zone.run(() => {
-      console.log("SSE 'status':", event.data);
       try {
         const data: SseStatusPayload = JSON.parse(event.data);
         const message = data.message || 'Processing...';
@@ -361,7 +356,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     }));
 
     this.currentSse.addEventListener('ready', (event: MessageEvent) => this.zone.run(() => {
-      console.log("SSE 'ready':", event.data);
       try {
         const sseData: SseReadyPayload = JSON.parse(event.data);
         if (!sseData.temp_file_id || !sseData.final_filename) throw new Error("Missing temp_file_id or final_filename from 'ready' event");
@@ -378,7 +372,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
 
         const finalDownloadUrl = `${this.API_BASE_URL}/download/serve-temp-file/${sseData.temp_file_id}/${encodeURIComponent(sseData.final_filename)}`;
         this.setDownloadStatus(`Download ready: ${sseData.final_filename}. Starting...`, 'success');
-        console.log(`Triggering file download from: ${finalDownloadUrl}`);
         window.location.href = finalDownloadUrl;
 
         setTimeout(() => {
@@ -409,7 +402,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
           console.error("SSE EventSource connection error (onerror):", err, "URL:", streamUrl);
           this.setDownloadStatus('Connection lost or server error during file preparation.', 'error');
         } else {
-          console.log("SSE EventSource error (onerror) after processing or manual close:", err);
         }
         this.cleanupPreviousDownloadState();
       } else {
@@ -422,7 +414,6 @@ export class BatchFileBrowserComponent implements OnInit, OnDestroy, OnChanges {
     if (this.currentSse) {
       this.currentSse.close();
       this.currentSse = null;
-      console.log("SSE connection explicitly closed.");
     }
   }
 

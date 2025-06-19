@@ -121,7 +121,7 @@ export class FileManagerApiService {
    */
   getUploadProgressStream(batchId: string): Observable<any> {
     const url = `${this.apiUrl}/upload/progress-stream/${batchId}`;
-    console.log(`[ApiService] Opening progress SSE stream at: ${url}`);
+    // console.log(`[ApiService] Opening progress SSE stream at: ${url}`);
 
     return new Observable(observer => {
       const eventSource = new EventSource(url, { withCredentials: true });

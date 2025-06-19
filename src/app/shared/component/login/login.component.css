@@ -23,9 +23,7 @@
 .col-6 {
     box-sizing: border-box;
     flex: 0 0 auto;
-    /* Don't grow/shrink */
     width: 47.5%;
-    /* Adjust width considering gap */
 }
 
 /* Login column specifics */
@@ -40,7 +38,6 @@
     border-radius: 24px 24px 0px 0px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     /* margin-bottom: 20px; */
-    /* Space before footer */
 }
 
 .login-card h2 {
@@ -78,7 +75,6 @@
 .form-field input:focus {
     outline: none;
     border-bottom-color: var(--button-color);
-    /* Example focus color */
 }
 
 .password-input-wrapper {
@@ -96,7 +92,6 @@
     background-color: transparent;
     box-sizing: border-box;
     transition: border-color 0.2s ease;
-    /* Space for icon */
 }
 
 .toggle-visibility {
@@ -106,7 +101,7 @@
     transform: translateY(-50%);
     background: none;
     border: none;
-    /* cursor: pointer; */
+    cursor: pointer;
     padding: 5px;
     color: #aaa;
 }
@@ -143,13 +138,12 @@
     margin: 0;
     font-size: 13px;
     color: var(--text-color-secondary);
-    /* cursor: pointer; */
+    cursor: pointer;
 }
 
 input[type="checkbox"] {
-    /* cursor: pointer; */
+    cursor: pointer;
     accent-color: var(--button-color);
-    /* Match button color */
 }
 
 
@@ -159,7 +153,7 @@ input[type="checkbox"] {
     border: none;
     padding: 20px 25px;
     border-radius: 5px;
-    /* cursor: pointer; */
+    cursor: pointer;
     font-weight: 600;
     font-size: 14px;
     transition: background-color 0.2s ease;
@@ -189,7 +183,6 @@ input[type="checkbox"] {
     font-size: 13px;
     color: #666;
     border-radius: 0px 0px 24px 24px;
-    /* Match card */
 }
 
 .signup-footer a {
@@ -202,14 +195,12 @@ input[type="checkbox"] {
     text-decoration: underline;
 }
 
-/* Info column specifics */
 .info-column {
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     padding-left: 30px;
-    /* Add some padding */
 }
 
 .info-content {
@@ -236,7 +227,6 @@ input[type="checkbox"] {
     line-height: 1.5;
 }
 
-/* Basic error styling */
 .form-error {
     color: var(--delete-color);
     background-color: #e3e7f9;
@@ -260,27 +250,21 @@ input[type="checkbox"] {
     transform: translateY(-50%);
     background: none;
     border: none;
-    /* cursor: pointer; */
+    cursor: pointer;
     padding: 5px 8px;
-    /* Adjust padding */
     display: flex;
     align-items: center;
     justify-content: center;
     color: #aaa;
     opacity: 0.7;
     font-size: 16px;
-    /* Control icon size via font-size */
     line-height: 1;
     width: auto;
-    /* Remove fixed width if needed */
     height: auto;
-    /* Remove fixed height if needed */
 }
 
 .toggle-visibility i {
-    /* Style the icon tag itself */
     display: block;
-    /* Or inline-block */
 }
 
 .toggle-visibility:hover {
@@ -294,17 +278,14 @@ input[type="checkbox"] {
         flex-direction: column;
         max-width: 450px;
         gap: 0;
-        /* No gap when stacked */
     }
 
     .col-6 {
         width: 100%;
-        /* Full width on mobile */
     }
 
     .info-column {
         display: none;
-        /* Hide info column on small screens */
     }
 }
 
