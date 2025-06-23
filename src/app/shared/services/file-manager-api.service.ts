@@ -36,7 +36,7 @@ export class FileManagerApiService {
     });
   }
 
-  initiateBatch = (name: string, size: number, isBatch: boolean): Observable<InitiateBatchResponse> => this.http.post<InitiateBatchResponse>(`${this.apiUrl}/upload/initiate-batch`, { batch_display_name: name, total_original_size: size, is_batch: isBatch }).pipe(catchError(this.handleError));
+  initiateBatch = (payload: any): Observable<InitiateBatchResponse> => this.http.post<InitiateBatchResponse>(`${this.apiUrl}/upload/initiate-batch`, payload).pipe(catchError(this.handleError));
   streamFileToBatch = (file: File, batchId: string): Observable<HttpEvent<any>> => this.http.post(`${this.apiUrl}/upload/stream`, file, { headers: new HttpHeaders({ 'X-Filename': file.name, 'X-Filesize': file.size.toString(), 'X-Batch-Id': batchId }), reportProgress: true, observe: 'events' });
   finalizeBatch = (batchId: string): Observable<FinalizeBatchResponse> => this.http.post<FinalizeBatchResponse>(`${this.apiUrl}/upload/finalize-batch/${batchId}`, {}).pipe(catchError(this.handleError));
   listFiles = (username: string): Observable<TelegramFileMetadata[]> => this.http.get<TelegramFileMetadata[]>(`${this.apiUrl}/api/files/${encodeURIComponent(username)}`).pipe(catchError(this.handleError));

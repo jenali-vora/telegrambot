@@ -131,25 +131,71 @@ export class HomeComponent implements OnInit, OnDestroy {
   onFolderSelected(event: Event): void { const i = event.target as HTMLInputElement; if (i.files?.length) this.handleFiles(i.files, true); }
 
   private formatEta(s: number): string { if (isNaN(s) || s < 0 || !isFinite(s)) return '--:--'; const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60); return h > 0 ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; }
-  async initiateTransferFromPanel(): Promise<void> {
+   async initiateTransferFromPanel(): Promise<void> {
     if (this.isUploading || this.selectedItems.length === 0) return;
-    this.isUploading = true; this.uploadError = null; this.uploadStartTime = Date.now();
+    this.isUploading = true;
+    this.uploadError = null;
+    this.uploadStartTime = Date.now();
     this.uploadProgressDetails.totalBytes = this.selectedItems.reduce((s, i) => s + (i.file?.size ?? 0), 0);
-    [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--']; this.updateOverallProgress(0);
-    const batchName = this.uploadProgressDetails.totalBytes > 0 ? (this.selectedItems.length === 1 ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`) : 'Processing...';
-    this.uploadStatusMessage = 'Initializing...'; this.cdRef.detectChanges();
+    [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--'];
+    this.updateOverallProgress(0);
+
+    const isSingleFile = this.selectedItems.length === 1;
+    const batchName = isSingleFile ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`;
+    
+    this.uploadStatusMessage = 'Initializing...';
+    this.cdRef.detectChanges();
+
     try {
-      const { batch_id: batchId } = await firstValueFrom(this.apiService.initiateBatch(batchName, this.uploadProgressDetails.totalBytes, this.selectedItems.length > 1));
+      // --- START OF THE FIX ---
+      // Prepare the payload for the initiateBatch API call
+      const initiateBatchPayload = {
+        batch_display_name: batchName,
+        total_original_size: this.uploadProgressDetails.totalBytes,
+        is_batch: !isSingleFile
+      };
+
+      // If it's a single file, add the original_filename to the payload
+      if (isSingleFile) {
+        (initiateBatchPayload as any)['original_filename'] = this.selectedItems[0].name;
+      }
+      
+      // Call the API with the constructed payload
+      const { batch_id: batchId } = await firstValueFrom(this.apiService.initiateBatch(initiateBatchPayload));
+      // --- END OF THE FIX ---
+
       let bytesUploadedSoFar = 0;
+
+      // Subscribe to the progress stream
       this.progressSubscription = this.apiService.getUploadProgressStream(batchId).subscribe({
         next: (ev) => this.zone.run(() => this.handleProgressEvent(ev, bytesUploadedSoFar)),
         error: (er) => this.zone.run(() => this.handleBatchUploadError('Progress stream failed.', er))
       });
-      for (const item of this.selectedItems) { if (!item.file) { if (item.size > 0) bytesUploadedSoFar += item.size; continue; } await this.streamFileWithFetch(item, batchId); bytesUploadedSoFar += item.file.size; }
-      this.uploadStatusMessage = 'Finalizing...'; this.cdRef.detectChanges();
-      this.onAllUploadsComplete(await firstValueFrom(this.apiService.finalizeBatch(batchId)));
-    } catch (err: any) { this.handleBatchUploadError(err.message || 'Upload process error.'); }
-    finally { this.progressSubscription?.unsubscribe(); this.progressSubscription = null; }
+
+      // Loop through and upload each file
+      for (const item of this.selectedItems) {
+        if (!item.file) {
+          if (item.size > 0) bytesUploadedSoFar += item.size;
+          continue;
+        }
+        await this.streamFileWithFetch(item, batchId);
+        bytesUploadedSoFar += item.file.size;
+      }
+
+      this.uploadStatusMessage = 'Finalizing...';
+      this.cdRef.detectChanges();
+      
+      // Finalize the batch
+      const finalizeResponse = await firstValueFrom(this.apiService.finalizeBatch(batchId));
+      this.onAllUploadsComplete(finalizeResponse);
+
+    } catch (err: any) {
+      this.handleBatchUploadError(err.message || 'Upload process error.');
+    } finally {
+      // Unsubscribe from progress stream in the finally block
+      this.progressSubscription?.unsubscribe();
+      this.progressSubscription = null;
+    }
   }
   private handleProgressEvent(event: any, bytesAlreadyUploadedForPreviousFiles: number): void {
     let newMsg = this.uploadStatusMessage;
