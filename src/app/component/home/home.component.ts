@@ -2,7 +2,7 @@
 import { Component, inject, ViewChild, ElementRef, OnInit, OnDestroy, NgZone, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Subscription, firstValueFrom, timer } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { AuthService, User } from '../../shared/services/auth.service';
 import { FileManagerApiService, FinalizeBatchResponse } from '../../shared/services/file-manager-api.service';
 import { SelectedItem } from '../transfer-panel/transfer-panel.component';
@@ -20,7 +20,6 @@ interface UploadProgressDetails { percentage: number; bytesSent: number; totalBy
   templateUrl: './home.component.html', styleUrls: ['./home.component.css'], providers: [DatePipe]
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  // ... (properties as before) ...
   private authService = inject(AuthService); private apiService = inject(FileManagerApiService); private zone = inject(NgZone);
   private cdRef = inject(ChangeDetectorRef); private uploadEventService = inject(UploadEventService);
   @ViewChild('fileInputForStart') fileInputRef!: ElementRef<HTMLInputElement>;
@@ -37,11 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly MAX_ANONYMOUS_FOLDER_UPLOADS = 5; private nextItemId = 0;
   private authSubscription: Subscription | null = null; private progressSubscription: Subscription | null = null;
   private uploadStartTime: number = 0; private dragEnterCounter = 0;
-  private readonly MIN_UPLOAD_DISPLAY_TIME_MS = 300; 
 
-  completedFilesCountForDisplay: number = 0;
-  private completedFileNames: Set<string> = new Set();
-  // ... (iconMap, transferList, redisterdUser remain the same)
   transferList = [{ img: "assets/image/secure.svg", title: "Secure file transfer", des: "Send and share large files quickly and securely via email or shareable links from any device." }, { img: "assets/image/sendFile.svg", title: "Send large files up to 250 GB", des: "Transfer large files available up to 365 days before automatic erasure from our servers." }, { img: "assets/image/track.svg", title: "Track sent files & manage transfers", des: "Use our dashboard to track downloads, modify transfers, re-transfer, or erase before expiration." }, { img: "assets/image/download (2).svg", title: "Integrate widget for file reception", des: "Use our form generator to receive files on your account; integrate with simple HTML." }];
   redisterdUser = [{ icon: 'assets/image/rg-i.png', title: 'Registered users', count: '35,000' }, { icon: 'assets/image/upload-files-img1.png', title: 'Uploaded files', count: '1,90,000' }];
   private iconMap: { [k: string]: string } = { pdf: 'fas fa-file-pdf text-danger', doc: 'fas fa-file-word text-primary', docx: 'fas fa-file-word text-primary', xls: 'fas fa-file-excel text-success', xlsx: 'fas fa-file-excel text-success', ppt: 'fas fa-file-powerpoint text-warning', pptx: 'fas fa-file-powerpoint text-warning', zip: 'fas fa-file-archive text-secondary', rar: 'fas fa-file-archive text-secondary', '7z': 'fas fa-file-archive text-secondary', gz: 'fas fa-file-archive text-secondary', tar: 'fas fa-file-archive text-secondary', txt: 'fas fa-file-alt text-info', md: 'fas fa-file-alt text-info', log: 'fas fa-file-alt text-info', jpg: 'fas fa-file-image text-purple', jpeg: 'fas fa-file-image text-purple', png: 'fas fa-file-image text-purple', gif: 'fas fa-file-image text-purple', bmp: 'fas fa-file-image text-purple', svg: 'fas fa-file-image text-purple', webp: 'fas fa-file-image text-purple', mp3: 'fas fa-file-audio text-orange', wav: 'fas fa-file-audio text-orange', ogg: 'fas fa-file-audio text-orange', aac: 'fas fa-file-audio text-orange', flac: 'fas fa-file-audio text-orange', mp4: 'fas fa-file-video text-teal', mov: 'fas fa-file-video text-teal', avi: 'fas fa-file-video text-teal', mkv: 'fas fa-file-video text-teal', wmv: 'fas fa-file-video text-teal', webm: 'fas fa-file-video text-teal', html: 'fas fa-file-code text-info', htm: 'fas fa-file-code text-info', js: 'fas fa-file-code text-info', css: 'fas fa-file-code text-info', ts: 'fas fa-file-code text-info', py: 'fas fa-file-code text-info', java: 'fas fa-file-code text-info', cs: 'fas fa-file-code text-info' };
@@ -56,10 +51,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (!user && wasLoggedIn || (user && wasLoggedIn && this.currentUser && user.email !== this.currentUser.email)) this.resetUploadState();
       else if (!!user && !wasLoggedIn) { this.anonymousFolderUploadsCount = 0; this.anonymousUploadLimitMessage = null; }
       if (this.currentUser && this.username) this.loadUserFileCount(); else { this.userFileCount = 0; this.isLoadingUserFileCount = false; }
+      this.cdRef.detectChanges();
     }));
     this.currentUser = this.authService.currentUserValue; this.username = this.currentUser?.username || this.currentUser?.email || '';
     if (this.currentUser && this.username) this.loadUserFileCount();
-    this.resetUploadState();
   }
   ngOnDestroy(): void { this.authSubscription?.unsubscribe(); this.progressSubscription?.unsubscribe(); }
 
@@ -71,13 +66,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isGamePanelVisible = false; this.dragEnterCounter = 0; this.uploadStartTime = 0;
     if (this.fileInputRef?.nativeElement) this.fileInputRef.nativeElement.value = '';
     if (this.folderInputRef?.nativeElement) this.folderInputRef.nativeElement.value = '';
-    this.progressSubscription?.unsubscribe(); this.progressSubscription = null; 
-    this.updatePlayGamesButtonVisibility();
-
-    this.completedFileNames.clear();
-    this.completedFilesCountForDisplay = 0;
+    this.progressSubscription?.unsubscribe(); this.progressSubscription = null; this.updatePlayGamesButtonVisibility();
   }
-  // ... (updatePlayGamesButtonVisibility, loadUserFileCount, etc. as before) ...
   private updatePlayGamesButtonVisibility(): void {
     const totalSize = this.selectedItems.reduce((sum, item) => sum + item.size, 0);
     const newState = totalSize >= this.ONE_GIGABYTE_IN_BYTES;
@@ -141,230 +131,99 @@ export class HomeComponent implements OnInit, OnDestroy {
   onFolderSelected(event: Event): void { const i = event.target as HTMLInputElement; if (i.files?.length) this.handleFiles(i.files, true); }
 
   private formatEta(s: number): string { if (isNaN(s) || s < 0 || !isFinite(s)) return '--:--'; const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60); return h > 0 ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; }
-  
-  async initiateTransferFromPanel(): Promise<void> {
+   async initiateTransferFromPanel(): Promise<void> {
     if (this.isUploading || this.selectedItems.length === 0) return;
-
-    const localUploadUiStartTime = Date.now(); 
     this.isUploading = true;
     this.uploadError = null;
-    this.uploadStartTime = localUploadUiStartTime; 
-    this.completedFileNames.clear();
-    this.completedFilesCountForDisplay = 0;
-    
-    const totalBytesForUpload = this.selectedItems.reduce((s, i) => s + (i.file?.size ?? 0), 0);
-    this.uploadProgressDetails = {
-        percentage: totalBytesForUpload > 0 ? 0.1 : 0, // Force a tiny visual if there are bytes to upload
-        bytesSent: 0, 
-        totalBytes: totalBytesForUpload,
-        speedMBps: 0,
-        etaFormatted: '--:--'
-    };
-    this.uploadStatusMessage = 'Initializing...';
-
-    this.cdRef.detectChanges(); // IMPORTANT: Render initial "uploading" state
+    this.uploadStartTime = Date.now();
+    this.uploadProgressDetails.totalBytes = this.selectedItems.reduce((s, i) => s + (i.file?.size ?? 0), 0);
+    [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--'];
+    this.updateOverallProgress(0);
 
     const isSingleFile = this.selectedItems.length === 1;
     const batchName = isSingleFile ? this.selectedItems[0].name : `Batch of ${this.selectedItems.length} files`;
     
-    let finalDataFromUpload: FinalizeBatchResponse | null = null;
-    let uploadProcessError: any = null;
+    this.uploadStatusMessage = 'Initializing...';
+    this.cdRef.detectChanges();
 
     try {
-      const initiateBatchPayload: any = { 
+      // --- START OF THE FIX ---
+      // Prepare the payload for the initiateBatch API call
+      const initiateBatchPayload = {
         batch_display_name: batchName,
         total_original_size: this.uploadProgressDetails.totalBytes,
         is_batch: !isSingleFile
       };
+
+      // If it's a single file, add the original_filename to the payload
+      if (isSingleFile) {
+        (initiateBatchPayload as any)['original_filename'] = this.selectedItems[0].name;
+      }
       
+      // Call the API with the constructed payload
       const { batch_id: batchId } = await firstValueFrom(this.apiService.initiateBatch(initiateBatchPayload));
+      // --- END OF THE FIX ---
+
       let bytesUploadedSoFar = 0;
 
+      // Subscribe to the progress stream
       this.progressSubscription = this.apiService.getUploadProgressStream(batchId).subscribe({
         next: (ev) => this.zone.run(() => this.handleProgressEvent(ev, bytesUploadedSoFar)),
-        error: (er) => this.zone.run(() => {
-            if (this.isUploading) { 
-                 uploadProcessError = er; // Store to handle after min display time
-            }
-        })
+        error: (er) => this.zone.run(() => this.handleBatchUploadError('Progress stream failed.', er))
       });
 
+      // Loop through and upload each file
       for (const item of this.selectedItems) {
-        if (!this.isUploading) break; 
         if (!item.file) {
           if (item.size > 0) bytesUploadedSoFar += item.size;
-          // If backend sends "Completed: foldername/" for empty folders, handleProgressEvent will update count
-          if(item.size === 0 && this.isUploading) { // Optimistic update for empty folders
-            this.uploadStatusMessage = `Processing ${item.name}...`;
-            this.cdRef.detectChanges();
-          }
           continue;
-        }
-        // Optimistic status for current file
-        if (this.isUploading) {
-            this.uploadStatusMessage = `Uploading ${item.name}...`;
-            this.cdRef.detectChanges();
         }
         await this.streamFileWithFetch(item, batchId);
         bytesUploadedSoFar += item.file.size;
       }
 
-      if (this.isUploading) { 
-        this.uploadStatusMessage = 'Finalizing...';
-        this.cdRef.detectChanges(); 
-        finalDataFromUpload = await firstValueFrom(this.apiService.finalizeBatch(batchId));
-      }
+      this.uploadStatusMessage = 'Finalizing...';
+      this.cdRef.detectChanges();
+      
+      // Finalize the batch
+      const finalizeResponse = await firstValueFrom(this.apiService.finalizeBatch(batchId));
+      this.onAllUploadsComplete(finalizeResponse);
 
     } catch (err: any) {
-        uploadProcessError = err; 
+      this.handleBatchUploadError(err.message || 'Upload process error.');
     } finally {
+      // Unsubscribe from progress stream in the finally block
       this.progressSubscription?.unsubscribe();
       this.progressSubscription = null;
-
-      const elapsedTime = Date.now() - localUploadUiStartTime;
-      const remainingTimeForUi = this.MIN_UPLOAD_DISPLAY_TIME_MS - elapsedTime;
-
-      if (this.isUploading && remainingTimeForUi > 0 && !uploadProcessError) { 
-        // Only delay if still 'uploading' and no immediate error happened before or during loop
-        await firstValueFrom(timer(remainingTimeForUi));
-      }
-
-      if (uploadProcessError) {
-        this.handleBatchUploadError(uploadProcessError.message || 'Upload process error.', uploadProcessError);
-      } else if (finalDataFromUpload) { 
-        // Check isUploading because cancellation might have happened during the timer
-        if (this.isUploading || (!this.isUploading && this.uploadStatusMessage === 'Finalizing...')) { 
-            this.onAllUploadsComplete(finalDataFromUpload);
-        }
-      } else if (!this.isUploading) { 
-        // If cancelled, ensure UI reflects cancellation if not already done by handleCancelUpload
-        if (!this.shareableLinkForPanel && !this.uploadError && this.uploadStatusMessage !== 'Upload cancelled.') {
-            this.handleCancelUpload(); // Call to ensure consistent cancelled state
-        }
-      }
     }
   }
-
   private handleProgressEvent(event: any, bytesAlreadyUploadedForPreviousFiles: number): void {
-    if (!this.isUploading && !this.shareableLinkForPanel && event.type !== 'finalized') { // Allow finalized event if link not yet set
-        return;
-    }
-
     let newMsg = this.uploadStatusMessage;
     if (event.type === 'progress') {
-      if (this.isUploading && (event.filename || newMsg === 'Initializing...' || newMsg.startsWith('Processing ') || newMsg.startsWith('Uploading '))) {
-         newMsg = `Uploading, please wait...`; // More generic while actual progress comes
-      }
+      if (event.filename || newMsg === 'Initializing...') newMsg = `Uploading, please wait...`;
       const totalBatchSent = Number(event.total_batch_bytes_sent ?? (bytesAlreadyUploadedForPreviousFiles + (event.bytes_sent || 0)));
-      this.updateOverallProgress(totalBatchSent);
-
-      let eta = '--:--', speed = this.uploadProgressDetails.speedMBps;
+      this.updateOverallProgress(totalBatchSent); let eta = '--:--', speed = this.uploadProgressDetails.speedMBps;
       if (event.eta_seconds !== undefined && !isNaN(Number(event.eta_seconds)) && Number(event.eta_seconds) >= 0) eta = this.formatEta(Number(event.eta_seconds));
-      else if (event.speed_mbps !== undefined) { const serverSpeed = parseFloat(event.speed_mbps); if (!isNaN(serverSpeed) && serverSpeed >= 0) { speed = serverSpeed; if (this.uploadProgressDetails.totalBytes > 0 && totalBatchSent < this.uploadProgressDetails.totalBytes) eta = this.formatEta((this.uploadProgressDetails.totalBytes - totalBatchSent) / (speed * 1024 * 1024)); else if (totalBatchSent >= this.uploadProgressDetails.totalBytes && this.uploadProgressDetails.totalBytes > 0) eta = '00:00'; } else speed = 0; }
-      else if (this.uploadStartTime > 0 && totalBatchSent > 0 && this.uploadProgressDetails.totalBytes > 0) { const elapsedS = (Date.now() - this.uploadStartTime) / 1000; if (elapsedS > 0.5) { const clientSpeedBps = totalBatchSent / elapsedS; if (clientSpeedBps > 0) { speed = clientSpeedBps / (1024 * 1024); const remBytes = this.uploadProgressDetails.totalBytes - totalBatchSent; eta = remBytes > 0 ? this.formatEta(remBytes / clientSpeedBps) : '00:00'; } } }
-      if (this.uploadProgressDetails.percentage >= 99.9 && eta !== '00:00' && this.uploadProgressDetails.totalBytes > 0) eta = '00:00';
-      
+      else if (event.speed_mbps !== undefined) { const serverSpeed = parseFloat(event.speed_mbps); if (!isNaN(serverSpeed) && serverSpeed > 0) { speed = serverSpeed; if (this.uploadProgressDetails.totalBytes > 0 && totalBatchSent < this.uploadProgressDetails.totalBytes) eta = this.formatEta((this.uploadProgressDetails.totalBytes - totalBatchSent) / (speed * 1024 * 1024)); else if (totalBatchSent >= this.uploadProgressDetails.totalBytes && this.uploadProgressDetails.totalBytes > 0) eta = '00:00'; } else speed = 0; }
+      else if (this.uploadStartTime > 0 && totalBatchSent > 0 && this.uploadProgressDetails.totalBytes > 0) { const elapsedS = (Date.now() - this.uploadStartTime) / 1000; if (elapsedS > 1) { const clientSpeedBps = totalBatchSent / elapsedS; if (clientSpeedBps > 0) { speed = clientSpeedBps / (1024 * 1024); const remBytes = this.uploadProgressDetails.totalBytes - totalBatchSent; eta = remBytes > 0 ? this.formatEta(remBytes / clientSpeedBps) : '00:00'; } } }
+      if (this.uploadProgressDetails.percentage >= 99.9 && eta !== '00:00') eta = '00:00';
       [this.uploadProgressDetails.etaFormatted, this.uploadProgressDetails.speedMBps] = [eta, speed];
-
-    } else if (event.type === 'status' && event.message) {
-        const msgStr = String(event.message);
-        if (msgStr.startsWith('Completed: ')) {
-            const completedFileName = msgStr.substring('Completed: '.length).trim();
-            if (this.selectedItems.some(item => item.name === completedFileName) && !this.completedFileNames.has(completedFileName)) {
-                this.completedFileNames.add(completedFileName);
-                this.completedFilesCountForDisplay = this.completedFileNames.size;
-            }
-        }
-        // Only update message if still uploading or finalizing, to avoid overriding "Transfer complete!"
-        if (this.isUploading || this.uploadStatusMessage === 'Finalizing...') {
-            if (!(msgStr.startsWith('Completed: ') && msgStr.length > 25 && !['Finalizing...'].includes(newMsg))) {
-                newMsg = msgStr;
-            } else if (!['Finalizing...'].includes(newMsg)) { // Avoid "Uploading..." if already "Finalizing..."
-                newMsg = `Uploading, please wait...`;
-            }
-        }
-    } else if (event.type === 'finalized' && event.message) {
-        newMsg = String(event.message);
-        [this.uploadProgressDetails.etaFormatted, this.uploadProgressDetails.speedMBps] = ['00:00', 0];
-        this.completedFilesCountForDisplay = this.selectedItems.length;
-        // isUploading = false will be handled by onAllUploadsComplete
-    } else if (event.type === 'error' && event.message) {
-        // Error is stored and handled in initiateTransferFromPanel's finally block
-        return; 
-    }
-
-    if (this.uploadStatusMessage !== newMsg && (this.isUploading || this.uploadStatusMessage === "Finalizing...")) {
-        this.uploadStatusMessage = newMsg;
-    }
-    this.cdRef.detectChanges();
+    } else if (event.type === 'status' && event.message) { const msgStr = String(event.message); if (!(msgStr.startsWith('Completed: ') && msgStr.length > 25 && this.isUploading && !['Finalizing...', 'Transfer complete!', 'Upload Failed', 'Upload cancelled'].includes(newMsg))) newMsg = msgStr; else newMsg = `Uploading, please wait...`; }
+    else if (event.type === 'finalized' && event.message) { newMsg = String(event.message);[this.uploadProgressDetails.etaFormatted, this.uploadProgressDetails.speedMBps] = ['00:00', 0]; }
+    else if (event.type === 'error' && event.message) { this.handleBatchUploadError(String(event.message)); return; }
+    if (this.uploadStatusMessage !== newMsg) this.uploadStatusMessage = newMsg; this.cdRef.detectChanges();
   }
   private async streamFileWithFetch(item: SelectedItem, batchId: string): Promise<void> { const url = `${this.apiService.getApiBaseUrl()}/upload/stream?batch_id=${batchId}&filename=${encodeURIComponent(item.name)}&auth_token=${this.authService.getToken() || ''}`; try { const res = await fetch(url, { method: 'POST', body: item.file }); if (!res.ok) { const txt = await res.text(); try { throw new Error(JSON.parse(txt).error || `Server error ${res.status}`); } catch { throw new Error(txt || `Server error ${res.status}`); } } } catch (err) { console.error(`Error streaming ${item.name}:`, err); throw err; } }
-  
-  private updateOverallProgress(bytesSent: number): void {
-    const total = this.uploadProgressDetails.totalBytes;
-    let newPercentage = total === 0 ? 0 : Math.max(0, Math.min((Math.min(bytesSent, total) / total) * 100, 100));
-    
-    // Ensure a tiny progress for visual feedback if bytes are sent but percentage is still zero
-    if (this.isUploading && newPercentage === 0 && bytesSent > 0 && total > 0) {
-      newPercentage = 0.1; // Smallest visible increment
-    }
-    
-    this.uploadProgressDetails.percentage = newPercentage;
-    this.uploadProgressDetails.bytesSent = Math.max(0, Math.min(bytesSent, total)); 
-    // Change detection will be handled by the calling function (handleProgressEvent or initial setup)
-  }
-
-  onAllUploadsComplete(finalData: FinalizeBatchResponse): void {
-    this.zone.run(() => {
-      this.isUploading = false; 
-      this.uploadStatusMessage = "Transfer complete!";
-      if (!this.authService.isLoggedIn()) { this.anonymousUploadLimitMessage = "File uploaded. Available for 5 days. Login for more features."; this.uploadSuccessMessage = null; } 
-      else { this.uploadSuccessMessage = "Files successfully uploaded."; this.anonymousUploadLimitMessage = null; }
-      this.shareableLinkForPanel = finalData.download_url;
-      this.completedBatchAccessId = finalData.access_id;
-      
-      this.uploadProgressDetails.bytesSent = this.uploadProgressDetails.totalBytes; 
-      this.uploadProgressDetails.percentage = 100; 
-      this.completedFilesCountForDisplay = this.selectedItems.length; 
-      [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '00:00'];
-      if (this.currentUser) this.uploadEventService.notifyUploadComplete();
-      this.cdRef.detectChanges();
-    });
-  }
-  handleNewTransferRequest(): void { this.resetUploadState(); /*detectChanges is in resetUploadState via updatePlayGamesButtonVisibility*/ }
-
-  private handleBatchUploadError(errorMessage: string, errorEvent?: any): void {
-    console.error("Batch upload error:", errorMessage, errorEvent || '');
-    this.zone.run(() => {
-      this.uploadError = errorMessage;
-      this.isUploading = false; 
-      this.uploadStatusMessage = 'Upload Failed';
-      [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--'];
-      this.completedFilesCountForDisplay = this.completedFileNames.size;
-      this.progressSubscription?.unsubscribe(); 
-      this.progressSubscription = null;
-      this.cdRef.detectChanges();
-    });
-  }
-
-  handleCancelUpload(): void {
-    if (!this.isUploading) return;
-    this.progressSubscription?.unsubscribe();
-    this.progressSubscription = null;
-    this.isUploading = false; 
-    this.uploadStatusMessage = `Upload cancelled.`;
-    this.uploadError = null;
-    this.completedFilesCountForDisplay = this.completedFileNames.size;
-    this.uploadProgressDetails.percentage = 0;
-    this.uploadProgressDetails.bytesSent = 0;
-    [this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--'];
-    this.cdRef.detectChanges();
-  }
-  handleItemRemovedFromPanel(item?: SelectedItem): void { if (this.isUploading) { alert("Cannot remove during upload. Cancel first."); return; } if (item) this.selectedItems = this.selectedItems.filter(i => i.id !== item.id); if (!item || this.selectedItems.length === 0) this.handleNewTransferRequest(); /*detectChanges in handleNewTransferRequest*/ }
-  toggleGamePanel(): void { this.isGamePanelVisible = !this.isGamePanelVisible; this.cdRef.detectChanges();}
-  closeGamePanel(): void { this.isGamePanelVisible = false; this.cdRef.detectChanges();}
+  private updateOverallProgress(bytesSent: number): void { const total = this.uploadProgressDetails.totalBytes; this.uploadProgressDetails.percentage = total === 0 ? (this.isUploading ? 0 : 100) : Math.min((Math.min(bytesSent, total) / total) * 100, 100); this.uploadProgressDetails.bytesSent = bytesSent; this.cdRef.detectChanges(); }
+  onAllUploadsComplete(finalData: FinalizeBatchResponse): void { this.zone.run(() => { this.isUploading = false; this.uploadStatusMessage = "Transfer complete!"; if (!this.authService.isLoggedIn()) { this.anonymousUploadLimitMessage = "File uploaded. Available for 5 days. Login for more features."; this.uploadSuccessMessage = null; } else { this.uploadSuccessMessage = "Files successfully uploaded."; this.anonymousUploadLimitMessage = null; } this.shareableLinkForPanel = finalData.download_url; this.completedBatchAccessId = finalData.access_id; this.updateOverallProgress(this.uploadProgressDetails.totalBytes);[this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '00:00']; if (this.currentUser) this.uploadEventService.notifyUploadComplete(); this.cdRef.detectChanges(); }); }
+  handleNewTransferRequest(): void { this.resetUploadState(); this.cdRef.detectChanges(); }
+  private handleBatchUploadError(errorMessage: string, errorEvent?: any): void { console.error("Batch upload error:", errorMessage, errorEvent || ''); this.zone.run(() => { this.uploadError = errorMessage; this.isUploading = false; this.uploadStatusMessage = 'Upload Failed';[this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted] = [0, '--:--']; this.progressSubscription?.unsubscribe(); this.progressSubscription = null; this.cdRef.detectChanges(); }); }
+  handleCancelUpload(): void { if (!this.isUploading) return; this.progressSubscription?.unsubscribe(); this.progressSubscription = null; this.isUploading = false; this.uploadStatusMessage = `Upload cancelled.`; this.uploadError = null;[this.uploadProgressDetails.speedMBps, this.uploadProgressDetails.etaFormatted, this.uploadProgressDetails.bytesSent, this.uploadProgressDetails.percentage] = [0, '--:--', 0, 0]; this.cdRef.detectChanges(); }
+  handleItemRemovedFromPanel(item?: SelectedItem): void { if (this.isUploading) { alert("Cannot remove during upload. Cancel first."); return; } if (item) this.selectedItems = this.selectedItems.filter(i => i.id !== item.id); if (!item || this.selectedItems.length === 0) this.handleNewTransferRequest(); this.updatePlayGamesButtonVisibility(); this.cdRef.detectChanges(); }
+  toggleGamePanel(): void { this.isGamePanelVisible = !this.isGamePanelVisible; }
+  closeGamePanel(): void { this.isGamePanelVisible = false; }
   handleDownloadRequest(item: SelectedItem): void { if (this.isUploading) return; if (!(item.file instanceof File)) { alert(item.id === -1 && this.shareableLinkForPanel ? "Use generated link for batch download." : "Cannot download locally."); return; } try { const link = document.createElement('a'); const url = URL.createObjectURL(item.file); link.href = url; link.download = item.file.name; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); } catch (err) { console.error("Local download error:", err); alert("Could not initiate local download."); } }
-  async handleDataTransferItemsDropped(items: DataTransferItemList | null): Promise<void> { if (!this.isReceptiveToNewFiles() || !items) { return; } if (this.selectedItems.length > 0 || this.shareableLinkForPanel) this.resetUploadState(); this.uploadError = null; try { let wasDirDropped = Array.from(items).some(item => typeof item.webkitGetAsEntry === 'function' && item.webkitGetAsEntry()?.isDirectory); const files = await this.extractFilesFromDataTransferItems(items); if (files.length > 0) this.handleFiles(this.createFileListFromArray(files), wasDirDropped || files.some(f => f.webkitRelativePath?.includes('/'))); else if (wasDirDropped) this.handleFiles(this.createFileListFromArray([]), true); } catch (err) { console.error('Drop processing error:', err); this.uploadError = "Error processing dropped items."; } finally { this.cdRef.detectChanges(); } }
+  async handleDataTransferItemsDropped(items: DataTransferItemList | null): Promise<void> { if (!this.isReceptiveToNewFiles() || !items) { console.log('Drop ignored or no items.'); return; } if (this.selectedItems.length > 0 || this.shareableLinkForPanel) this.resetUploadState(); this.uploadError = null; try { let wasDirDropped = Array.from(items).some(item => typeof item.webkitGetAsEntry === 'function' && item.webkitGetAsEntry()?.isDirectory); const files = await this.extractFilesFromDataTransferItems(items); if (files.length > 0) this.handleFiles(this.createFileListFromArray(files), wasDirDropped || files.some(f => f.webkitRelativePath?.includes('/'))); else if (wasDirDropped) this.handleFiles(this.createFileListFromArray([]), true); else console.log('No files extracted from drop.'); } catch (err) { console.error('Drop processing error:', err); this.uploadError = "Error processing dropped items."; } finally { this.cdRef.detectChanges(); } }
   private isReceptiveToNewFiles(): boolean { return !this.isUploading; }
   private async extractFilesFromDataTransferItems(items: DataTransferItemList): Promise<File[]> { const filesAcc: File[] = []; const promises: Promise<void>[] = []; for (const item of Array.from(items)) { if (item.kind !== 'file') continue; const entry = typeof item.webkitGetAsEntry === 'function' ? item.webkitGetAsEntry() : null; if (entry) promises.push(this.traverseFileSystemEntry(entry, filesAcc)); else { const file = item.getAsFile(); if (file && !file.name.toLowerCase().endsWith('.ds_store') && (file.size > 0 || file.type)) filesAcc.push(file); } } await Promise.all(promises); return filesAcc.filter(f => f instanceof File); }
   private async traverseFileSystemEntry(entry: FileSystemEntry, filesAcc: File[]): Promise<void> { return new Promise<void>((resolve) => { if (entry.isFile) { (entry as FileSystemFileEntry).file(file => { if (!file.name.toLowerCase().endsWith('.ds_store')) { if (entry.fullPath && !Object.prototype.hasOwnProperty.call(file, 'webkitRelativePath')) try { Object.defineProperty(file, 'webkitRelativePath', { value: entry.fullPath.startsWith('/') ? entry.fullPath.substring(1) : entry.fullPath }); } catch (e) {/*ignore*/ } filesAcc.push(file); } resolve(); }, () => resolve()); } else if (entry.isDirectory) { (entry as FileSystemDirectoryEntry).createReader().readEntries(async (entries) => { await Promise.all(entries.map(subEntry => this.traverseFileSystemEntry(subEntry, filesAcc))); resolve(); }, () => resolve()); } else resolve(); }); }
