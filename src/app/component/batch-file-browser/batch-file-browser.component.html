@@ -42,7 +42,9 @@
                 <!-- NEW WRAPPER for Button and Individual Progress -->
                 <div class="file-controls-area">
                     <div class="file-actions">
-                        <span class="file-size">{{ file.original_size | byteFormat }}</span>
+                        <span class="file-size">
+                            <span class="file-size">{{ file.original_size | byteFormat }}</span>
+                        </span>
                         <!-- MODIFIED LINE BELOW -->
                         <button *ngIf="isPreviewable(file)" 
                                                         (click)="navigateToPreview(batchDetails?.access_id ?? null, file.original_filename)"
